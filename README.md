@@ -72,3 +72,6 @@ centctl completion >/etc/bash_completion.d/centctl
 ``` 
 
 After reloading your shell, centctl autocompletion should be working.
+
+Note :
+Centreon, the Centreon Logo, are trademarks, servicemarks, registered trademarks or registered servicemarks owned by Centreon Software. All other trademarks, servicemarks, registered trademarks, and registered servicemarks are the property of their respective owner(s). CentCtl is not endorsed nore supported by Centreon Software and use only external API based on Centreon Plateform. 
