@@ -1,4 +1,9 @@
 # CENTREON CTL
+
+## Presentation
+Centctl is a CLI which allows to manage Centreon servers. Centctl use a file named `config.yaml` for manage the connection at differents servers. </br>
+Developped in Go, it allows to operate a Centreon platform remotely from a PC under Windows, Linux or Macos without any particular installation.
+
 ## Config File
 Create a file called `config.yaml` in the root of the project 
 <br/>For declare a server use the configuration below by replacing capitalized words
