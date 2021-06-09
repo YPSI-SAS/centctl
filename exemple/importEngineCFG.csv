@@ -1,0 +1,6 @@
+#Create engineCFG
+#add,engineCFG,name,instance,comment
+#modify,engineCFG,name,parameter,value
+
+add,engineCFG,poller-engine,Central,comment for engine
+#For modify look the centreon documentation because the list is quite long, it is best to refer to the official documentation of Centreon Engine

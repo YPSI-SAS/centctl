@@ -1,0 +1,18 @@
+#Create template contact
+#add,templateContact,name,alias
+#modify,templateContact,name,parameter,value
+
+#General information
+add,templateContact,templateDev,templateDev
+modify,templateContact,templateDev,template,template2
+modify,templateContact,templateDev,enable_notifications,1
+modify,templateContact,templateDev,hostnotifopt,"d,u,r"
+modify,templateContact,templateDev,hostnotifperiod,24x7
+modify,templateContact,templateDev,hostnotifcmd,bam-notify-by-email
+modify,templateContact,templateDev,servicenotifopt,"w,u,c"
+modify,templateContact,templateDev,svcnotifperiod,24x7
+modify,templateContact,templateDev,svcnotifcmd,bam-notify-by-email
+
+#Additional information
+modify,templateContact,templateDev,address1,8B rue de la mairie 79330 Glénay
+modify,templateContact,templateDev,comment,comment for template contact

@@ -1,0 +1,10 @@
+#Create group service
+#add,groupService,name,alias
+#modify,groupService,name,parameter,value
+
+add,groupService,CPU,CPU
+modify,groupService,CPU,service,host1|mytemplate
+modify,groupService,CPU,hostgroupservice,groupTf|test
+modify,groupService,CPU,service,generic-active-host|MyTemplate
+modify,groupService,CPU,geo_coords,"48.862725,2.287592"
+modify,groupService,CPU,comment,commment for group service

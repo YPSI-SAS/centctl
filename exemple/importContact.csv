@@ -1,0 +1,31 @@
+#Create contact
+#add,contact,full name,login,email,password,admin
+#admin is optionnal but still put the comma at the end
+#modify,contact,name,parameter,value
+
+#General information
+add,contact,corentin,corentin,corentin@mail.com,corentinpass,
+modify,contact,corentin,pager,0685974856
+modify,contact,corentin,template,template2
+modify,contact,corentin,enable_notifications,1
+modify,contact,corentin,hostnotifopt,"d,u,r"
+modify,contact,corentin,hostnotifperiod,24x7
+modify,contact,corentin,hostnotifcmd,bam-notify-by-email
+modify,contact,corentin,servicenotifopt,"w,u,c"
+modify,contact,corentin,svcnotifperiod,24x7
+modify,contact,corentin,svcnotifcmd,bam-notify-by-email
+
+#Centreon Authentification
+modify,contact,corentin,access,1
+modify,contact,corentin,language,fr_FR
+modify,contact,corentin,timezone,Europe/Paris
+modify,contact,corentin,autologin_key,2D3DhNdP0u
+modify,contact,corentin,authtype,local
+modify,contact,corentin,ldap_dn,openldap
+modify,contact,corentin,reach_api,1
+modify,contact,corentin,reach_api_rt,1
+
+
+#Additional information
+modify,contact,corentin,address1,8B rue de la mairie 79330 Glénay
+modify,contact,corentin,comment,comment for template contact

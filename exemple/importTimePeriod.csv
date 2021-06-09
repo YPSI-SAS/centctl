@@ -1,0 +1,13 @@
+#Create Time Period
+#add,timePeriod,name,alias
+#modify,timePeriod,name,parameter,value
+
+add,timePeriod,nonworkhours,Non-Work Hours
+modify,timePeriod,nonworkhours,sunday,00:00-24:00
+modify,timePeriod,nonworkhours,monday,"00:00-09:00,17:00-24:00"
+modify,timePeriod,nonworkhours,tuesday,"00:00-09:00,17:00-24:00"
+modify,timePeriod,nonworkhours,wednesday,"00:00-09:00,17:00-24:00"
+modify,timePeriod,nonworkhours,thursday,"00:00-09:00,17:00-24:00"
+modify,timePeriod,nonworkhours,friday,"00:00-09:00,17:00-24:00"
+modify,timePeriod,nonworkhours,saturday,00:00-24:00
+modify,timePeriod,nonworkhours,exception,january 10;12:00-15:00

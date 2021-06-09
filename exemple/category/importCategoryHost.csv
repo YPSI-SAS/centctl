@@ -1,0 +1,8 @@
+# Create category host
+#add,categoryHost,name,alias
+#modify,categoryHost,name,parameter,value
+
+add,categoryhost,Server,Server
+modify,categoryhost,Server,member,host1
+modify,categoryhost,Server,member,generic-active-host
+modify,categoryhost,Server,comment,Comment for host category Server

@@ -1,0 +1,8 @@
+#Create ACL menu
+#add,aclMenu,name,alias
+#modify,aclMenu,name,parameter,value
+
+add,aclMenu,ALLIT_Menu,ALLIT_Menu
+modify,aclMenu,ALLIT_Menu,grantrw,Monitoring
+modify,aclMenu,ALLIT_Menu,grantro,Configuration;Hosts
+modify,aclMenu,ALLIT_Menu,comment,comment for acl menu

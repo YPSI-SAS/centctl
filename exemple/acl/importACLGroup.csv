@@ -1,0 +1,14 @@
+#Create ACL Group
+#add,aclGroup,name,alias
+#modify,aclGroup,name,parameter,value
+
+
+#Informations générales
+add,aclGroup,ALLIT,ALLIT
+modify,aclGroup,ALLIT,contact,admin
+modify,aclGroup,ALLIT,contactgroup,Supervisors
+
+#Autorisations
+modify,aclGroup,ALLIT,resource,ALL Resources
+modify,aclGroup,ALLIT,menu,allmenu
+modify,aclGroup,ALLIT,action,Simple User
