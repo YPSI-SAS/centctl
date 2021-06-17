@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2020 YPSI SAS
+Copyright (c)  2020-2021 YPSI SAS
 Centctl is developped by : Mélissa Bertin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,7 +37,17 @@ var versionCmd = &cobra.Command{
 	Short: "Show the version",
 	Long:  `Show the version of centctl`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("centctl v0.3")
+		fmt.Println("centctl v2.0")
+		fmt.Println(" ___________________________________________________________________________________________")
+		fmt.Println("/                                                                                            \\ ")
+		fmt.Println("|     _______    _______    ____     ___    _________    _______    _________    __          |")
+		fmt.Println("|    |   ____|  |   ____|  |    \\   |   |  |___   ___|  |   ____|  |___   ___|  |  |         |")
+		fmt.Println("|    |  |       |  |__     |   | \\  |   |      | |      |  |           | |      |  |         |")
+		fmt.Println("|    |  |       |   __|    |   |\\ \\ |   |      | |      |  |           | |      |  |         |")
+		fmt.Println("|    |  |____   |  |____   |   | \\ \\|   |      | |      |  |____       | |      |  |____     |")
+		fmt.Println("|    |_______|  |_______|  |___|  \\_____|      |_|      |_______|      |_|      |_______|    |")
+		fmt.Println("|                                                                                            |")
+		fmt.Println("\\____________________________________________________________________________________________/")
 	},
 }
 

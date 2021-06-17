@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2020 YPSI SAS
+Copyright (c)  2020-2021 YPSI SAS
 Centctl is developped by : Mélissa Bertin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

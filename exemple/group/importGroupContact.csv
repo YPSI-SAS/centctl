@@ -1,0 +1,8 @@
+#Create group contact
+#add,groupContact,name,alias
+#modify,groupContact,name,parameter,value
+
+add,groupContact,Dev,Dev
+modify,groupContact,Dev,contact,admin
+modify,groupContact,Dev,contact,user
+modify,groupContact,Dev,comment,commment for group contact

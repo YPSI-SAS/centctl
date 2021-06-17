@@ -1,0 +1,8 @@
+#Create ACL action
+#add,aclAction,name,alias
+#modify,aclAction,name,parameter,value
+
+add,aclAction,ALLIT_Action,ALLIT_Action
+modify,aclAction,ALLIT_Action,grant,host_acknowledgement
+modify,aclAction,ALLIT_Action,grant,service_acknowledgement
+modify,aclAction,ALLIT_Action,grant,host_schedule_downtime

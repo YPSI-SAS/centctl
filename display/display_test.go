@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2020 YPSI SAS
+Copyright (c)  2020-2021 YPSI SAS
 Centctl is developped by : Mélissa Bertin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,11 +26,12 @@ SOFTWARE.
 package display
 
 import (
-	"centctl/contact"
-	"centctl/host"
-	"centctl/poller"
-	"centctl/service"
+	"centctl/resources/contact"
+	"centctl/resources/host"
+	"centctl/resources/poller"
+	"centctl/resources/service"
 	"encoding/json"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -151,14 +152,22 @@ func TestDisplayContactIncorrectOutput(t *testing.T) {
 
 func TestDisplayRealtimeServiceJSON(t *testing.T) {
 	service1 := service.RealtimeService{
-		ServiceID:    "10",
-		Description:  "realtime service test",
-		HostID:       "1",
-		HostName:     "hostTEST",
-		State:        "1",
-		Output:       "output warning",
-		Acknowledged: "0",
-		Activate:     "1",
+		ServiceID: 10,
+		Name:      "realtime service test",
+		Parent: service.RealtimeParent{
+			ID:       12,
+			Name:     "host",
+			Address:  "127.0.0.1",
+			PollerID: 1,
+		},
+		Status: service.RealtimeStatus{
+			Code:         0,
+			Name:         "OK",
+			SeverityCode: 1,
+		},
+		Information:  "output warning",
+		Acknowledged: false,
+		ActiveCheck:  true,
 	}
 	services := []service.RealtimeService{}
 	services = append(services, service1)
@@ -177,14 +186,22 @@ func TestDisplayRealtimeServiceJSON(t *testing.T) {
 
 func TestDisplayRealtimeServiceYAML(t *testing.T) {
 	service1 := service.RealtimeService{
-		ServiceID:    "10",
-		Description:  "realtime service test",
-		HostID:       "1",
-		HostName:     "hostTEST",
-		State:        "1",
-		Output:       "output warning",
-		Acknowledged: "0",
-		Activate:     "1",
+		ServiceID: 10,
+		Name:      "realtime service test",
+		Parent: service.RealtimeParent{
+			ID:       12,
+			Name:     "host",
+			Address:  "127.0.0.1",
+			PollerID: 1,
+		},
+		Status: service.RealtimeStatus{
+			Code:         0,
+			Name:         "OK",
+			SeverityCode: 1,
+		},
+		Information:  "output warning",
+		Acknowledged: false,
+		ActiveCheck:  true,
 	}
 	services := []service.RealtimeService{}
 	services = append(services, service1)
@@ -203,14 +220,22 @@ func TestDisplayRealtimeServiceYAML(t *testing.T) {
 
 func TestDisplayRealtimeServiceCSV(t *testing.T) {
 	service1 := service.RealtimeService{
-		ServiceID:    "10",
-		Description:  "realtime service test",
-		HostID:       "1",
-		HostName:     "hostTEST",
-		State:        "1",
-		Output:       "output warning",
-		Acknowledged: "0",
-		Activate:     "1",
+		ServiceID: 10,
+		Name:      "realtime service test",
+		Parent: service.RealtimeParent{
+			ID:       12,
+			Name:     "host",
+			Address:  "127.0.0.1",
+			PollerID: 1,
+		},
+		Status: service.RealtimeStatus{
+			Code:         0,
+			Name:         "OK",
+			SeverityCode: 1,
+		},
+		Information:  "output warning",
+		Acknowledged: false,
+		ActiveCheck:  true,
 	}
 	services := []service.RealtimeService{}
 	services = append(services, service1)
@@ -221,8 +246,8 @@ func TestDisplayRealtimeServiceCSV(t *testing.T) {
 		},
 	}
 	displayService, err := RealtimeService("csv", server)
-	expected := "Server,ID,Description,HostID,HostName,State,Output,Acknowledged,Activate\n"
-	expected += server.Server.Name + "," + service1.ServiceID + "," + service1.Description + "," + service1.HostID + "," + service1.HostName + ",Warning," + service1.Output + ",no," + service1.Activate + "\n"
+	expected := "Server,ID,Name,ParentID,ParentName,ParentPollerID,ParentAddress,StatusCode,StatusName,Information,Acknowledged,Activate\n"
+	expected += server.Server.Name + "," + strconv.Itoa(service1.ServiceID) + "," + service1.Name + "," + strconv.Itoa(service1.Parent.PollerID) + "," + strconv.Itoa(service1.Parent.ID) + "," + service1.Parent.Name + "," + service1.Parent.Address + "," + strconv.Itoa(service1.Status.Code) + "," + service1.Status.Name + "," + service1.Information + "," + strconv.FormatBool(service1.Acknowledged) + "," + strconv.FormatBool(service1.ActiveCheck) + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, expected, displayService)
@@ -230,14 +255,22 @@ func TestDisplayRealtimeServiceCSV(t *testing.T) {
 
 func TestDisplayRealtimeServiceText(t *testing.T) {
 	service1 := service.RealtimeService{
-		ServiceID:    "10",
-		Description:  "realtime service test",
-		HostID:       "1",
-		HostName:     "hostTEST",
-		State:        "1",
-		Output:       "output warning",
-		Acknowledged: "0",
-		Activate:     "1",
+		ServiceID: 10,
+		Name:      "realtime service test",
+		Parent: service.RealtimeParent{
+			ID:       12,
+			Name:     "host",
+			Address:  "127.0.0.1",
+			PollerID: 1,
+		},
+		Status: service.RealtimeStatus{
+			Code:         0,
+			Name:         "OK",
+			SeverityCode: 1,
+		},
+		Information:  "output warning",
+		Acknowledged: false,
+		ActiveCheck:  true,
 	}
 	services := []service.RealtimeService{}
 	services = append(services, service1)
@@ -249,14 +282,17 @@ func TestDisplayRealtimeServiceText(t *testing.T) {
 	}
 	displayService, err := RealtimeService("text", server)
 	expected := "Service list for server=" + server.Server.Name + ": \n"
-	expected += "ID: " + service1.ServiceID + "\t"
-	expected += "Description: " + service1.Description + "\t"
-	expected += "Host ID: " + service1.HostID + "\t"
-	expected += "Host name: " + service1.HostName + "\t"
-	expected += "State: Warning\t"
-	expected += "Output: " + service1.Output + "\t"
-	expected += "Acknowledged: no\t"
-	expected += "Activate: " + service1.Activate + "\n"
+	expected += "ID: " + strconv.Itoa(service1.ServiceID) + "\t"
+	expected += "Name: " + service1.Name + "\t"
+	expected += "Parent ID: " + strconv.Itoa(service1.Parent.ID) + "\t"
+	expected += "Parent name: " + service1.Parent.Name + "\t"
+	expected += "Parent address: " + service1.Parent.Address + "\t"
+	expected += "Parent pollerID: " + strconv.Itoa(service1.Parent.PollerID) + "\t"
+	expected += "Status code: " + strconv.Itoa(service1.Status.Code) + "\t"
+	expected += "Status name: " + service1.Status.Name + "\t"
+	expected += "Information: " + service1.Information + "\t"
+	expected += "Acknowledged: " + strconv.FormatBool(service1.Acknowledged) + "\t"
+	expected += "ActiveCheck: " + strconv.FormatBool(service1.ActiveCheck) + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, expected, displayService)
@@ -264,14 +300,22 @@ func TestDisplayRealtimeServiceText(t *testing.T) {
 
 func TestDisplayRealtimeServiceIncorrectOutput(t *testing.T) {
 	service1 := service.RealtimeService{
-		ServiceID:    "10",
-		Description:  "realtime service test",
-		HostID:       "1",
-		HostName:     "hostTEST",
-		State:        "1",
-		Output:       "output warning",
-		Acknowledged: "0",
-		Activate:     "1",
+		ServiceID: 10,
+		Name:      "realtime service test",
+		Parent: service.RealtimeParent{
+			ID:       12,
+			Name:     "host",
+			Address:  "127.0.0.1",
+			PollerID: 1,
+		},
+		Status: service.RealtimeStatus{
+			Code:         0,
+			Name:         "OK",
+			SeverityCode: 1,
+		},
+		Information:  "output warning",
+		Acknowledged: false,
+		ActiveCheck:  true,
 	}
 	services := []service.RealtimeService{}
 	services = append(services, service1)
@@ -406,39 +450,48 @@ func TestDisplayServiceIncorrectOutput(t *testing.T) {
 }
 
 func TestDisplayDetailServiceJSON(t *testing.T) {
-	service1 := service.DetailService{
-		ServiceID:              "10",
-		Description:            "detail service test",
-		HostID:                 "1",
-		HostName:               "hostTEST",
-		State:                  "2",
-		StateType:              "1",
+	service1 := service.DetailRealtimeService{
+		ID:          10,
+		Description: "detail service test",
+		State:       1,
+		Status: service.DetailRealtimeServiceStatus{
+			Code:         1,
+			Name:         "critical",
+			SeverityCode: 1,
+		},
+		StateType:              1,
 		Output:                 "CRITICAL: Number of current processes running: 0\n",
-		Perfdata:               "'nbproc'=0;;1:1;0;",
-		MaxCheckAttempts:       "3",
-		CurrentAttempt:         "3",
+		MaxCheckAttempts:       3,
 		NextCheck:              "1589451778",
 		LastUpdate:             "1589451480",
 		LastCheck:              "1589451478",
 		LastStateChange:        "1587653158",
 		LastHardStateChange:    "1587653278",
-		Acknowledged:           "0",
-		Activate:               "1",
-		PollerName:             "Poller",
-		Criticality:            "",
-		PassiveChecks:          "0",
-		Notify:                 "1",
-		ScheduledDowntimeDepth: "1",
-	}
-	services := []service.DetailService{}
-	services = append(services, service1)
-	server := service.DetailServer{
-		Server: service.DetailInformations{
-			Name:    "serverTEST",
-			Service: service1,
+		Acknowledged:           false,
+		Activate:               true,
+		Checked:                true,
+		ScheduledDowntimeDepth: 1,
+		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
+			HostID:            12,
+			PollerID:          1,
 		},
 	}
-	displayService, err := DetailService("json", server)
+	services := []service.DetailRealtimeService{}
+	services = append(services, service1)
+	server := service.DetailRealtimeServer{
+		Server: service.DetailRealtimeInformations{
+			Name:    "serverTEST",
+			Service: &service1,
+		},
+	}
+	displayService, err := DetailRealtimeService("json", server)
 	expected, _ := json.MarshalIndent(server, "", " ")
 
 	assert.NoError(t, err)
@@ -446,39 +499,48 @@ func TestDisplayDetailServiceJSON(t *testing.T) {
 }
 
 func TestDisplayDetailServiceYAML(t *testing.T) {
-	service1 := service.DetailService{
-		ServiceID:              "10",
-		Description:            "detail service test",
-		HostID:                 "1",
-		HostName:               "hostTEST",
-		State:                  "2",
-		StateType:              "1",
+	service1 := service.DetailRealtimeService{
+		ID:          10,
+		Description: "detail service test",
+		State:       1,
+		Status: service.DetailRealtimeServiceStatus{
+			Code:         1,
+			Name:         "critical",
+			SeverityCode: 1,
+		},
+		StateType:              1,
 		Output:                 "CRITICAL: Number of current processes running: 0\n",
-		Perfdata:               "'nbproc'=0;;1:1;0;",
-		MaxCheckAttempts:       "3",
-		CurrentAttempt:         "3",
+		MaxCheckAttempts:       3,
 		NextCheck:              "1589451778",
 		LastUpdate:             "1589451480",
 		LastCheck:              "1589451478",
 		LastStateChange:        "1587653158",
 		LastHardStateChange:    "1587653278",
-		Acknowledged:           "0",
-		Activate:               "1",
-		PollerName:             "Poller",
-		Criticality:            "",
-		PassiveChecks:          "0",
-		Notify:                 "1",
-		ScheduledDowntimeDepth: "1",
-	}
-	services := []service.DetailService{}
-	services = append(services, service1)
-	server := service.DetailServer{
-		Server: service.DetailInformations{
-			Name:    "serverTEST",
-			Service: service1,
+		Acknowledged:           false,
+		Activate:               true,
+		Checked:                true,
+		ScheduledDowntimeDepth: 1,
+		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
+			HostID:            12,
+			PollerID:          1,
 		},
 	}
-	displayService, err := DetailService("yaml", server)
+	services := []service.DetailRealtimeService{}
+	services = append(services, service1)
+	server := service.DetailRealtimeServer{
+		Server: service.DetailRealtimeInformations{
+			Name:    "serverTEST",
+			Service: &service1,
+		},
+	}
+	displayService, err := DetailRealtimeService("yaml", server)
 	expected, _ := yaml.Marshal(server)
 
 	assert.NoError(t, err)
@@ -486,165 +548,182 @@ func TestDisplayDetailServiceYAML(t *testing.T) {
 }
 
 func TestDisplayDetailServiceCSV(t *testing.T) {
-	service1 := service.DetailService{
-		ServiceID:              "10",
-		Description:            "detail service test",
-		HostID:                 "1",
-		HostName:               "hostTEST",
-		State:                  "2",
-		StateType:              "1",
+	service1 := service.DetailRealtimeService{
+		ID:          10,
+		Description: "detail service test",
+		State:       1,
+		Status: service.DetailRealtimeServiceStatus{
+			Code:         1,
+			Name:         "critical",
+			SeverityCode: 1,
+		},
+		StateType:              1,
 		Output:                 "CRITICAL: Number of current processes running: 0\n",
-		Perfdata:               "'nbproc'=0;;1:1;0;",
-		MaxCheckAttempts:       "3",
-		CurrentAttempt:         "3",
+		MaxCheckAttempts:       3,
 		NextCheck:              "1589451778",
 		LastUpdate:             "1589451480",
 		LastCheck:              "1589451478",
 		LastStateChange:        "1587653158",
 		LastHardStateChange:    "1587653278",
-		Acknowledged:           "0",
-		Activate:               "1",
-		PollerName:             "Poller",
-		Criticality:            "",
-		PassiveChecks:          "0",
-		Notify:                 "1",
-		ScheduledDowntimeDepth: "1",
-	}
-	services := []service.DetailService{}
-	services = append(services, service1)
-	server := service.DetailServer{
-		Server: service.DetailInformations{
-			Name:    "serverTEST",
-			Service: service1,
+		Acknowledged:           false,
+		Activate:               true,
+		Checked:                true,
+		ScheduledDowntimeDepth: 1,
+		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
+			HostID:            12,
+			PollerID:          1,
 		},
 	}
-	displayService, err := DetailService("csv", server)
-	expected := "Server,ID,Description,HostID,HostName,State,StateType,Output,Perfdata,MaxCheckAttempts,CheckAttempt,CurrentAttempt,NextCheck,LastUpdate,LastCheck,LastStateChange,LastHardStateChange,Acknowledged,Activate,PollerName,Criticality,PassiveChecks,Notify,ScheduledDowntimeDepth\n"
+	services := []service.DetailRealtimeService{}
+	services = append(services, service1)
+	server := service.DetailRealtimeServer{
+		Server: service.DetailRealtimeInformations{
+			Name:    "serverTEST",
+			Service: &service1,
+		},
+	}
+	displayService, err := DetailRealtimeService("csv", server)
+	expected := "Server,ID,Description,State,StatusCode,StatusName,StateType,Output,MaxCheckAttempts,NextCheck,LastUpdate,LastCheck,LastStateChange,LastHardStateChange,Acknowledged,Activate,Checked,ScheduledDowntimeDepth\n"
 	expected += server.Server.Name + ","
-	expected += service1.ServiceID + ","
+	expected += strconv.Itoa(service1.ID) + ","
 	expected += service1.Description + ","
-	expected += service1.HostID + ","
-	expected += service1.HostName + ","
-	expected += "Critical,"
-	expected += "HARD,"
+	expected += strconv.Itoa(service1.State) + ","
+	expected += strconv.Itoa(service1.Status.Code) + ","
+	expected += service1.Status.Name + ","
+	expected += strconv.Itoa(service1.StateType) + ","
 	expected += service1.Output + ","
-	expected += service1.Perfdata + ","
-	expected += service1.MaxCheckAttempts + ","
-	expected += service1.CurrentAttempt + ","
+	expected += strconv.Itoa(service1.MaxCheckAttempts) + ","
 	expected += service1.NextCheck + ","
 	expected += service1.LastUpdate + ","
 	expected += service1.LastCheck + ","
 	expected += service1.LastStateChange + ","
 	expected += service1.LastHardStateChange + ","
-	expected += "no,"
-	expected += service1.Activate + ","
-	expected += service1.PollerName + ","
-	expected += service1.Criticality + ","
-	expected += service1.PassiveChecks + ","
-	expected += service1.Notify + ","
-	expected += service1.ScheduledDowntimeDepth + "\n"
+	expected += strconv.FormatBool(service1.Acknowledged) + ","
+	expected += strconv.FormatBool(service1.Activate) + ","
+	expected += strconv.FormatBool(service1.Checked) + ","
+	expected += strconv.Itoa(service1.ScheduledDowntimeDepth) + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), displayService)
 }
 
 func TestDisplayDetailServiceText(t *testing.T) {
-	service1 := service.DetailService{
-		ServiceID:              "10",
-		Description:            "detail service test",
-		HostID:                 "1",
-		HostName:               "hostTEST",
-		State:                  "2",
-		StateType:              "1",
+	service1 := service.DetailRealtimeService{
+		ID:          10,
+		Description: "detail service test",
+		State:       1,
+		Status: service.DetailRealtimeServiceStatus{
+			Code:         1,
+			Name:         "critical",
+			SeverityCode: 1,
+		},
+		StateType:              1,
 		Output:                 "CRITICAL: Number of current processes running: 0\n",
-		Perfdata:               "'nbproc'=0;;1:1;0;",
-		MaxCheckAttempts:       "3",
-		CurrentAttempt:         "3",
+		MaxCheckAttempts:       3,
 		NextCheck:              "1589451778",
 		LastUpdate:             "1589451480",
 		LastCheck:              "1589451478",
 		LastStateChange:        "1587653158",
 		LastHardStateChange:    "1587653278",
-		Acknowledged:           "0",
-		Activate:               "1",
-		PollerName:             "Poller",
-		Criticality:            "",
-		PassiveChecks:          "0",
-		Notify:                 "1",
-		ScheduledDowntimeDepth: "1",
-	}
-	services := []service.DetailService{}
-	services = append(services, service1)
-	server := service.DetailServer{
-		Server: service.DetailInformations{
-			Name:    "serverTEST",
-			Service: service1,
+		Acknowledged:           false,
+		Activate:               true,
+		Checked:                true,
+		ScheduledDowntimeDepth: 1,
+		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
+			HostID:            12,
+			PollerID:          1,
 		},
 	}
-	displayService, err := DetailService("text", server)
+	services := []service.DetailRealtimeService{}
+	services = append(services, service1)
+	server := service.DetailRealtimeServer{
+		Server: service.DetailRealtimeInformations{
+			Name:    "serverTEST",
+			Service: &service1,
+		},
+	}
+	displayService, err := DetailRealtimeService("text", server)
 	expected := "Service detail for server " + server.Server.Name + ": \n"
 
-	expected += "ID: " + service1.ServiceID + "\t"
+	expected += "ID: " + strconv.Itoa(service1.ID) + "\t"
 	expected += "Description: " + service1.Description + "\t"
-	expected += "Host ID: " + service1.HostID + "\t"
-	expected += "Host name: " + service1.HostName + "\t"
-	expected += "State: Critical\t"
-	expected += "State type: HARD\t"
+	expected += "State: " + strconv.Itoa(service1.State) + "\t"
+	expected += "Status code: " + strconv.Itoa(service1.Status.Code) + "\t"
+	expected += "Status name: " + service1.Status.Name + "\t"
+	expected += "State type: " + strconv.Itoa(service1.StateType) + "\t"
 	expected += "Output: " + service1.Output + "\t"
-	expected += "Perfdata: " + service1.Perfdata + "\t"
-	expected += "Max check attempts: " + service1.MaxCheckAttempts + "\t"
-	expected += "Current attempt: " + service1.CurrentAttempt + "\t"
+	expected += "Max check attempts: " + strconv.Itoa(service1.MaxCheckAttempts) + "\t"
 	expected += "Next check: " + service1.NextCheck + "\t"
 	expected += "Last update: " + service1.LastUpdate + "\t"
 	expected += "Last check: " + service1.LastCheck + "\t"
 	expected += "Last state change: " + service1.LastStateChange + "\t"
 	expected += "Last hard state change: " + service1.LastHardStateChange + "\t"
-	expected += "Acknowledged: no\t"
-	expected += "Activate: " + service1.Activate + "\t"
-	expected += "Poller name: " + service1.PollerName + "\t"
-	expected += "Criticality: " + service1.Criticality + "\t"
-	expected += "Passive checks: " + service1.PassiveChecks + "\t"
-	expected += "Notify: " + service1.Notify + "\t"
-	expected += "Scheduled downtime depth: " + service1.ScheduledDowntimeDepth + "\n"
+	expected += "Acknowledged: " + strconv.FormatBool(service1.Acknowledged) + "\t"
+	expected += "Activate: " + strconv.FormatBool(service1.Activate) + "\t"
+	expected += "Checked: " + strconv.FormatBool(service1.Checked) + "\t"
+	expected += "Scheduled downtime depth: " + strconv.Itoa(service1.ScheduledDowntimeDepth) + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), displayService)
 }
 
 func TestDisplayDetailServiceIncorrectOutput(t *testing.T) {
-	service1 := service.DetailService{
-		ServiceID:              "10",
-		Description:            "detail service test",
-		HostID:                 "1",
-		HostName:               "hostTEST",
-		State:                  "2",
-		StateType:              "1",
+	service1 := service.DetailRealtimeService{
+		ID:          10,
+		Description: "detail service test",
+		State:       1,
+		Status: service.DetailRealtimeServiceStatus{
+			Code:         1,
+			Name:         "critical",
+			SeverityCode: 1,
+		},
+		StateType:              1,
 		Output:                 "CRITICAL: Number of current processes running: 0\n",
-		Perfdata:               "'nbproc'=0;;1:1;0;",
-		MaxCheckAttempts:       "3",
-		CurrentAttempt:         "3",
+		MaxCheckAttempts:       3,
 		NextCheck:              "1589451778",
 		LastUpdate:             "1589451480",
 		LastCheck:              "1589451478",
 		LastStateChange:        "1587653158",
 		LastHardStateChange:    "1587653278",
-		Acknowledged:           "0",
-		Activate:               "1",
-		PollerName:             "Poller",
-		Criticality:            "",
-		PassiveChecks:          "0",
-		Notify:                 "1",
-		ScheduledDowntimeDepth: "1",
-	}
-	services := []service.DetailService{}
-	services = append(services, service1)
-	server := service.DetailServer{
-		Server: service.DetailInformations{
-			Name:    "serverTEST",
-			Service: service1,
+		Acknowledged:           false,
+		Activate:               true,
+		Checked:                true,
+		ScheduledDowntimeDepth: 1,
+		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
+			HostID:            12,
+			PollerID:          1,
 		},
 	}
-	_, err := DetailService("incorrect", server)
+	services := []service.DetailRealtimeService{}
+	services = append(services, service1)
+	server := service.DetailRealtimeServer{
+		Server: service.DetailRealtimeInformations{
+			Name:    "serverTEST",
+			Service: &service1,
+		},
+	}
+	_, err := DetailRealtimeService("incorrect", server)
 
 	assert.EqualError(t, err, "The output is not correct, used : text, csv, json or yaml")
 }
@@ -906,33 +985,42 @@ func TestDisplayHostIncorrectOutput(t *testing.T) {
 }
 
 func TestDisplayDetailHostJSON(t *testing.T) {
-	host1 := host.DetailHost{
-		ID:                  "1",
+	host1 := host.DetailRealtimeHost{
+		ID:                  1,
 		Name:                "hostTEST",
 		Alias:               "hostTEST",
 		Address:             "127.0.0.1",
-		State:               "1",
-		StateType:           "1",
+		State:               1,
+		StateType:           1,
 		Output:              "UNKNOWN: Need to specify --status option.\n",
-		MaxCheckAttempts:    "3",
-		CheckAttempt:        "1",
+		CheckCommand:        "App-Monitoring-Centreon-Host-Dummy",
+		MaxCheckAttempts:    3,
+		CheckAttempt:        1,
 		LastCheck:           "1589446838",
 		LastStateChange:     "1589207728",
 		LastHardStateChange: "1589207793",
-		Acknowledged:        "0",
-		Activate:            "1",
+		Acknowledged:        false,
+		Activate:            true,
 		PollerName:          "pollerTEST",
-		Criticality:         "",
-		PassiveChecks:       "1",
-		Notify:              "1",
-	}
-	server := host.DetailServer{
-		Server: host.DetailInformations{
-			Name: "serverTEST",
-			Host: host1,
+		PassiveChecks:       true,
+		Notify:              true,
+		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
 		},
 	}
-	displayHost, err := DetailHost("json", server)
+	server := host.DetailRealtimeServer{
+		Server: host.DetailRealtimeInformations{
+			Name: "serverTEST",
+			Host: &host1,
+		},
+	}
+	displayHost, err := DetailRealtimeHost("json", server)
 	expected, _ := json.MarshalIndent(server, "", " ")
 
 	assert.NoError(t, err)
@@ -940,33 +1028,42 @@ func TestDisplayDetailHostJSON(t *testing.T) {
 }
 
 func TestDisplayDetailHostYAML(t *testing.T) {
-	host1 := host.DetailHost{
-		ID:                  "1",
+	host1 := host.DetailRealtimeHost{
+		ID:                  1,
 		Name:                "hostTEST",
 		Alias:               "hostTEST",
 		Address:             "127.0.0.1",
-		State:               "1",
-		StateType:           "1",
+		State:               1,
+		StateType:           1,
 		Output:              "UNKNOWN: Need to specify --status option.\n",
-		MaxCheckAttempts:    "3",
-		CheckAttempt:        "1",
+		CheckCommand:        "App-Monitoring-Centreon-Host-Dummy",
+		MaxCheckAttempts:    3,
+		CheckAttempt:        1,
 		LastCheck:           "1589446838",
 		LastStateChange:     "1589207728",
 		LastHardStateChange: "1589207793",
-		Acknowledged:        "0",
-		Activate:            "1",
+		Acknowledged:        false,
+		Activate:            true,
 		PollerName:          "pollerTEST",
-		Criticality:         "",
-		PassiveChecks:       "1",
-		Notify:              "1",
-	}
-	server := host.DetailServer{
-		Server: host.DetailInformations{
-			Name: "serverTEST",
-			Host: host1,
+		PassiveChecks:       true,
+		Notify:              true,
+		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
 		},
 	}
-	displayHost, err := DetailHost("yaml", server)
+	server := host.DetailRealtimeServer{
+		Server: host.DetailRealtimeInformations{
+			Name: "serverTEST",
+			Host: &host1,
+		},
+	}
+	displayHost, err := DetailRealtimeHost("yaml", server)
 	expected, _ := yaml.Marshal(server)
 
 	assert.NoError(t, err)
@@ -974,147 +1071,180 @@ func TestDisplayDetailHostYAML(t *testing.T) {
 }
 
 func TestDisplayDetailHostCSV(t *testing.T) {
-	host1 := host.DetailHost{
-		ID:                  "1",
+	host1 := host.DetailRealtimeHost{
+		ID:                  1,
 		Name:                "hostTEST",
 		Alias:               "hostTEST",
 		Address:             "127.0.0.1",
-		State:               "1",
-		StateType:           "1",
+		State:               1,
+		StateType:           1,
 		Output:              "UNKNOWN: Need to specify --status option.\n",
-		MaxCheckAttempts:    "3",
-		CheckAttempt:        "1",
+		CheckCommand:        "App-Monitoring-Centreon-Host-Dummy",
+		MaxCheckAttempts:    3,
+		CheckAttempt:        1,
 		LastCheck:           "1589446838",
 		LastStateChange:     "1589207728",
 		LastHardStateChange: "1589207793",
-		Acknowledged:        "1",
-		Activate:            "1",
+		Acknowledged:        false,
+		Activate:            true,
 		PollerName:          "pollerTEST",
-		Criticality:         "",
-		PassiveChecks:       "1",
-		Notify:              "1",
-	}
-	server := host.DetailServer{
-		Server: host.DetailInformations{
-			Name: "serverTEST",
-			Host: host1,
+		PassiveChecks:       true,
+		Notify:              true,
+		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
 		},
 	}
-	displayHost, err := DetailHost("csv", server)
-	expected := "Server,ID,Name,Alias,IPAddress,State,StateType,Output,MaxCheckAttempts,CheckAttempt,LastCheck,LastStateChange,LastHardStateChange,Acknowledged,Activate,PollerName,Criticality,PassiveChecks,Notify\n"
+	server := host.DetailRealtimeServer{
+		Server: host.DetailRealtimeInformations{
+			Name: "serverTEST",
+			Host: &host1,
+		},
+	}
+	displayHost, err := DetailRealtimeHost("csv", server)
+	expected := "Server,ID,Name,Alias,IPAddress,State,StateType,Output,CheckCommand,MaxCheckAttempts,CheckAttempt,LastCheck,LastStateChange,LastHardStateChange,Acknowledged,Activate,PollerName,PollerID,PassiveChecks,Notify\n"
 	expected += server.Server.Name + ","
-	expected += host1.ID + ","
+	expected += strconv.Itoa(host1.ID) + ","
 	expected += host1.Name + ","
 	expected += host1.Alias + ","
 	expected += host1.Address + ","
-	expected += "DOWN,"
-	expected += "HARD,"
+	expected += strconv.Itoa(host1.State) + ","
+	expected += strconv.Itoa(host1.StateType) + ","
 	expected += host1.Output + ","
-	expected += host1.MaxCheckAttempts + ","
-	expected += host1.CheckAttempt + ","
+	expected += host1.CheckCommand + ","
+	expected += strconv.Itoa(host1.MaxCheckAttempts) + ","
+	expected += strconv.Itoa(host1.CheckAttempt) + ","
 	expected += host1.LastCheck + ","
 	expected += host1.LastStateChange + ","
 	expected += host1.LastHardStateChange + ","
-	expected += "yes,"
-	expected += host1.Activate + ","
+	expected += strconv.FormatBool(host1.Acknowledged) + ","
+	expected += strconv.FormatBool(host1.Activate) + ","
 	expected += host1.PollerName + ","
-	expected += host1.Criticality + ","
-	expected += host1.PassiveChecks + ","
-	expected += host1.Notify + "\n"
+	expected += strconv.Itoa(host1.PollerID) + ","
+	expected += strconv.FormatBool(host1.PassiveChecks) + ","
+	expected += strconv.FormatBool(host1.Notify) + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), displayHost)
 }
 
 func TestDisplayDetailHostText(t *testing.T) {
-	host1 := host.DetailHost{
-		ID:                  "1",
+	host1 := host.DetailRealtimeHost{
+		ID:                  1,
 		Name:                "hostTEST",
 		Alias:               "hostTEST",
 		Address:             "127.0.0.1",
-		State:               "1",
-		StateType:           "1",
+		State:               1,
+		StateType:           1,
 		Output:              "UNKNOWN: Need to specify --status option.\n",
-		MaxCheckAttempts:    "3",
-		CheckAttempt:        "1",
+		CheckCommand:        "App-Monitoring-Centreon-Host-Dummy",
+		MaxCheckAttempts:    3,
+		CheckAttempt:        1,
 		LastCheck:           "1589446838",
 		LastStateChange:     "1589207728",
 		LastHardStateChange: "1589207793",
-		Acknowledged:        "1",
-		Activate:            "1",
+		Acknowledged:        false,
+		Activate:            true,
 		PollerName:          "pollerTEST",
-		Criticality:         "",
-		PassiveChecks:       "1",
-		Notify:              "1",
-	}
-	server := host.DetailServer{
-		Server: host.DetailInformations{
-			Name: "serverTEST",
-			Host: host1,
+		PassiveChecks:       true,
+		Notify:              true,
+		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
 		},
 	}
-	displayHost, err := DetailHost("text", server)
+	server := host.DetailRealtimeServer{
+		Server: host.DetailRealtimeInformations{
+			Name: "serverTEST",
+			Host: &host1,
+		},
+	}
+	displayHost, err := DetailRealtimeHost("text", server)
 	expected := "Host detail for server " + server.Server.Name + ": \n"
-	expected += "ID: " + host1.ID + "\t"
+	expected += "ID: " + strconv.Itoa(host1.ID) + "\t"
 	expected += "Name: " + host1.Name + "\t"
 	expected += "Alias: " + host1.Alias + "\t"
 	expected += "IP address: " + host1.Address + "\t"
-	expected += "State: DOWN\t"
-	expected += "State type: HARD\t"
+	expected += "State: " + strconv.Itoa(host1.State) + "\t"
+	expected += "State type: " + strconv.Itoa(host1.StateType) + "\t"
 	expected += "Output: " + host1.Output + "\t"
-	expected += "Max check attempts: " + host1.MaxCheckAttempts + "\t"
-	expected += "Check attempt: " + host1.CheckAttempt + "\t"
+	expected += "Check command: " + host1.CheckCommand + "\t"
+	expected += "Max check attempts: " + strconv.Itoa(host1.MaxCheckAttempts) + "\t"
+	expected += "Check attempt: " + strconv.Itoa(host1.CheckAttempt) + "\t"
 	expected += "Last check: " + host1.LastCheck + "\t"
 	expected += "Last state change: " + host1.LastStateChange + "\t"
 	expected += "Last hard state change: " + host1.LastHardStateChange + "\t"
-	expected += "Acknowledged: yes\t"
-	expected += "Activate: " + host1.Activate + "\t"
+	expected += "Acknowledged: " + strconv.FormatBool(host1.Acknowledged) + "\t"
+	expected += "Activate: " + strconv.FormatBool(host1.Activate) + "\t"
 	expected += "Poller name: " + host1.PollerName + "\t"
-	expected += "Criticality: " + host1.Criticality + "\t"
-	expected += "Passive checks: " + host1.PassiveChecks + "\t"
-	expected += "Notify: " + host1.Notify + "\n"
+	expected += "Poller id: " + strconv.Itoa(host1.PollerID) + "\t"
+	expected += "Passive checks: " + strconv.FormatBool(host1.PassiveChecks) + "\t"
+	expected += "Notify: " + strconv.FormatBool(host1.Notify) + "\t"
 
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), displayHost)
 }
 
 func TestDisplayDetailHostIncorrectOutput(t *testing.T) {
-	host1 := host.DetailHost{
-		ID:                  "1",
+	host1 := host.DetailRealtimeHost{
+		ID:                  1,
 		Name:                "hostTEST",
 		Alias:               "hostTEST",
 		Address:             "127.0.0.1",
-		State:               "1",
-		StateType:           "1",
+		State:               1,
+		StateType:           1,
 		Output:              "UNKNOWN: Need to specify --status option.\n",
-		MaxCheckAttempts:    "3",
-		CheckAttempt:        "1",
+		CheckCommand:        "App-Monitoring-Centreon-Host-Dummy",
+		MaxCheckAttempts:    3,
+		CheckAttempt:        1,
 		LastCheck:           "1589446838",
 		LastStateChange:     "1589207728",
 		LastHardStateChange: "1589207793",
-		Acknowledged:        "1",
-		Activate:            "1",
+		Acknowledged:        false,
+		Activate:            true,
 		PollerName:          "pollerTEST",
-		Criticality:         "",
-		PassiveChecks:       "1",
-		Notify:              "1",
-	}
-	server := host.DetailServer{
-		Server: host.DetailInformations{
-			Name: "serverTEST",
-			Host: host1,
+		PassiveChecks:       true,
+		Notify:              true,
+		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+			AuthorID:          1,
+			AuthorName:        "admin",
+			Comment:           "ack by cli",
+			EntryTime:         "2021-04-21T16:13:42+02:00",
+			NotifyContact:     false,
+			PersistentComment: true,
+			Sticky:            false,
 		},
 	}
-	_, err := DetailHost("incorrect", server)
+	server := host.DetailRealtimeServer{
+		Server: host.DetailRealtimeInformations{
+			Name: "serverTEST",
+			Host: &host1,
+		},
+	}
+	_, err := DetailRealtimeHost("incorrect", server)
 
 	assert.EqualError(t, err, "The output is not correct, used : text, csv, json or yaml")
 }
 
 func TestDisplayPollerJSON(t *testing.T) {
 	poller1 := poller.Poller{
-		ID:        "1",
-		Name:      "PollerTEST",
-		IPAddress: "127.0.0.1",
+		Type:  "poller",
+		Label: "PollerTEST",
+		Metadata: poller.Metadata{
+			CentreonID: "1",
+			HostName:   "host",
+			Address:    "127.0.0.1",
+		},
 	}
 	pollers := []poller.Poller{}
 	pollers = append(pollers, poller1)
@@ -1133,9 +1263,13 @@ func TestDisplayPollerJSON(t *testing.T) {
 
 func TestDisplayPollerYAML(t *testing.T) {
 	poller1 := poller.Poller{
-		ID:        "1",
-		Name:      "PollerTEST",
-		IPAddress: "127.0.0.1",
+		Type:  "poller",
+		Label: "PollerTEST",
+		Metadata: poller.Metadata{
+			CentreonID: "1",
+			HostName:   "host",
+			Address:    "127.0.0.1",
+		},
 	}
 	pollers := []poller.Poller{}
 	pollers = append(pollers, poller1)
@@ -1154,9 +1288,13 @@ func TestDisplayPollerYAML(t *testing.T) {
 
 func TestDisplayPollerCSV(t *testing.T) {
 	poller1 := poller.Poller{
-		ID:        "1",
-		Name:      "PollerTEST",
-		IPAddress: "127.0.0.1",
+		Type:  "poller",
+		Label: "PollerTEST",
+		Metadata: poller.Metadata{
+			CentreonID: "1",
+			HostName:   "host",
+			Address:    "127.0.0.1",
+		},
 	}
 	pollers := []poller.Poller{}
 	pollers = append(pollers, poller1)
@@ -1167,8 +1305,8 @@ func TestDisplayPollerCSV(t *testing.T) {
 		},
 	}
 	displayPoller, err := Poller("csv", server)
-	expected := "Server,ID,Name,IPAddress\n"
-	expected += server.Server.Name + "," + poller1.ID + "," + poller1.Name + "," + poller1.IPAddress + "\n"
+	expected := "Server,Type,Label,CentreonID,Hostname,Address\n"
+	expected += server.Server.Name + "," + poller1.Type + "," + poller1.Label + "," + poller1.Metadata.CentreonID + "," + poller1.Metadata.HostName + "," + poller1.Metadata.Address + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, expected, displayPoller)
@@ -1176,9 +1314,13 @@ func TestDisplayPollerCSV(t *testing.T) {
 
 func TestDisplayPollerText(t *testing.T) {
 	poller1 := poller.Poller{
-		ID:        "1",
-		Name:      "PollerTEST",
-		IPAddress: "127.0.0.1",
+		Type:  "poller",
+		Label: "PollerTEST",
+		Metadata: poller.Metadata{
+			CentreonID: "1",
+			HostName:   "host",
+			Address:    "127.0.0.1",
+		},
 	}
 	pollers := []poller.Poller{}
 	pollers = append(pollers, poller1)
@@ -1190,9 +1332,11 @@ func TestDisplayPollerText(t *testing.T) {
 	}
 	displayPoller, err := Poller("text", server)
 	expected := "Poller list for server" + server.Server.Name + ": \n"
-	expected += "ID: " + poller1.ID + "\t"
-	expected += "Name: " + poller1.Name + "\t"
-	expected += "IP Address: " + poller1.IPAddress + "\n"
+	expected += "Type: " + poller1.Type + "\t"
+	expected += "Label: " + poller1.Label + "\t"
+	expected += "CentreonID: " + poller1.Metadata.CentreonID + "\t"
+	expected += "Hosname: " + poller1.Metadata.HostName + "\t"
+	expected += "Address: " + poller1.Metadata.Address + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, expected, displayPoller)
@@ -1200,9 +1344,13 @@ func TestDisplayPollerText(t *testing.T) {
 
 func TestDisplayPollerIncorrectOutput(t *testing.T) {
 	poller1 := poller.Poller{
-		ID:        "1",
-		Name:      "PollerTEST",
-		IPAddress: "127.0.0.1",
+		Type:  "poller",
+		Label: "PollerTEST",
+		Metadata: poller.Metadata{
+			CentreonID: "1",
+			HostName:   "host",
+			Address:    "127.0.0.1",
+		},
 	}
 	pollers := []poller.Poller{}
 	pollers = append(pollers, poller1)

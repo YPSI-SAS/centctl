@@ -1,0 +1,59 @@
+#Create template service
+#add,templateService,name,alias,template
+#template is optionnal
+
+#modify,templateService,name,parameter,value
+#If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription
+
+
+#General information
+add,templateService,templateCPU,templateCPU,Base-Ping-LAN-custom
+modify,templateService,templateCPU,check_command,App-Monitoring-Centreon-Service-Dummy
+modify,templateService,templateCPU,macro,PACKETNUMBER|5|0|info packet number
+modify,templateService,templateCPU,check_command_arguments,!1!2
+modify,templateService,templateCPU,check_period,24x7
+modify,templateService,templateCPU,max_check_attempts,5
+modify,templateService,templateCPU,normal_check_interval,5
+modify,templateService,templateCPU,retry_check_interval,5
+modify,templateService,templateCPU,active_checks_enabled,1
+modify,templateService,templateCPU,passive_checks_enabled,1
+modify,templateService,templateCPU,is_volatile,1
+
+#Notifications
+modify,templateService,templateCPU,notifications_enabled,1
+modify,templateService,templateCPU,contact,admin
+modify,templateService,templateCPU,contactgroup,Supervisors
+modify,templateService,templateCPU,notification_interval,5
+modify,templateService,templateCPU,notification_period,24x7
+modify,templateService,templateCPU,notification_options,"w,u,c"
+modify,templateService,templateCPU,first_notification_delay,5
+modify,templateService,templateCPU,recovery_notification_delay,5
+
+#Relations
+modify,templateService,templateCPU,linkedhost,generic-active-host
+modify,templateService,templateCPU,trap,brDatabaseFull
+
+#Data Processing
+modify,templateService,templateCPU,obsess_over_service,1
+modify,templateService,templateCPU,acknowledgement_timeout,5
+modify,templateService,templateCPU,check_freshness,1
+modify,templateService,templateCPU,freshness_threshold,2
+modify,templateService,templateCPU,flap_detection_enabled,1
+modify,templateService,templateCPU,low_flap_threshold,5
+modify,templateService,templateCPU,high_flap_threshold,2
+modify,templateService,templateCPU,retain_status_information,0
+modify,templateService,templateCPU,retain_nonstatus_information,0
+modify,templateService,templateCPU,stalking_options,"o,w"
+modify,templateService,templateCPU,event_handler_enabled,1
+modify,templateService,templateCPU,event_handler,base_centreon_ping
+modify,templateService,templateCPU,event_handler_arguments,!1!2
+
+#Extended info
+modify,templateService,templateCPU,graphtemplate,Memory
+modify,templateService,templateCPU,category,Disk
+modify,templateService,templateCPU,notes_url,https://www.ypsi.fr
+modify,templateService,templateCPU,notes,notes template service
+modify,templateService,templateCPU,action_url,https://www.centreon.com
+modify,templateService,templateCPU,icon_image,centreon-map/24-hours-support_black.png
+modify,templateService,templateCPU,icon_image_alt,support
+modify,templateService,templateCPU,comment,comment for template service

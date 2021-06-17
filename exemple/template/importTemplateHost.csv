@@ -1,0 +1,63 @@
+#Create template host
+#add,templateHost,name,alias,template
+#template is optionnal
+
+#modify,templateHost,name,parameter,value
+#If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription
+
+
+#Host Configuration
+add,templateHost,templateServer,templateServer,generic-active-host
+modify,templateHost,templateServer,address,127.0.0.1
+modify,templateHost,templateServer,snmp_community,public
+modify,templateHost,templateServer,snmp_version,3
+modify,templateHost,templateServer,timezone,Europe/Paris
+modify,templateHost,templateServer,check_command,base_host_alive
+modify,templateHost,templateServer,check_command_arguments,!1!2
+modify,templateHost,templateServer,macro,ALIVENUM|1|0|macro alive num
+modify,templateHost,templateServer,check_period,24x7
+modify,templateHost,templateServer,max_check_attempts,3
+modify,templateHost,templateServer,check_interval,5
+modify,templateHost,templateServer,retry_check_interval,5
+modify,templateHost,templateServer,active_checks_enabled,1
+modify,templateHost,templateServer,passive_checks_enabled,1
+
+#Notification
+modify,templateHost,templateServer,notifications_enabled,1
+modify,templateHost,templateServer,contact,admin
+modify,templateHost,templateServer,contactgroup,Supervisors
+modify,templateHost,templateServer,notification_options,"d,u,r"
+modify,templateHost,templateServer,notification_interval,5
+modify,templateHost,templateServer,notification_period,24x7
+modify,templateHost,templateServer,first_notification_delay,5
+modify,templateHost,templateServer,recovery_notification_delay,5
+
+#Relations
+modify,templateHost,templateServer,linkedservice,Base-Ping-LAN
+modify,templateHost,templateServer,hostcategorie,categorie1
+
+#Data Processing
+modify,templateHost,templateServer,obsess_over_host,1
+modify,templateHost,templateServer,acknowledgement_timeout,5
+modify,templateHost,templateServer,check_freshness,1
+modify,templateHost,templateServer,freshness_threshold,5
+modify,templateHost,templateServer,flap_detection_enabled,1
+modify,templateHost,templateServer,host_low_flap_threshold,20
+modify,templateHost,templateServer,host_high_flap_threshold,90
+modify,templateHost,templateServer,retain_status_information,1
+modify,templateHost,templateServer,retain_nonstatus_information,1
+modify,templateHost,templateServer,stalking_options,"o,d"
+modify,templateHost,templateServer,event_handler_enabled,1
+modify,templateHost,templateServer,event_handler,bam-notify-by-email
+modify,templateHost,templateServer,event_handler_arguments,!1!2
+
+#Host Extended Infos
+modify,templateHost,templateServer,notes_url,https://www.ypsi.fr
+modify,templateHost,templateServer,notes,notes template host
+modify,templateHost,templateServer,action_url,https://www.centreon.com
+modify,templateHost,templateServer,icon_image,ppm/network-cisco-standard-snmp-cisco-128.png
+modify,templateHost,templateServer,icon_image_alt,network cisco
+modify,templateHost,templateServer,statusmap_image,centreon-map/agreement_black.png
+modify,templateHost,templateServer,2d_coords,"46.8599663,-0.2515186"
+modify,templateHost,templateServer,3d_coords,"46.8599663,-0.2515186,10.255555"
+modify,templateHost,templateServer,comment,comment for template host

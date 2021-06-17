@@ -1,0 +1,5 @@
+
+#Create Centreon proxy
+#add,centreonProxy,url,login,password,port
+
+add,centreonProxy,proxy.internal.company.org,proxy-user,proxy-pass,3128

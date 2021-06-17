@@ -1,0 +1,32 @@
+#Create LDAP
+#add,LDAP,name,description
+#modify,LDAP,name,parameter,value
+#WARNING: If parameter is SERVER the values must be of the form: address;port;useSSl;useTLS
+
+
+add,LDAP,ad,ad
+modify,LDAP,ad,enable,0
+modify,LDAP,ad,ldap_store_password,1
+modify,LDAP,ad,ldap_auto_import,0
+modify,LDAP,ad,ldap_search_limit,100
+modify,LDAP,ad,ldap_search_timeout,90
+modify,LDAP,ad,ldap_contact_tmpl,template2
+modify,LDAP,ad,ldap_dns_use_domain,1
+modify,LDAP,ad,ldap_srv_dns,0
+modify,LDAP,ad,server,10.30.2.15;389;1;0
+modify,LDAP,ad,bind_dn,user bind
+modify,LDAP,ad,bind_pass,password bind
+modify,LDAP,ad,protocol_version,2
+modify,LDAP,ad,ldap_template,Posix
+modify,LDAP,ad,user_base_search,dev
+modify,LDAP,ad,group_base_search,dev
+modify,LDAP,ad,user_filter,co
+modify,LDAP,ad,user_group,dev
+modify,LDAP,ad,user_name,paul henry
+modify,LDAP,ad,user_firstname,paul
+modify,LDAP,ad,user_lastname,henry
+modify,LDAP,ad,user_email,paulhenry@mail.com
+modify,LDAP,ad,user_pager,0689785465
+modify,LDAP,ad,group_filter,dev
+modify,LDAP,ad,group_name,develop
+modify,LDAP,ad,group_member,paul

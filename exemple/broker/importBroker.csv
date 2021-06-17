@@ -1,0 +1,44 @@
+#Create brokerCFG 
+#add,brokerCFG,name,instance
+#modify,brokerCFG,name,parameter,value
+
+add,brokerCFG,central-module,Central
+modify,brokerCFG,central-module,filename,central-module.json
+modify,brokerCFG,central-module,cache_directory,/var/lib/centreon-engine
+modify,brokerCFG,central-module,daemon,1
+modify,brokerCFG,central-module,event_queue_max_size,150000
+modify,brokerCFG,central-module,pool_size,15
+
+
+#Create input IPv4
+#add,brokerInput,nameBrokerCFG,nameObject,natureObject
+#modify,brokerInput,nameBrokerCFG,IDObject,parameter,value
+
+add,brokerInput,central-module,central-broker-master-input,IPv4
+modify,brokerInput,central-module,0,port,5669
+modify,brokerInput,central-module,0,retry_interval,60
+modify,brokerInput,central-module,0,buffering_timeout,0
+
+
+#Create logger File 
+#add,brokerLogger,nameBrokerCFG,nameObject,natureObject
+#modify,brokerLogger,nameBrokerCFG,IDObject,parameter,value
+
+add,brokerLogger,central-module,/var/log/centreon-broker/module-poller-docker.log,file
+modify,brokerLogger,central-module,0,config,yes
+modify,brokerLogger,central-module,0,debug,no
+modify,brokerLogger,central-module,0,error,yes
+modify,brokerLogger,central-module,0,info,no
+modify,brokerLogger,central-module,0,level,low
+modify,brokerLogger,central-module,0,max_size,10
+
+
+#Create output IPv4
+#add,brokerOutput,nameBrokerCFG,nameObject,natureObject
+#modify,brokerOutput,nameBrokerCFG,IDObject,parameter,value
+
+add,brokerOutput,central-module,central-module-master-output,IPv4
+modify,brokerOutput,central-module,0,port,5669
+modify,brokerOutput,central-module,0,host,10.10.8.225
+modify,brokerOutput,central-module,0,retry_interval,60
+modify,brokerOutput,central-module,0,buffering_timeout,0

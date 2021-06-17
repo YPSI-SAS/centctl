@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2020 YPSI SAS
+Copyright (c)  2020-2021 YPSI SAS
 Centctl is developped by : Mélissa Bertin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -42,7 +42,7 @@ func Show(nameCmd string, requestBody string, urlCentreon string, statusCode int
 		logger.Info("centctl " + nameCmd + " - Body request: " + requestBody)
 	}
 	logger.Info("centctl " + nameCmd + " - URL: " + urlCentreon)
-	if statusCode != 200 {
+	if statusCode != 200 && statusCode != 201 && statusCode != 204 {
 		logger.Error("centctl " + nameCmd + " - statusCode: " + strconv.Itoa(statusCode))
 		logger.Error("centctl " + nameCmd + " - Body response: " + string(body))
 	} else {

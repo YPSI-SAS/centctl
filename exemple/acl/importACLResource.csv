@@ -1,0 +1,9 @@
+#Create ACL resource
+#add,aclResource,name,alias
+#modify,aclResource,name,parameter,value
+
+add,aclResource,ALLIT_Resources,ALLIT_Resources
+modify,aclResource,ALLIT_Resources,comment,comment for acl resource
+modify,aclResource,ALLIT_Resources,grant_host,host2
+modify,aclResource,ALLIT_Resources,grant_hostgroup,Routers
+modify,aclResource,ALLIT_Resources,grant_servicegroup,serviceGroup1
