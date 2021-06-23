@@ -1,0 +1,7 @@
+# Create category service
+#add,categoryService,name,alias
+#modify,categoryService,name,parameter,value
+
+add,categoryService,CPU,CPU
+modify,categoryService,CPU,service,host1|mytemplate
+modify,categoryService,CPU,servicetemplate,generic-active-service

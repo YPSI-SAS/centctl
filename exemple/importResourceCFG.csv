@@ -1,0 +1,5 @@
+#Create resourceCFG
+#add,resourceCFG,name,value,instance,comment
+#modify,resourceCFG,name,parameter,value
+
+add,resourceCFG,USER3,public,Central,comment resourceCFG

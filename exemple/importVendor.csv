@@ -1,0 +1,6 @@
+#Create vendor
+#add,vendor,name,alias
+#modify,vendor,name,parameter,value
+
+add,vendor,Asus,Asus
+modify,vendor,Asus,description,description of asus vendor

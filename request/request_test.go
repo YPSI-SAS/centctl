@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2020 YPSI SAS
+Copyright (c)  2020-2021 YPSI SAS
 Centctl is developped by : Mélissa Bertin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -77,7 +77,7 @@ func TestCentreonCLAPI(t *testing.T) {
 	)
 	defer ts.Close()
 
-	client := NewClient(ts.URL + "/centreonCLAPI")
+	client := NewClientV1(ts.URL + "/centreonCLAPI")
 
 	_, body, err := client.CentreonCLAPI(requestBody)
 	assert.NoError(t, err)
@@ -96,7 +96,7 @@ func TestGet(t *testing.T) {
 	)
 	defer ts.Close()
 
-	client := NewClient(ts.URL + "/GET")
+	client := NewClientV1(ts.URL + "/GET")
 
 	_, body, err := client.Get()
 	assert.NoError(t, err)
@@ -116,7 +116,7 @@ func TestNamePollerHost(t *testing.T) {
 	)
 	defer ts.Close()
 
-	client := NewClient(ts.URL + "/NamePoller")
+	client := NewClientV1(ts.URL + "/NamePoller")
 
 	pollerName, err := client.NamePollerHost(hostName, false)
 	assert.NoError(t, err)
@@ -136,7 +136,7 @@ func TestNamePollerHostWithHostIncorrect(t *testing.T) {
 	)
 	defer ts.Close()
 
-	client := NewClient(ts.URL + "/NamePoller")
+	client := NewClientV1(ts.URL + "/NamePoller")
 
 	_, err := client.NamePollerHost(hostName, false)
 	assert.EqualError(t, err, "the name of host is incorrect")
@@ -155,7 +155,7 @@ func TestExportConf(t *testing.T) {
 	)
 	defer ts.Close()
 
-	client := NewClient(ts.URL + "/exportConf")
+	client := NewClientV1(ts.URL + "/exportConf")
 
 	err := client.ExportConf(pollerName, false)
 

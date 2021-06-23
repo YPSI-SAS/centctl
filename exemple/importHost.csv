@@ -1,0 +1,64 @@
+#Create host
+#add,host,name,alias,IPaddress,templateHost,pollerName,hostGroup
+#hostGroup is optionnal but still put the comma at the end
+
+#modify,host,name,parameter,value
+#If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription
+
+
+add,host,sv-Monaco,sv-Monaco,10.10.8.259,OS-Linux-SNMP,Central,
+modify,host,sv-Monaco,snmp_community,public
+modify,host,sv-Monaco,snmp_version,3
+modify,host,sv-Monaco,timezone,Europe/Paris
+modify,host,sv-Monaco,check_command,base_host_alive
+modify,host,sv-Monaco,check_command_arguments,!1!2
+modify,host,sv-Monaco,macro,ALIVENUM|1|0|macro alive num
+modify,host,sv-Monaco,check_period,24x7
+modify,host,sv-Monaco,max_check_attempts,3
+modify,host,sv-Monaco,check_interval,5
+modify,host,sv-Monaco,retry_check_interval,5
+modify,host,sv-Monaco,active_checks_enabled,1
+modify,host,sv-Monaco,passive_checks_enabled,1
+
+#Notification
+modify,host,sv-Monaco,notifications_enabled,1
+modify,host,sv-Monaco,contact,admin
+modify,host,sv-Monaco,contactgroup,Supervisors
+modify,host,sv-Monaco,notification_options,"d,u,r"
+modify,host,sv-Monaco,notification_interval,5
+modify,host,sv-Monaco,notification_period,24x7
+modify,host,sv-Monaco,first_notification_delay,5
+modify,host,sv-Monaco,recovery_notification_delay,5
+
+#Relations
+modify,host,sv-Monaco,hostgroup,groupTF3
+modify,host,sv-Monaco,hostcategorie,categorie1
+modify,host,sv-Monaco,parent,host1
+modify,host,sv-Monaco,child,host2
+
+#Data Processing
+modify,host,sv-Monaco,obsess_over_host,1
+modify,host,sv-Monaco,acknowledgement_timeout,5
+modify,host,sv-Monaco,check_freshness,1
+modify,host,sv-Monaco,freshness_threshold,5
+modify,host,sv-Monaco,flap_detection_enabled,1
+modify,host,sv-Monaco,host_low_flap_threshold,20
+modify,host,sv-Monaco,host_high_flap_threshold,90
+modify,host,sv-Monaco,retain_status_information,1
+modify,host,sv-Monaco,retain_nonstatus_information,1
+modify,host,sv-Monaco,stalking_options,"o,d"
+modify,host,sv-Monaco,event_handler_enabled,1
+modify,host,sv-Monaco,event_handler,bam-notify-by-email
+modify,host,sv-Monaco,event_handler_arguments,!1!2
+
+#Host Extended Infos
+modify,host,sv-Monaco,notes_url,https://www.ypsi.fr
+modify,host,sv-Monaco,notes,notes template host
+modify,host,sv-Monaco,action_url,https://www.centreon.com
+modify,host,sv-Monaco,icon_image,ppm/network-cisco-standard-snmp-cisco-128.png
+modify,host,sv-Monaco,icon_image_alt,network cisco
+modify,host,sv-Monaco,statusmap_image,centreon-map/agreement_black.png
+modify,host,sv-Monaco,geo_coords,"46.8599663,-0.2515186"
+modify,host,sv-Monaco,2d_coords,"46.8599663,-0.2515186"
+modify,host,sv-Monaco,3d_coords,"46.8599663,-0.2515186,10.255555"
+modify,host,sv-Monaco,comment,comment for template host

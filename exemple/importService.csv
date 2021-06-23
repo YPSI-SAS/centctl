@@ -1,0 +1,59 @@
+#Create service
+#add,service,hostName,description,templateService
+#modify,service,hostName,description,parameter,value
+#If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription
+
+
+#General information
+add,service,host1,CPU,Base-Ping-LAN-custom
+modify,service,host1,CPU,check_command,App-Monitoring-Centreon-Service-Dummy
+modify,service,host1,CPU,macro,DUMMYSTATUS|OK|0|info status
+modify,service,host1,CPU,macro,DUMMYOUTPUT|OK|0|info output
+modify,service,host1,CPU,check_command_arguments,!1!2
+modify,service,host1,CPU,check_period,24x7
+modify,service,host1,CPU,max_check_attempts,5
+modify,service,host1,CPU,normal_check_interval,5
+modify,service,host1,CPU,retry_check_interval,5
+modify,service,host1,CPU,active_checks_enabled,1
+modify,service,host1,CPU,passive_checks_enabled,1
+modify,service,host1,CPU,is_volatile,1
+
+#Notifications
+modify,service,host1,CPU,notifications_enabled,1
+modify,service,host1,CPU,contact,admin
+modify,service,host1,CPU,contactgroup,Supervisors
+modify,service,host1,CPU,notification_interval,5
+modify,service,host1,CPU,notification_period,24x7
+modify,service,host1,CPU,notification_options,"w,u,c"
+modify,service,host1,CPU,first_notification_delay,5
+modify,service,host1,CPU,recovery_notification_delay,5
+
+#Relations
+modify,service,host1,CPU,servicegroup,serviceGroup1
+modify,service,host1,CPU,trap,brDatabaseFull
+
+#Data Processing
+modify,service,host1,CPU,obsess_over_service,1
+modify,service,host1,CPU,acknowledgement_timeout,5
+modify,service,host1,CPU,check_freshness,1
+modify,service,host1,CPU,freshness_threshold,2
+modify,service,host1,CPU,flap_detection_enabled,1
+modify,service,host1,CPU,low_flap_threshold,5
+modify,service,host1,CPU,high_flap_threshold,2
+modify,service,host1,CPU,retain_status_information,0
+modify,service,host1,CPU,retain_nonstatus_information,0
+modify,service,host1,CPU,stalking_options,"o,w"
+modify,service,host1,CPU,event_handler_enabled,1
+modify,service,host1,CPU,event_handler,base_centreon_ping
+modify,service,host1,CPU,event_handler_arguments,!1!2
+
+#Extended info
+modify,service,host1,CPU,graphtemplate,Memory
+modify,service,host1,CPU,category,Disk
+modify,service,host1,CPU,notes_url,https://www.ypsi.fr
+modify,service,host1,CPU,notes,notes template service
+modify,service,host1,CPU,action_url,https://www.centreon.com
+modify,service,host1,CPU,icon_image,centreon-map/24-hours-support_black.png
+modify,service,host1,CPU,icon_image_alt,support
+modify,service,host1,CPU,geo_coords,"46.8599663,-0.2515186"
+modify,service,host1,CPU,comment,comment for template service

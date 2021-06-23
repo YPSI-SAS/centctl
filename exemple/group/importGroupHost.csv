@@ -1,0 +1,14 @@
+#Create group host
+#add,groupHost,name,alias
+#modify,groupHost,name,parameter,value
+
+add,groupHost,Server,Server
+modify,groupHost,Server,member,host1
+modify,groupHost,Server,notes,notes group Server
+modify,groupHost,Server,notes_url,https://www.ypsi.fr/
+modify,groupHost,Server,action_url,https://www.centreon.com/
+modify,groupHost,Server,icon_image,ppm/network-cisco-standard-snmp-cisco-128.png
+modify,groupHost,Server,map_icon_image,centreon-map/agreement_black.png
+modify,groupHost,Server,rrd_retention,12
+modify,groupHost,Server,geo_coords,"48.862725,2.287592"
+modify,groupHost,Server,comment,commment for group host

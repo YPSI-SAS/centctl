@@ -1,0 +1,16 @@
+#Create poller
+#add,poller,name,IPaddress,SSHPort,connectionProtocol,connectionPort
+#Available connectionProtocol : SSH or ZMQ
+#modify,poller,name,parameter,value
+
+add,poller,poller-extend,10.10.8.156,22,SSH,5556
+modify,poller,poller-extend,engine_start_command,start engine
+modify,poller,poller-extend,engine_stop_command,stop engine
+modify,poller,poller-extend,engine_restart_command,restart engine
+modify,poller,poller-extend,engine_reload_command,reload engine
+modify,poller,poller-extend,nagios_bin,/usr/bin/centengine
+modify,poller,poller-extend,nagiostats_bin,/usr/bin/centenginestats
+modify,poller,poller-extend,broker_reload_command,reload cmd
+modify,poller,poller-extend,centreonbroker_cfg_path,/etc/centreon-broker
+modify,poller,poller-extend,centreonbroker_module_path,/usr/share/centreon/lib/centreon-broker
+modify,poller,poller-extend,centreonconnector_path,/usr/connector/

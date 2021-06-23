@@ -1,0 +1,17 @@
+#Create trap
+#add,trap,name,oid
+#modify,trap,name,parameter,value
+#If parameter is MATCHING the value must be of the form: stringMarch;regularExpression;status
+
+
+add,trap,ciscoConfig,.1.3.6.1.4.10.9.9.15
+modify,trap,ciscoConfig,matching_mode,1
+modify,trap,ciscoConfig,vendor,Cisco
+modify,trap,ciscoConfig,output,This notification indicates that the running 
+modify,trap,ciscoConfig,status,ok
+modify,trap,ciscoConfig,matching,@OUTPUT@;/test/;UNKNOWN
+modify,trap,ciscoConfig,submit_result_enable,1
+modify,trap,ciscoConfig,reschedule_svc_enable,1
+modify,trap,ciscoConfig,execution_command_enable,1
+modify,trap,ciscoConfig,execution_command,ls
+modify,trap,ciscoConfig,comments,comment trap

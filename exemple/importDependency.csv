@@ -1,0 +1,13 @@
+#Create dependency
+#Available type : HOST, HG, SG, SERVICE, META
+#add,dependency,name,description,type,parentName
+#modify,dependency,name,parameter,value
+
+add,dependency,depService,depService,SERVICE,"host1,mytemplate"
+modify,dependency,depService,inherits_parent,1
+modify,dependency,depService,execution_failure_criteria,"o,c,u"
+modify,dependency,depService,notification_failure_criteria,"o,w,c"
+modify,dependency,depService,parent,"host2,mytemplate"
+modify,dependency,depService,child,"host2,Ping"
+modify,dependency,depService,child,host4
+modify,dependency,depService,comment,comment for dependency
