@@ -5,7 +5,10 @@ Centctl is a CLI which allows to manage Centreon servers. Centctl use a file nam
 Developped in Go, it allows to operate a Centreon platform remotely from a PC under Windows, Linux or Macos without any particular installation.
 
 ## Config File
-Create a file called `centctl.yaml` in your PC and put the path of this file in an environment variable named `CENTCTL_CONF`.<span style="color: #FF0000"> WARNING </span> : This variable is required.
+Create a file called `centctl.yaml` in your PC and put the complete path of this file in an environment variable named `CENTCTL_CONF`.<span style="color: #FF0000"> WARNING </span> : This variable is required. For example:
+
+`export CENTCTL_CONF=/home/mister/centctl/centctl.yaml`
+
 <br/>For declare a server use the configuration below by replacing capitalized words
 
 * `NAMESERVER` it's the name of the server that you will use in the flag --server. <span style="color: #FF0000"> WARNING </span> : The name of the server must be unique
