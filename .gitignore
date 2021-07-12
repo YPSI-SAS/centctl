@@ -5,7 +5,7 @@
 *.so
 *.dylib
 *_amd64
-
+*.exe
 # Test binary, built with `go test -c`
 *.test
 
