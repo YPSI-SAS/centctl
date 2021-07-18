@@ -120,7 +120,7 @@ func ExportCommand(name []string, regex string, typeCmd string, file string, app
 		}
 
 		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,command,\"" + command.Name + "\",\"" + command.Type + "\",\"" + command.Line + "\"\n")
+		_, _ = f.WriteString("add,command,\"" + command.Name + "\",\"" + command.Type + "\",\"" + strings.ReplaceAll(command.Line, "\"", "\"\"") + "\"\n")
 		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",graph," + command.Graph + "\n")
 		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",example," + command.Example + "\n")
 		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",comment,\"" + command.Comment + "\"\n")
