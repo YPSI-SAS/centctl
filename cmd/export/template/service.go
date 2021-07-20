@@ -152,6 +152,9 @@ func ExportTemplateService(name []string, regex string, file string, appendFile 
 				if strings.Contains(m.Value, "\"") {
 					m.Value = strings.ReplaceAll(m.Value, "\"", "'")
 				}
+				if strings.Contains(m.Name, "$_SERVICE") {
+					m.Name = m.Name[9 : len(m.Name)-1]
+				}
 				_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",macro,\"" + m.Name + "|" + m.Value + "|" + m.IsPassword + "|" + m.Description + "\"\n")
 			}
 		}
