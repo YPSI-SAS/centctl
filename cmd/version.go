@@ -31,23 +31,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// lastGitTag store last git tag in repository (value send by ldflags option)
+var lastGitTag string
+
+// lastGitCommit store last git (hash) commit (value send by ldflags option)
+var lastGitCommit string
+
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show the version",
 	Long:  `Show the version of centctl`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("centctl v2.0")
-		fmt.Println(" ___________________________________________________________________________________________")
-		fmt.Println("/                                                                                            \\ ")
-		fmt.Println("|     _______    _______    ____     ___    _________    _______    _________    __          |")
-		fmt.Println("|    |   ____|  |   ____|  |    \\   |   |  |___   ___|  |   ____|  |___   ___|  |  |         |")
-		fmt.Println("|    |  |       |  |__     |   | \\  |   |      | |      |  |           | |      |  |         |")
-		fmt.Println("|    |  |       |   __|    |   |\\ \\ |   |      | |      |  |           | |      |  |         |")
-		fmt.Println("|    |  |____   |  |____   |   | \\ \\|   |      | |      |  |____       | |      |  |____     |")
-		fmt.Println("|    |_______|  |_______|  |___|  \\_____|      |_|      |_______|      |_|      |_______|    |")
-		fmt.Println("|                                                                                            |")
-		fmt.Println("\\____________________________________________________________________________________________/")
+		fmt.Printf("centctl %s \nrevision: %s\n", lastGitTag, lastGitCommit)
 	},
 }
 
