@@ -1,13 +1,46 @@
-# CENTCTL
+![](asserts/img/LOGO.png)
 
-## Presentation
-Centctl is a CLI which allows to manage Centreon servers. Centctl use a file named `centctl.yaml` for manage the connection at differents servers. </br>
-Developped in Go, it allows to operate a Centreon platform remotely from a PC under Windows, Linux or Macos without any particular installation.
+## Overview
+Centctl is a CLI which allows to manage Centreon servers. Centctl use a file named `centctl.yaml` for manage the connection at differents servers.
 
-## Config File
+Developped in [Go](https://golang.org/), it allows to operate a [Centreon](https://www.centreon.com/) platform remotely from a PC under Windows, Linux or Macos without any particular installation.
+
+## Installation
+
+Get source code:
+```bash
+git clone https://github.com/YPSI-SAS/centctl.git
+```
+### Docker
+Build docker container:
+```bash
+make docker
+```
+Add alias to your *bash* configuration:
+```bash
+echo "alias centctl=docker run --rm -i centctl" >> ~/.bashrc
+source ~/.bashrc
+```
+And run `centctl` command.
+
+### GNU/Linux
+Build from source:
+```bash
+make linux
+```
+Copy binary to `/usr/local/bin`:
+```bash
+sudo cp centctl_linux_amd64 /usr/local/bin/centctl
+sudo chmod a+x /usr/local/bin/centctl
+```
+And run `centctl` command.
+## Usage
+### Config File
 Create a file called `centctl.yaml` in your PC and put the complete path of this file in an environment variable named `CENTCTL_CONF`.<span style="color: #FF0000"> WARNING </span> : This variable is required. For example:
 
-`export CENTCTL_CONF=/home/mister/centctl/centctl.yaml`
+```bash
+export CENTCTL_CONF=/home/mister/centctl/centctl.yaml
+```
 
 <br/>For declare a server use the configuration below by replacing capitalized words
 
@@ -45,7 +78,7 @@ The above commands create `/usr/share/bash-completion/bash_completion`, which is
 
 To find out, reload your shell with command `source ~/.bashrc` and run `type _init_completion`. If the command succeeds, you’re already set, otherwise add the following to your `~/.bashrc` file:
 
-```sh
+```bash
 source /usr/share/bash-completion/bash_completion
 ```
 
@@ -54,11 +87,38 @@ Reload your shell and verify that bash-completion is correctly installed by typi
 ### Enable centctl autocompletion
 Add the completion script to the `/etc/bash_completion.d` directory:
 
-```sh
+```bash
 centctl completion >/etc/bash_completion.d/centctl
 ``` 
 
 After reloading your shell, centctl autocompletion should be working.
 
-Note :
-Centreon, the Centreon Logo, are trademarks, servicemarks, registered trademarks or registered servicemarks owned by Centreon Software. All other trademarks, servicemarks, registered trademarks, and registered servicemarks are the property of their respective owner(s). CentCtl is not endorsed nore supported by Centreon Software and use only external API based on Centreon Plateform. 
+## Developer
+
+### Environment setup
+#### Prerequisites via apt
+Due to dependencies (for example **make** and *build-essential* package):
+```bash
+sudo apt update
+sudo apt install build-essential golang-go docker-ce -y
+```
+
+#### Common environment setup
+1. Clone this repository `git clone https://github.com/YPSI-SAS/centctl.git`
+2. Change directory into the repository root dir: `cd centctl`
+3. Get all *go* dependencies with `go mod tidy` && `go mod download`
+4. Use `make` or `make help` command to get more informations about **Makefile** targets.
+
+
+#### Build Centctl
+Build for a specific platform:
+```bash
+# Build for linux
+make linux
+
+# Build for Windows
+make windows
+
+# Build for MacOS
+make darwin
+```
