@@ -55,14 +55,12 @@ func DeleteHost(name string, debugV bool, apply bool) error {
 	var err error
 	//Find the name of the host poller
 	client := request.NewClientV1(os.Getenv("URL") + "/api/index.php?object=centreon_realtime_hosts&action=list&search=" + name)
-	for poller == "" {
-		poller, err = client.NamePollerHost(name, debugV)
-		if err != nil {
-			return err
-		}
+	poller, err = client.NamePollerHost(name, debugV)
+	if poller == "" {
+		err = request.Delete("del", "host", name, "delete host", name, debugV, false, "")
+	} else {
+		err = request.Delete("del", "host", name, "delete host", name, debugV, apply, poller)
 	}
-
-	err = request.Delete("del", "host", name, "delete host", name, debugV, apply, poller)
 	if err != nil {
 		return err
 	}
