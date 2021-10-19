@@ -49,7 +49,8 @@ var hostCmd = &cobra.Command{
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportHost(name, regex, file, appendFile, all, debugV)
+		services, _ := cmd.Flags().GetBool("services")
+		err := ExportHost(name, regex, file, appendFile, all, debugV, services)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +58,7 @@ var hostCmd = &cobra.Command{
 }
 
 //ExportHost permits to export a host of the centreon server
-func ExportHost(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportHost(name []string, regex string, file string, appendFile bool, all bool, debugV bool, services bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -213,6 +214,13 @@ func ExportHost(name []string, regex string, file string, appendFile bool, all b
 			}
 		}
 	}
+	if services {
+		err := ExportService([]string{}, file, name, true, true, debugV)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -339,4 +347,5 @@ func init() {
 	hostCmd.Flags().StringSliceP("name", "n", []string{}, "Host's name (separate by a comma the multiple values)")
 	hostCmd.Flags().StringP("file", "f", "ExportHost.csv", "To define the name of the csv file")
 	hostCmd.Flags().StringP("regex", "r", "", "The regex to apply on the host's name")
+	hostCmd.Flags().Bool("services", false, "Export all services related to this host")
 }
