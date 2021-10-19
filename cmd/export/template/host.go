@@ -28,6 +28,7 @@ import (
 	"centctl/colorMessage"
 	"centctl/request"
 	"centctl/resources/host"
+	"centctl/resources/service"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -49,7 +50,8 @@ var hostCmd = &cobra.Command{
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportTemplateHost(name, regex, file, appendFile, all, debugV)
+		serviceTpl, _ := cmd.Flags().GetBool("serviceTpl")
+		err := ExportTemplateHost(name, regex, file, appendFile, all, serviceTpl, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,14 +59,14 @@ var hostCmd = &cobra.Command{
 }
 
 //ExportTemplateHost permits to export a host template of the centreon server
-func ExportTemplateHost(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportTemplateHost(name []string, regex string, file string, appendFile bool, all bool, serviceTpl bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
+
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println("You must pass flag name or flag all or flag regex")
 		os.Exit(1)
 	}
-
 	//Check if the name of file contains the extension
 	if !strings.Contains(file, ".csv") {
 		file = file + ".csv"
@@ -188,6 +190,18 @@ func ExportTemplateHost(name []string, regex string, file string, appendFile boo
 			}
 		}
 	}
+	if serviceTpl {
+		for _, n := range name {
+			serviceTpl := getAllTemplateServiceRelatedToTemplateHost(debugV, n)
+			if len(serviceTpl) != 0 {
+				err := ExportTemplateService(serviceTpl, "", file, true, false, debugV)
+				if err != nil {
+					return err
+				}
+			}
+
+		}
+	}
 
 	return nil
 }
@@ -275,9 +289,37 @@ func getAllTemplateHost(debugV bool) []host.ExportHostTemplate {
 	return resultTemplate.Templates
 }
 
+func getAllTemplateServiceRelatedToTemplateHost(debugV bool, name string) []string {
+	err, body := request.GeneriqueCommandV1Post("show", "STPL", "", "export template host", debugV, false, "")
+	if err != nil {
+		return []string{}
+	}
+	var resultTemplate service.ResultTemplate
+	json.Unmarshal(body, &resultTemplate)
+	result := []string{}
+	for _, tpl := range resultTemplate.Templates {
+		err, body = request.GeneriqueCommandV1Post("gethosttemplate", "STPL", tpl.Description, "export template host", debugV, false, "")
+		if err != nil {
+			return []string{}
+		}
+		var resultTplHost host.ResultTemplate
+		json.Unmarshal(body, &resultTplHost)
+		for _, tplHost := range resultTplHost.Templates {
+			if strings.ToLower(name) == strings.ToLower(tplHost.Name) {
+				result = append(result, tpl.Description)
+			}
+
+		}
+
+	}
+
+	return result
+}
+
 func init() {
 	hostCmd.Flags().StringSliceP("name", "n", []string{}, "Host template's name (separate by a comma the multiple values)")
 	hostCmd.Flags().StringP("file", "f", "ExportHostTemplate.csv", "To define the name of the csv file")
 	hostCmd.Flags().StringP("regex", "r", "", "The regex to apply on the host template's name")
+	hostCmd.Flags().Bool("serviceTpl", false, "Export all services templates related to this host template")
 
 }
