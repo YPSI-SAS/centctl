@@ -149,6 +149,9 @@ func getCommandInfo(name string, debugV bool) (error, command.ExportCommand) {
 		fmt.Println("Object not found: " + name)
 		return nil, command.ExportCommand{}
 	}
+	if result.Commands[0].Type != "2" && result.Commands[0].Type != "4" && result.Commands[0].Type != "3" && result.Commands[0].Type != "1" {
+		result.Commands[0].Type = "1"
+	}
 
 	return nil, result.Commands[0]
 }

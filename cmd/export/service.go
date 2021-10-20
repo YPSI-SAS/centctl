@@ -120,6 +120,9 @@ func ExportService(name []string, file string, hostFilter []string, appendFile b
 
 		//Write service informations
 		_, _ = f.WriteString("\n")
+		if service.Template == "" {
+			service.Template = "generic-active-service"
+		}
 		_, _ = f.WriteString("add,service,\"" + service.HostName + "\",\"" + service.Description + "\",\"" + service.Template + "\"\n")
 		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",check_command,\"" + service.CheckCommand + "\"\n")
 		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",check_command_arguments,\"" + service.CheckCommandArguments + "\"\n")
