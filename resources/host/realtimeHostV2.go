@@ -87,7 +87,7 @@ func (s RealtimeServerV2) StringText() string {
 func (s RealtimeServerV2) StringCSV() string {
 	var values string = "Server,ID,Name,Alias,IPAddress,StatusCode,StatusName,Acknowledged,ActiveCheck,PollerID	\n"
 	for i := 0; i < len(s.Server.Hosts); i++ {
-		values += s.Server.Name + "," + strconv.Itoa(s.Server.Hosts[i].ID) + "," + s.Server.Hosts[i].Name + "," + s.Server.Hosts[i].Alias + "," + s.Server.Hosts[i].Address + "," + strconv.Itoa(s.Server.Hosts[i].Status.Code) + "," + s.Server.Hosts[i].Status.Name + "," + strconv.FormatBool(s.Server.Hosts[i].Acknowledged) + "," + strconv.FormatBool(s.Server.Hosts[i].ActiveCheck) + "," + strconv.Itoa(s.Server.Hosts[i].PollerID) + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + strconv.Itoa(s.Server.Hosts[i].ID) + "\"" + "," + "\"" + s.Server.Hosts[i].Name + "\"" + "," + "\"" + s.Server.Hosts[i].Alias + "\"" + "," + "\"" + s.Server.Hosts[i].Address + "\"" + "," + "\"" + strconv.Itoa(s.Server.Hosts[i].Status.Code) + "\"" + "," + "\"" + s.Server.Hosts[i].Status.Name + "\"" + "," + "\"" + strconv.FormatBool(s.Server.Hosts[i].Acknowledged) + "\"" + "," + "\"" + strconv.FormatBool(s.Server.Hosts[i].ActiveCheck) + "\"" + "," + "\"" + strconv.Itoa(s.Server.Hosts[i].PollerID) + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

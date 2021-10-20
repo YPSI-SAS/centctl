@@ -65,14 +65,14 @@ func (s DetailTemplateServer) StringText() string {
 	var values string = "contact template list for server " + s.Server.Name + ": \n"
 	template := s.Server.Template
 	if template != nil {
-		values += (*template).ID + "\t"
-		values += (*template).Name + "\t"
-		values += (*template).Alias + "\t"
-		values += (*template).Email + "\t"
-		values += (*template).Pager + "\t"
-		values += (*template).GuiAccess + "\t"
-		values += (*template).Admin + "\t"
-		values += (*template).Activate + "\n"
+		values += "\"" + (*template).ID + "\"" + "\t"
+		values += "\"" + (*template).Name + "\"" + "\t"
+		values += "\"" + (*template).Alias + "\"" + "\t"
+		values += "\"" + (*template).Email + "\"" + "\t"
+		values += "\"" + (*template).Pager + "\"" + "\t"
+		values += "\"" + (*template).GuiAccess + "\"" + "\t"
+		values += "\"" + (*template).Admin + "\"" + "\t"
+		values += "\"" + (*template).Activate + "\"" + "\n"
 	} else {
 		values += "template: null\n"
 	}

@@ -69,7 +69,7 @@ func (s TemplateServer) StringText() string {
 func (s TemplateServer) StringCSV() string {
 	var values string = "Server,ID,Description\n"
 	for i := 0; i < len(s.Server.Templates); i++ {
-		values += s.Server.Name + "," + s.Server.Templates[i].ID + "," + s.Server.Templates[i].Description + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Templates[i].ID + "\"" + "," + "\"" + s.Server.Templates[i].Description + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

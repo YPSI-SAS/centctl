@@ -79,7 +79,7 @@ func (s RealtimeServer) StringText() string {
 func (s RealtimeServer) StringCSV() string {
 	var values string = "Server,ID,Name,Alias,IPAddress,State,Acknowledged,Activate,PollerName\n"
 	for i := 0; i < len(s.Server.Hosts); i++ {
-		values += s.Server.Name + "," + s.Server.Hosts[i].ID + "," + s.Server.Hosts[i].Name + "," + s.Server.Hosts[i].Alias + "," + s.Server.Hosts[i].Address + "," + GetState(s.Server.Hosts[i].State) + "," + GetAcknowledgment(s.Server.Hosts[i].Acknowledged) + "," + s.Server.Hosts[i].Activate + "," + s.Server.Hosts[i].PollerName + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Hosts[i].ID + "\"" + "," + "\"" + s.Server.Hosts[i].Name + "\"" + "," + "\"" + s.Server.Hosts[i].Alias + "\"" + "," + "\"" + s.Server.Hosts[i].Address + "\"" + "," + "\"" + GetState(s.Server.Hosts[i].State) + "\"" + "," + "\"" + GetAcknowledgment(s.Server.Hosts[i].Acknowledged) + "\"" + "," + "\"" + s.Server.Hosts[i].Activate + "\"" + "," + "\"" + s.Server.Hosts[i].PollerName + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

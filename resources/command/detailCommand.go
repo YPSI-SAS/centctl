@@ -81,10 +81,10 @@ func (s DetailServer) StringCSV() string {
 	values += s.Server.Name + ","
 	cmd := s.Server.Command
 	if cmd != nil {
-		values += (*cmd).ID + ","
-		values += (*cmd).Name + ","
-		values += (*cmd).Type + ","
-		values += (*cmd).CmdLine + "\n"
+		values += "\"" + (*cmd).ID + "\"" + ","
+		values += "\"" + (*cmd).Name + "\"" + ","
+		values += "\"" + (*cmd).Type + "\"" + ","
+		values += "\"" + (*cmd).CmdLine + "\"" + "\n"
 	} else {
 		values += ",,,\n"
 

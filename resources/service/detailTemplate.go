@@ -90,7 +90,7 @@ func (s DetailTemplateServer) StringCSV() string {
 	values += s.Server.Name + ","
 	template := s.Server.Template
 	if template != nil {
-		values += (*template).ID + "," + (*template).Description + "," + (*template).Alias + "," + (*template).CheckCommand + "," + (*template).CheckCommandArg + "," + (*template).NormalCheckInterval + "," + (*template).RetryCheckInterval + "," + (*template).MaxCheckAttempts + "," + (*template).ActiveChecksEnabled + "," + (*template).PassiveChecksEnabled + "\n"
+		values += "\"" + (*template).ID + "\"" + "," + "\"" + (*template).Description + "\"" + "," + "\"" + (*template).Alias + "\"" + "," + "\"" + (*template).CheckCommand + "\"" + "," + "\"" + (*template).CheckCommandArg + "\"" + "," + "\"" + (*template).NormalCheckInterval + "\"" + "," + "\"" + (*template).RetryCheckInterval + "\"" + "," + "\"" + (*template).MaxCheckAttempts + "\"" + "," + "\"" + (*template).ActiveChecksEnabled + "\"" + "," + "\"" + (*template).PassiveChecksEnabled + "\"" + "\n"
 
 	} else {
 		values += ",,,,,,,,,\n"

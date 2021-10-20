@@ -79,7 +79,7 @@ func (s DetailServer) StringCSV() string {
 	values += s.Server.Name + ","
 	poller := s.Server.Poller
 	if poller != nil {
-		values += (*poller).Type + "," + (*poller).Label + "," + (*poller).Metadata.CentreonID + "," + (*poller).Metadata.HostName + "," + (*poller).Metadata.Address + "\n"
+		values += "\"" + (*poller).Type + "\"" + "," + "\"" + (*poller).Label + "\"" + "," + "\"" + (*poller).Metadata.CentreonID + "\"" + "," + "\"" + (*poller).Metadata.HostName + "\"" + "," + "\"" + (*poller).Metadata.Address + "\"" + "\n"
 	} else {
 		values += ",,,,\n"
 	}

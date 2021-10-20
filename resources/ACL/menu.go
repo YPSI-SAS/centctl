@@ -76,7 +76,7 @@ func (s MenuServer) StringText() string {
 func (s MenuServer) StringCSV() string {
 	var values string = "Server,ID,Name,Alias,Activate\n"
 	for i := 0; i < len(s.Server.Menus); i++ {
-		values += s.Server.Name + "," + s.Server.Menus[i].ID + "," + s.Server.Menus[i].Name + "," + s.Server.Menus[i].Alias + "," + s.Server.Menus[i].Comment + "," + s.Server.Menus[i].Activate + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Menus[i].ID + "\"" + "," + "\"" + s.Server.Menus[i].Name + "\"" + "," + "\"" + s.Server.Menus[i].Alias + "\"" + "," + "\"" + s.Server.Menus[i].Comment + "\"" + "," + "\"" + s.Server.Menus[i].Activate + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

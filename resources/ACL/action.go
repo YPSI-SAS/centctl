@@ -74,7 +74,7 @@ func (s ActionServer) StringText() string {
 func (s ActionServer) StringCSV() string {
 	var values string = "Server,ID,Name,Description,Activate\n"
 	for i := 0; i < len(s.Server.Actions); i++ {
-		values += s.Server.Name + "," + s.Server.Actions[i].ID + "," + s.Server.Actions[i].Name + "," + s.Server.Actions[i].Description + "," + s.Server.Actions[i].Activate + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Actions[i].ID + "\"" + "," + "\"" + s.Server.Actions[i].Name + "\"" + "," + "\"" + s.Server.Actions[i].Description + "\"" + "," + "\"" + s.Server.Actions[i].Activate + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

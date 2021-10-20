@@ -82,7 +82,7 @@ func (s DetailMenuServer) StringCSV() string {
 	values += s.Server.Name + ","
 	menu := s.Server.Menu
 	if menu != nil {
-		values += (*menu).ID + "," + (*menu).Name + "," + (*menu).Alias + "," + (*menu).Comment + "," + (*menu).Activate + "\n"
+		values += "\"" + (*menu).ID + "\"" + "," + "\"" + (*menu).Name + "\"" + "," + "\"" + (*menu).Alias + "\"" + "," + "\"" + (*menu).Comment + "\"" + "," + "\"" + (*menu).Activate + "\"" + "\n"
 
 	} else {
 		values += ",,,\n"

@@ -88,7 +88,7 @@ func (s DetailGroupServer) StringCSV() string {
 	values += s.Server.Name + ","
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "," + (*group).Name + "," + (*group).Alias + "\n"
+		values += "\"" + (*group).ID + "\"" + "," + "\"" + (*group).Name + "\"" + "," + "\"" + (*group).Alias + "\"" + "\n"
 	} else {
 		values += ",,\n"
 	}

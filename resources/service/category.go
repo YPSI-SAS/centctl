@@ -72,7 +72,7 @@ func (s CategoryServer) StringText() string {
 func (s CategoryServer) StringCSV() string {
 	var values string = "Server,ID,Name\n"
 	for i := 0; i < len(s.Server.Categories); i++ {
-		values += s.Server.Name + "," + s.Server.Categories[i].ID + "," + s.Server.Categories[i].Name + "," + s.Server.Categories[i].Alias + "," + s.Server.Categories[i].Level + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Categories[i].ID + "\"" + "," + "\"" + s.Server.Categories[i].Name + "\"" + "," + "\"" + s.Server.Categories[i].Alias + "\"" + "," + "\"" + s.Server.Categories[i].Level + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

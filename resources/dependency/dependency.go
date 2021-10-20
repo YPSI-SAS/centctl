@@ -76,7 +76,7 @@ func (s Server) StringText() string {
 func (s Server) StringCSV() string {
 	var values string = "Server,ID,Name,Description,InheritsParent,ExecutionFailureCriteria,NotificationFailureCriteria\n"
 	for i := 0; i < len(s.Server.Dependencies); i++ {
-		values += s.Server.Name + "," + s.Server.Dependencies[i].ID + "," + s.Server.Dependencies[i].Name + "," + s.Server.Dependencies[i].Description + "," + s.Server.Dependencies[i].InheritsParent + "," + s.Server.Dependencies[i].ExecutionFailureCriteria + "," + s.Server.Dependencies[i].NotificationFailureCriteria + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Dependencies[i].ID + "\"" + "," + "\"" + s.Server.Dependencies[i].Name + "\"" + "," + "\"" + s.Server.Dependencies[i].Description + "\"" + "," + "\"" + s.Server.Dependencies[i].InheritsParent + "\"" + "," + "\"" + s.Server.Dependencies[i].ExecutionFailureCriteria + "\"" + "," + "\"" + s.Server.Dependencies[i].NotificationFailureCriteria + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

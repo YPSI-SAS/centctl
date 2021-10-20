@@ -75,7 +75,7 @@ func (s DetailServer) StringCSV() string {
 	values += s.Server.Name + ","
 	vendor := s.Server.Vendor
 	if vendor != nil {
-		values += (*vendor).ID + "," + (*vendor).Name + "," + (*vendor).Alias + "\n"
+		values += "\"" + (*vendor).ID + "\"" + "," + "\"" + (*vendor).Name + "\"" + "," + "\"" + (*vendor).Alias + "\"" + "\n"
 
 	} else {
 		values += ",,\n"

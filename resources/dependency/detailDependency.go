@@ -81,7 +81,7 @@ func (s DetailServer) StringCSV() string {
 	dependency := s.Server.Dependency
 	values += s.Server.Name + ","
 	if dependency != nil {
-		values += (*dependency).ID + "," + (*dependency).Name + "," + (*dependency).Description + "," + (*dependency).InheritsParent + "," + (*dependency).ExecutionFailureCriteria + "," + (*dependency).NotificationFailureCriteria + "\n"
+		values += "\"" + (*dependency).ID + "\"" + "," + "\"" + (*dependency).Name + "\"" + "," + "\"" + (*dependency).Description + "\"" + "," + "\"" + (*dependency).InheritsParent + "\"" + "," + "\"" + (*dependency).ExecutionFailureCriteria + "\"" + "," + "\"" + (*dependency).NotificationFailureCriteria + "\"" + "\n"
 	} else {
 		values += ",,,,,\n"
 	}

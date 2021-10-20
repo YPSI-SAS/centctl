@@ -76,11 +76,11 @@ func (s Server) StringCSV() string {
 	values += s.Server.Name + ","
 	centreonProxy := s.Server.CentreonProxy
 	if centreonProxy != nil {
-		values += (*centreonProxy).URL + ","
-		values += strconv.Itoa((*centreonProxy).Port) + ","
-		values += (*centreonProxy).User + ","
-		values += (*centreonProxy).Password + ","
-		values += (*centreonProxy).Protocol + "\n"
+		values += "\"" + (*centreonProxy).URL + "\"" + ","
+		values += "\"" + strconv.Itoa((*centreonProxy).Port) + "\"" + ","
+		values += "\"" + (*centreonProxy).User + "\"" + ","
+		values += "\"" + (*centreonProxy).Password + "\"" + ","
+		values += "\"" + (*centreonProxy).Protocol + "\"" + "\n"
 	} else {
 		values += ",,,,\n"
 	}

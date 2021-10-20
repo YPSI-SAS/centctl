@@ -68,7 +68,7 @@ func (s GroupServer) StringText() string {
 func (s GroupServer) StringCSV() string {
 	var values string = "Server,ID,Name\n"
 	for i := 0; i < len(s.Server.Groups); i++ {
-		values += s.Server.Name + "," + s.Server.Groups[i].ID + "," + s.Server.Groups[i].Name + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Groups[i].ID + "\"" + "," + "\"" + s.Server.Groups[i].Name + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

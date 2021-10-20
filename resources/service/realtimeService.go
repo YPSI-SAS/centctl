@@ -95,7 +95,7 @@ func (s RealtimeServer) StringText() string {
 func (s RealtimeServer) StringCSV() string {
 	var values string = "Server,ID,Name,ParentID,ParentName,ParentPollerID,ParentAddress,StatusCode,StatusName,Information,Acknowledged,Activate\n"
 	for i := 0; i < len(s.Server.Services); i++ {
-		values += s.Server.Name + "," + strconv.Itoa(s.Server.Services[i].ServiceID) + "," + s.Server.Services[i].Name + "," + strconv.Itoa(s.Server.Services[i].Parent.PollerID) + "," + strconv.Itoa(s.Server.Services[i].Parent.ID) + "," + s.Server.Services[i].Parent.Name + "," + s.Server.Services[i].Parent.Address + "," + strconv.Itoa(s.Server.Services[i].Status.Code) + "," + s.Server.Services[i].Status.Name + "," + s.Server.Services[i].Information + "," + strconv.FormatBool(s.Server.Services[i].Acknowledged) + "," + strconv.FormatBool(s.Server.Services[i].ActiveCheck) + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + strconv.Itoa(s.Server.Services[i].ServiceID) + "\"" + "," + "\"" + s.Server.Services[i].Name + "\"" + "," + "\"" + strconv.Itoa(s.Server.Services[i].Parent.PollerID) + "\"" + "," + "\"" + strconv.Itoa(s.Server.Services[i].Parent.ID) + "\"" + "," + "\"" + s.Server.Services[i].Parent.Name + "\"" + "," + "\"" + s.Server.Services[i].Parent.Address + "\"" + "," + "\"" + strconv.Itoa(s.Server.Services[i].Status.Code) + "\"" + "," + "\"" + s.Server.Services[i].Status.Name + "\"" + "," + "\"" + s.Server.Services[i].Information + "\"" + "," + "\"" + strconv.FormatBool(s.Server.Services[i].Acknowledged) + "\"" + "," + "\"" + strconv.FormatBool(s.Server.Services[i].ActiveCheck) + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

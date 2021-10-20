@@ -86,7 +86,7 @@ func (s DetailServer) StringCSV() string {
 	values += s.Server.Name + ","
 	contact := s.Server.Contact
 	if contact != nil {
-		values += (*contact).ID + "," + (*contact).Name + "," + (*contact).Alias + "," + (*contact).Email + "," + (*contact).Pager + "," + (*contact).GuiAccess + "," + (*contact).Admin + "," + (*contact).Activate + "\n"
+		values += "\"" + (*contact).ID + "\"" + "," + "\"" + (*contact).Name + "\"" + "," + "\"" + (*contact).Alias + "\"" + "," + "\"" + (*contact).Email + "\"" + "," + "\"" + (*contact).Pager + "\"" + "," + "\"" + (*contact).GuiAccess + "\"" + "," + "\"" + (*contact).Admin + "\"" + "," + "\"" + (*contact).Activate + "\"" + "\n"
 	} else {
 		values += ",,,,,,,\n"
 	}

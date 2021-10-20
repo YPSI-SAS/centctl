@@ -105,11 +105,11 @@ func (s DetailServer) StringCSV() string {
 	values += s.Server.Name + ","
 	host := s.Server.Host
 	if host != nil {
-		values += (*host).ID + ","
-		values += (*host).Name + ","
-		values += (*host).Alias + ","
-		values += (*host).Address + ","
-		values += (*host).Activate + "\n"
+		values += "\"" + (*host).ID + "\"" + ","
+		values += "\"" + (*host).Name + "\"" + ","
+		values += "\"" + (*host).Alias + "\"" + ","
+		values += "\"" + (*host).Address + "\"" + ","
+		values += "\"" + (*host).Activate + "\"" + "\n"
 
 	} else {
 		values += ",,,,\n"

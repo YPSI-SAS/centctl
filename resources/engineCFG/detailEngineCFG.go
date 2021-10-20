@@ -78,7 +78,7 @@ func (s DetailServerEngineCFG) StringCSV() string {
 	values += s.Server.Name + ","
 	engineCFG := s.Server.EngineCFG
 	if engineCFG != nil {
-		values += (*engineCFG).ID + "," + (*engineCFG).Name + "," + (*engineCFG).Instance + "," + (*engineCFG).Comment + "\n"
+		values += "\"" + (*engineCFG).ID + "\"" + "," + "\"" + (*engineCFG).Name + "\"" + "," + "\"" + (*engineCFG).Instance + "\"" + "," + "\"" + (*engineCFG).Comment + "\"" + "\n"
 
 	} else {
 		values += ",,,\n"

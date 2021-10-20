@@ -105,7 +105,7 @@ func (s DetailCategoryServer) StringCSV() string {
 	values += s.Server.Name + ","
 	category := s.Server.Category
 	if category != nil {
-		values += (*category).ID + "," + (*category).Name + "," + (*category).Alias + "," + (*category).Level + "\n"
+		values += "\"" + (*category).ID + "\"" + "," + "\"" + (*category).Name + "\"" + "," + "\"" + (*category).Alias + "\"" + "," + "\"" + (*category).Level + "\"" + "\n"
 
 	} else {
 		values += ",,,\n"

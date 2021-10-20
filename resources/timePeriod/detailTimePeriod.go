@@ -102,16 +102,16 @@ func (s DetailServer) StringCSV() string {
 	values += s.Server.Name + ","
 	timePeriod := s.Server.TimePeriods
 	if timePeriod != nil {
-		values += (*timePeriod).ID + ","
-		values += (*timePeriod).Name + ","
-		values += (*timePeriod).Alias + ","
-		values += (*timePeriod).Monday + ","
-		values += (*timePeriod).Tuesday + ","
-		values += (*timePeriod).Wednesday + ","
-		values += (*timePeriod).Thursday + ","
-		values += (*timePeriod).Friday + ","
-		values += (*timePeriod).Saturday + ","
-		values += (*timePeriod).Sunday + "\n"
+		values += "\"" + (*timePeriod).ID + "\"" + ","
+		values += "\"" + (*timePeriod).Name + "\"" + ","
+		values += "\"" + (*timePeriod).Alias + "\"" + ","
+		values += "\"" + (*timePeriod).Monday + "\"" + ","
+		values += "\"" + (*timePeriod).Tuesday + "\"" + ","
+		values += "\"" + (*timePeriod).Wednesday + "\"" + ","
+		values += "\"" + (*timePeriod).Thursday + "\"" + ","
+		values += "\"" + (*timePeriod).Friday + "\"" + ","
+		values += "\"" + (*timePeriod).Saturday + "\"" + ","
+		values += "\"" + (*timePeriod).Sunday + "\"" + "\n"
 	} else {
 		values += ",,,,,,,,,\n"
 	}

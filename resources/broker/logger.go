@@ -68,7 +68,7 @@ func (s ServerLogger) StringText() string {
 func (s ServerLogger) StringCSV() string {
 	var values string = "Server,ID,Name\n"
 	for i := 0; i < len(s.Server.BrokerLoggers); i++ {
-		values += s.Server.Name + "," + s.Server.BrokerLoggers[i].ID + "," + s.Server.BrokerLoggers[i].Name + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.BrokerLoggers[i].ID + "\"" + "," + "\"" + s.Server.BrokerLoggers[i].Name + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

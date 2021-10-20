@@ -96,16 +96,16 @@ func (s DetailTimelineServer) StringText() string {
 func (s DetailTimelineServer) StringCSV() string {
 	var values string = "Server,ID,Type,Date,StartDate,EndDate,Content,Tries,Contact,Status\n"
 	for i := 0; i < len(s.Server.TimelineService); i++ {
-		values += s.Server.Name + ","
-		values += strconv.Itoa(s.Server.TimelineService[i].ID) + ","
-		values += s.Server.TimelineService[i].Type + ","
-		values += s.Server.TimelineService[i].Date + ","
-		values += s.Server.TimelineService[i].StartDate + ","
-		values += s.Server.TimelineService[i].EndDate + ","
-		values += s.Server.TimelineService[i].Content + ","
-		values += strconv.Itoa(s.Server.TimelineService[i].Tries) + ","
-		values += s.Server.TimelineService[i].Contact.Name + ","
-		values += s.Server.TimelineService[i].Status.Name + "\n"
+		values += "\"" + s.Server.Name + "\"" + ","
+		values += "\"" + strconv.Itoa(s.Server.TimelineService[i].ID) + "\"" + ","
+		values += "\"" + s.Server.TimelineService[i].Type + "\"" + ","
+		values += "\"" + s.Server.TimelineService[i].Date + "\"" + ","
+		values += "\"" + s.Server.TimelineService[i].StartDate + "\"" + ","
+		values += "\"" + s.Server.TimelineService[i].EndDate + "\"" + ","
+		values += "\"" + s.Server.TimelineService[i].Content + "\"" + ","
+		values += "\"" + strconv.Itoa(s.Server.TimelineService[i].Tries) + "\"" + ","
+		values += "\"" + s.Server.TimelineService[i].Contact.Name + "\"" + ","
+		values += "\"" + s.Server.TimelineService[i].Status.Name + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

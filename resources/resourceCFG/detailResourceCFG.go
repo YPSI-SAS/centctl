@@ -87,14 +87,14 @@ func (s DetailServer) StringCSV() string {
 	var values string = "Server,ID,Name,Value,Comment,Activate,Instance\n"
 	resourceCFG := s.Server.ResourceCFG
 	if resourceCFG != nil {
-		values += s.Server.Name + "," + (*resourceCFG).ID + "," + (*resourceCFG).Name + "," + (*resourceCFG).Value + "," + (*resourceCFG).Comment + "," + (*resourceCFG).Activate + ","
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + (*resourceCFG).ID + "\"" + "," + "\"" + (*resourceCFG).Name + "\"" + "," + "\"" + (*resourceCFG).Value + "\"" + "," + "\"" + (*resourceCFG).Comment + "\"" + "," + "\"" + (*resourceCFG).Activate + "\"" + "," + "\""
 		for index, inst := range (*resourceCFG).Instance {
 			values += inst
 			if index != len((*resourceCFG).Instance)-1 {
 				values += "|"
 			}
 		}
-		values += "\n"
+		values += "\"" + "\n"
 	} else {
 		values += ",,,,,\n"
 	}

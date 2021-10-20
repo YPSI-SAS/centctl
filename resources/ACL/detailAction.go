@@ -79,7 +79,7 @@ func (s DetailActionServer) StringCSV() string {
 	values += s.Server.Name + ","
 	action := s.Server.Action
 	if action != nil {
-		values += (*action).ID + "," + (*action).Name + "," + (*action).Description + "," + (*action).Activate + "\n"
+		values += "\"" + (*action).ID + "\"" + "," + "\"" + (*action).Name + "\"" + "," + "\"" + (*action).Description + "\"" + "," + "\"" + (*action).Activate + "\"" + "\n"
 
 	} else {
 		values += ",,,\n"

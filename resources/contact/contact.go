@@ -72,7 +72,7 @@ func (s Server) StringText() string {
 func (s Server) StringCSV() string {
 	var values string = "Server,ID,Name,Alias,Email\n"
 	for i := 0; i < len(s.Server.Contacts); i++ {
-		values += s.Server.Name + "," + s.Server.Contacts[i].ID + "," + s.Server.Contacts[i].Name + "," + s.Server.Contacts[i].Alias + "," + s.Server.Contacts[i].Email + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Contacts[i].ID + "\"" + "," + "\"" + s.Server.Contacts[i].Name + "\"" + "," + "\"" + s.Server.Contacts[i].Alias + "\"" + "," + "\"" + s.Server.Contacts[i].Email + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

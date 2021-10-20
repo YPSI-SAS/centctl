@@ -75,11 +75,11 @@ func (s Server) StringText() string {
 func (s Server) StringCSV() string {
 	var values string = "Server,ID,Name,Type,CmdLine\n"
 	for i := 0; i < len(s.Server.Commands); i++ {
-		values += s.Server.Name + ","
-		values += s.Server.Commands[i].ID + ","
-		values += s.Server.Commands[i].Name + ","
-		values += s.Server.Commands[i].Type + ","
-		values += s.Server.Commands[i].CmdLine + "\n"
+		values += "\"" + s.Server.Name + "\"" + ","
+		values += "\"" + s.Server.Commands[i].ID + "\"" + ","
+		values += "\"" + s.Server.Commands[i].Name + "\"" + ","
+		values += "\"" + s.Server.Commands[i].Type + "\"" + ","
+		values += "\"" + s.Server.Commands[i].CmdLine + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

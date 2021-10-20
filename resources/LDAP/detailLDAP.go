@@ -93,7 +93,7 @@ func (s DetailServer) StringCSV() string {
 	values += s.Server.Name + ","
 	ldap := s.Server.LDAP
 	if ldap != nil {
-		values += (*ldap).ID + "," + (*ldap).Name + "," + (*ldap).Status + "," + (*ldap).Description + "\n"
+		values += "\"" + (*ldap).ID + "\"" + "," + "\"" + (*ldap).Name + "\"" + "," + "\"" + (*ldap).Status + "\"" + "," + "\"" + (*ldap).Description + "\"" + "\n"
 	} else {
 		values += ",,,\n"
 	}

@@ -73,7 +73,7 @@ func (s ServerEngineCFG) StringText() string {
 func (s ServerEngineCFG) StringCSV() string {
 	var values string = "Server,ID,Name,Instance,Comment\n"
 	for i := 0; i < len(s.Server.EngineCFG); i++ {
-		values += s.Server.Name + "," + s.Server.EngineCFG[i].ID + "," + s.Server.EngineCFG[i].Name + "," + s.Server.EngineCFG[i].Instance + "," + s.Server.EngineCFG[i].Comment + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.EngineCFG[i].ID + "\"" + "," + "\"" + s.Server.EngineCFG[i].Name + "\"" + "," + "\"" + s.Server.EngineCFG[i].Instance + "\"" + "," + "\"" + s.Server.EngineCFG[i].Comment + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

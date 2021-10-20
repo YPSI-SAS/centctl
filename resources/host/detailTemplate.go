@@ -80,7 +80,7 @@ func (s DetailTemplateServer) StringCSV() string {
 	values += s.Server.Name + ","
 	template := s.Server.Template
 	if template != nil {
-		values += (*template).ID + "," + (*template).Name + "," + (*template).Alias + "," + (*template).Address + "," + (*template).Activate + "\n"
+		values += "\"" + (*template).ID + "\"" + "," + "\"" + (*template).Name + "\"" + "," + "\"" + (*template).Alias + "\"" + "," + "\"" + (*template).Address + "\"" + "," + "\"" + (*template).Activate + "\"" + "\n"
 	} else {
 		values += ",,,,\n"
 	}

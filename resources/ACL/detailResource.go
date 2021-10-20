@@ -82,7 +82,7 @@ func (s DetailResourceServer) StringCSV() string {
 	values += s.Server.Name + ","
 	resource := s.Server.Resource
 	if resource != nil {
-		values += (*resource).ID + "," + (*resource).Name + "," + (*resource).Alias + "," + (*resource).Comment + "," + (*resource).Activate + "\n"
+		values += "\"" + (*resource).ID + "\"" + "," + "\"" + (*resource).Name + "\"" + "," + "\"" + (*resource).Alias + "\"" + "," + "\"" + (*resource).Comment + "\"" + "," + "\"" + (*resource).Activate + "\"" + "\n"
 
 	} else {
 		values += ",,,\n"

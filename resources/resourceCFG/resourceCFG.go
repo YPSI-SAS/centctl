@@ -84,14 +84,14 @@ func (s Server) StringText() string {
 func (s Server) StringCSV() string {
 	var values string = "Server,ID,Name,Value,Comment,Activate,Instance\n"
 	for i := 0; i < len(s.Server.ResourceCFG); i++ {
-		values += s.Server.Name + "," + s.Server.ResourceCFG[i].ID + "," + s.Server.ResourceCFG[i].Name + "," + s.Server.ResourceCFG[i].Value + "," + s.Server.ResourceCFG[i].Comment + "," + s.Server.ResourceCFG[i].Activate + ","
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.ResourceCFG[i].ID + "\"" + "," + "\"" + s.Server.ResourceCFG[i].Name + "\"" + "," + "\"" + s.Server.ResourceCFG[i].Value + "\"" + "," + "\"" + s.Server.ResourceCFG[i].Comment + "\"" + "," + "\"" + s.Server.ResourceCFG[i].Activate + "\"" + "," + "\""
 		for index, inst := range s.Server.ResourceCFG[i].Instance {
 			values += inst
 			if index != len(s.Server.ResourceCFG[i].Instance)-1 {
 				values += "|"
 			}
 		}
-		values += "\n"
+		values += "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

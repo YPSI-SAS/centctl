@@ -76,7 +76,7 @@ func (s DetailServerCFG) StringCSV() string {
 	values += s.Server.Name + ","
 	brokerCFG := s.Server.BrokerCFG
 	if brokerCFG != nil {
-		values += (*brokerCFG).ID + "," + (*brokerCFG).Name + "," + (*brokerCFG).Instance + "\n"
+		values += "\"" + (*brokerCFG).ID + "\"" + "," + "\"" + (*brokerCFG).Name + "\"" + "," + "\"" + (*brokerCFG).Instance + "\"" + "\n"
 	} else {
 		values += ",,\n"
 	}

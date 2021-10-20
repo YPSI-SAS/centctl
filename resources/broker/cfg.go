@@ -70,7 +70,7 @@ func (s ServerCFG) StringText() string {
 func (s ServerCFG) StringCSV() string {
 	var values string = "Server,ID,Name,Instance\n"
 	for i := 0; i < len(s.Server.BrokerCFGs); i++ {
-		values += s.Server.Name + "," + s.Server.BrokerCFGs[i].ID + "," + s.Server.BrokerCFGs[i].Name + "," + s.Server.BrokerCFGs[i].Instance + "\n"
+		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.BrokerCFGs[i].ID + "\"" + "," + "\"" + s.Server.BrokerCFGs[i].Name + "\"" + "," + "\"" + s.Server.BrokerCFGs[i].Instance + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }
