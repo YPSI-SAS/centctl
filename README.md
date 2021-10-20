@@ -115,10 +115,8 @@ Build for a specific platform:
 ```bash
 # Build for linux
 make linux
-
 # Build for Windows
 make windows
-
 # Build for MacOS
 make darwin
 ```
