@@ -111,7 +111,7 @@ func ExportACLGroup(name []string, regex string, file string, appendFile bool, a
 		}
 
 		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,aclGroup,\"" + group.Name + "\",\"" + group.Alias + "\"\n")
+		_, _ = f.WriteString("add,aclGroup,\"" + group.Name + "\",\"" + strings.ReplaceAll(group.Alias, "\"", "\"\"") + "\"\n")
 		_, _ = f.WriteString("modify,aclGroup,\"" + group.Name + "\",activate,\"" + group.Activate + "\"\n")
 
 		//Write in the file the contacts

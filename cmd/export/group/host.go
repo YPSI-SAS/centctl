@@ -111,10 +111,10 @@ func ExportGroupHost(name []string, regex string, file string, appendFile bool, 
 		}
 
 		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,groupHost,\"" + group.Name + "\",\"" + group.Alias + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",notes,\"" + group.Notes + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",notes_url,\"" + group.NotesURL + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",action_url,\"" + group.ActionURL + "\"\n")
+		_, _ = f.WriteString("add,groupHost,\"" + group.Name + "\",\"" + strings.ReplaceAll(group.Alias, "\"", "\"\"") + "\"\n")
+		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",notes,\"" + strings.ReplaceAll(group.Notes, "\"", "\"\"") + "\"\n")
+		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",notes_url,\"" + strings.ReplaceAll(group.NotesURL, "\"", "\"\"") + "\"\n")
+		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",action_url,\"" + strings.ReplaceAll(group.ActionURL, "\"", "\"\"") + "\"\n")
 		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",activate,\"" + group.Activate + "\"\n")
 
 		//Problem SQL Syntax when the images are imported after
@@ -122,7 +122,7 @@ func ExportGroupHost(name []string, regex string, file string, appendFile bool, 
 		// _, _ = f.WriteString("modify,groupHost," + group.Name + ",map_icon_image," + group.MapIconImage + "\n")
 
 		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",geo_coords,\"" + group.GeoCoords + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",comment,\"" + group.Comment + "\"\n")
+		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",comment,\"" + strings.ReplaceAll(group.Comment, "\"", "\"\"") + "\"\n")
 
 		//Write in the file the members
 		if len(group.Member) != 0 {

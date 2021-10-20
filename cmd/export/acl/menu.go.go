@@ -110,9 +110,9 @@ func ExportACLMenu(name []string, regex string, file string, appendFile bool, al
 		}
 
 		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,aclMenu,\"" + menu.Name + "\",\"" + menu.Alias + "\"\n")
+		_, _ = f.WriteString("add,aclMenu,\"" + menu.Name + "\",\"" + strings.ReplaceAll(menu.Alias, "\"", "\"\"") + "\"\n")
 		_, _ = f.WriteString("modify,aclMenu,\"" + menu.Name + "\",activate,\"" + menu.Activate + "\"\n")
-		_, _ = f.WriteString("modify,aclMenu,\"" + menu.Name + "\",comment,\"" + menu.Comment + "\"\n")
+		_, _ = f.WriteString("modify,aclMenu,\"" + menu.Name + "\",comment,\"" + strings.ReplaceAll(menu.Comment, "\"", "\"\"") + "\"\n")
 	}
 	return nil
 }

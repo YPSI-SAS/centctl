@@ -112,7 +112,7 @@ func ExportTimePeriod(name []string, regex string, file string, appendFile bool,
 
 		//Write timePeriod informations
 		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,timePeriod,\"" + timePeriod.Name + "\",\"" + timePeriod.Alias + "\"\n")
+		_, _ = f.WriteString("add,timePeriod,\"" + timePeriod.Name + "\",\"" + strings.ReplaceAll(timePeriod.Alias, "\"", "\"\"") + "\"\n")
 		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",sunday,\"" + timePeriod.Sunday + "\"\n")
 		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",monday,\"" + timePeriod.Monday + "\"\n")
 		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",tuesday,\"" + timePeriod.Tuesday + "\"\n")
