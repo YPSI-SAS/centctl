@@ -37,12 +37,11 @@ var Cmd = &cobra.Command{
 
 func init() {
 	Cmd.AddCommand(hostCmd)
+	Cmd.AddCommand(serviceCmd)
 
 	Cmd.PersistentFlags().StringP("output", "o", "", "Output result of the check send")
 	Cmd.MarkPersistentFlagRequired("output")
 	Cmd.PersistentFlags().StringP("perfdata", "p", "", "Performance data result of the check send")
 	Cmd.MarkPersistentFlagRequired("perfdata")
 
-	Cmd.PersistentFlags().String("status", "", "Host status that can be submitted (up, down, unreachable)")
-	Cmd.MarkPersistentFlagRequired("status")
 }

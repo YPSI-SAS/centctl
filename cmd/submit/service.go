@@ -34,34 +34,34 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// hostCmd represents the host command
-var hostCmd = &cobra.Command{
-	Use:   "host",
-	Short: "Submit a result to a single host",
-	Long:  `Submit a result to a single host`,
+// serviceCmd represents the submit/service command
+var serviceCmd = &cobra.Command{
+	Use:   "service",
+	Short: "Submit a result to a single service",
+	Long:  `Submit a result to a single service`,
 	Run: func(cmd *cobra.Command, args []string) {
 		id, _ := cmd.Flags().GetInt("id")
+		serviceID, _ := cmd.Flags().GetInt("serviceID")
 		output, _ := cmd.Flags().GetString("output")
 		perfdata, _ := cmd.Flags().GetString("perfdata")
 		status, _ := cmd.Flags().GetString("status")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := SubmitStatusHost(id, output, perfdata, status, debugV)
+		err := SubmitStatusService(id, serviceID, output, perfdata, status, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
-
 	},
 }
 
-//SubmitStatusHost permits to submit a result to a single host
-func SubmitStatusHost(id int, output string, perfdata string, status string, debugV bool) error {
+//SubmitStatusService permits to submit a result to a single service
+func SubmitStatusService(id int, serviceID int, output string, perfdata string, status string, debugV bool) error {
 	colorGreen := colorMessage.GetColorGreen()
 	colorRed := colorMessage.GetColorRed()
 
-	statusID := convertStatusHost(status)
+	statusID := convertStatusService(status)
 	if statusID == -1 {
 		fmt.Printf(colorRed, "ERROR:")
-		fmt.Println("The status is incorrect. The value must be (up or down or unreachable)")
+		fmt.Println("The status is incorrect. The value must be (ok or warning or critical or unknown)")
 		os.Exit(1)
 	}
 
@@ -72,33 +72,37 @@ func SubmitStatusHost(id int, output string, perfdata string, status string, deb
 		"performance_data": perfdata,
 	})
 
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(id) + "/submit"
-	err, _ := request.GeneriqueCommandV2Post(urlCentreon, requestBody, "submit host", debugV)
+	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(id) + "/services/" + strconv.Itoa(serviceID) + "/submit"
+	err, _ := request.GeneriqueCommandV2Post(urlCentreon, requestBody, "submit service", debugV)
 	if err != nil {
 		return err
 	}
 
 	fmt.Printf(colorGreen, "INFO: ")
-	fmt.Printf("The host `%s` has submit result\n", strconv.Itoa(id))
+	fmt.Printf("The service `%s` of the host `%s` has submit result\n", strconv.Itoa(serviceID), strconv.Itoa(id))
 	return nil
 }
 
-func convertStatusHost(status string) int {
+func convertStatusService(status string) int {
 	switch status {
-	case "up":
+	case "ok":
 		return 0
-	case "down":
+	case "warning":
 		return 1
-	case "unreachable":
+	case "critical":
 		return 2
+	case "unknown":
+		return 3
 	default:
 		return -1
 	}
 }
 
 func init() {
-	hostCmd.Flags().IntP("id", "i", -1, "ID of the host")
-	hostCmd.MarkFlagRequired("id")
-	hostCmd.Flags().String("status", "", "Host status that can be submitted (up, down, unreachable)")
-	hostCmd.MarkFlagRequired("status")
+	serviceCmd.Flags().IntP("id", "i", -1, "ID of the host")
+	serviceCmd.MarkFlagRequired("id")
+	serviceCmd.Flags().IntP("serviceID", "s", -1, "ID of the service")
+	serviceCmd.MarkFlagRequired("serviceID")
+	serviceCmd.Flags().String("status", "", "Service status that can be submitted (ok or warning or critical or unknown)")
+	serviceCmd.MarkFlagRequired("status")
 }
