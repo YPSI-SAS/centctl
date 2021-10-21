@@ -36,6 +36,7 @@ import (
 	"centctl/cmd/list"
 	"centctl/cmd/modify"
 	"centctl/cmd/show"
+	"centctl/cmd/submit"
 
 	"centctl/colorMessage"
 	"encoding/json"
@@ -171,6 +172,7 @@ func init() {
 	rootCmd.AddCommand(apply.Cmd)
 	rootCmd.AddCommand(add.Cmd)
 	rootCmd.AddCommand(modify.Cmd)
+	rootCmd.AddCommand(submit.Cmd)
 
 }
 
