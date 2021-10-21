@@ -52,95 +52,95 @@ var allCmd = &cobra.Command{
 
 //ExportAll permits to export all objects of the centreon server
 func ExportAll(file string, debugV bool) error {
-	err := ExportPoller([]string{}, "", file, true, true, debugV)
+	err := ExportPoller([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportEngineCFG([]string{}, "", file, true, true, debugV)
+	err = ExportEngineCFG([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportResourceCFG([]string{}, "", file, true, true, debugV)
+	err = ExportResourceCFG([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportTimePeriod([]string{}, "", file, true, true, debugV)
+	err = ExportTimePeriod([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportCommand([]string{}, "", "all", file, true, true, debugV)
+	err = ExportCommand([]string{}, "", "all", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = template.ExportTemplateContact([]string{}, "", file, true, true, debugV)
+	err = template.ExportTemplateContact([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = template.ExportTemplateHost([]string{}, "", file, true, true, false, debugV)
+	err = template.ExportTemplateHost([]string{}, "", file, true, false, debugV)
 	if err != nil {
 		return err
 	}
-	err = template.ExportTemplateService([]string{}, "", file, true, true, debugV)
+	err = template.ExportTemplateService([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportContact([]string{}, "", file, true, true, debugV)
+	err = ExportContact([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = group.ExportGroupContact([]string{}, "", file, true, true, debugV)
+	err = group.ExportGroupContact([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = group.ExportGroupHost([]string{}, "", file, true, true, debugV)
+	err = group.ExportGroupHost([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = group.ExportGroupService([]string{}, "", file, true, true, debugV)
+	err = group.ExportGroupService([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = acl.ExportACLAction([]string{}, "", file, true, true, debugV)
+	err = acl.ExportACLAction([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = acl.ExportACLMenu([]string{}, "", file, true, true, debugV)
+	err = acl.ExportACLMenu([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = acl.ExportACLResource([]string{}, "", file, true, true, debugV)
+	err = acl.ExportACLResource([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = acl.ExportACLGroup([]string{}, "", file, true, true, debugV)
+	err = acl.ExportACLGroup([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportLDAP([]string{}, "", file, true, true, debugV)
+	err = ExportLDAP([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportVendor([]string{}, "", file, true, true, debugV)
+	err = ExportVendor([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportTrap([]string{}, "", file, true, true, debugV)
+	err = ExportTrap([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = ExportHost([]string{}, "", file, true, true, debugV, false)
+	err = ExportHost([]string{}, "", file, true, debugV, false)
 	if err != nil {
 		return err
 	}
-	err = ExportService([]string{}, file, []string{}, true, true, debugV)
+	err = ExportService([]string{}, file, []string{}, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = category.ExportCategoryHost([]string{}, "", file, true, true, debugV)
+	err = category.ExportCategoryHost([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}
-	err = category.ExportCategoryService([]string{}, "", file, true, true, debugV)
+	err = category.ExportCategoryService([]string{}, "", file, true, debugV)
 	if err != nil {
 		return err
 	}

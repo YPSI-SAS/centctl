@@ -43,13 +43,12 @@ var engineCFGCmd = &cobra.Command{
 	Short: "Export engineCFG",
 	Long:  `Export engineCFG of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportEngineCFG(name, regex, file, appendFile, all, debugV)
+		err := ExportEngineCFG(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var engineCFGCmd = &cobra.Command{
 }
 
 //ExportEngineCFG permits to export a engineCFG of the centreon server
-func ExportEngineCFG(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportEngineCFG(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportEngineCFG(name []string, regex string, file string, appendFile bool, 
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -111,8 +97,8 @@ func ExportEngineCFG(name []string, regex string, file string, appendFile bool, 
 		}
 
 		//Write engineCFG informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,engineCFG,\"" + engineCFG.Name + "\",\"" + engineCFG.Instance + "\",\"" + engineCFG.Comment + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,engineCFG,\""+engineCFG.Name+"\",\""+engineCFG.Instance+"\",\""+engineCFG.Comment+"\"\n", file, writeFile)
 
 	}
 
@@ -165,7 +151,6 @@ func getAllEngineCFG(debugV bool) []engineCFG.ExportEngineCFG {
 
 func init() {
 	engineCFGCmd.Flags().StringSliceP("name", "n", []string{}, "engineCFG's name (separate by a comma the multiple values)")
-	engineCFGCmd.Flags().StringP("file", "f", "ExportEngineCFG.csv", "To define the name of the csv file")
 	engineCFGCmd.Flags().StringP("regex", "r", "", "The regex to apply on the engineCFG's name")
 
 }

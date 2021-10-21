@@ -44,14 +44,13 @@ var hostCmd = &cobra.Command{
 	Short: "Export template host",
 	Long:  `Export template host of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
 		serviceTpl, _ := cmd.Flags().GetBool("serviceTpl")
-		err := ExportTemplateHost(name, regex, file, appendFile, all, serviceTpl, debugV)
+		err := ExportTemplateHost(name, regex, file, all, serviceTpl, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -59,7 +58,7 @@ var hostCmd = &cobra.Command{
 }
 
 //ExportTemplateHost permits to export a host template of the centreon server
-func ExportTemplateHost(name []string, regex string, file string, appendFile bool, all bool, serviceTpl bool, debugV bool) error {
+func ExportTemplateHost(name []string, regex string, file string, all bool, serviceTpl bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 
@@ -67,22 +66,10 @@ func ExportTemplateHost(name []string, regex string, file string, appendFile boo
 		fmt.Println("You must pass flag name or flag all or flag regex")
 		os.Exit(1)
 	}
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
 
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -113,51 +100,51 @@ func ExportTemplateHost(name []string, regex string, file string, appendFile boo
 		}
 
 		//Write templateHost informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,templateHost,\"" + templateHost.Name + "\",\"" + templateHost.Alias + "\",\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",address,\"" + templateHost.Address + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",snmp_community,\"" + templateHost.SnmpCommunity + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",snmp_version,\"" + templateHost.SnmpVersion + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",timezone,\"" + templateHost.Timezone + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",check_command,\"" + templateHost.CheckCommand + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",check_command_arguments,\"" + templateHost.CheckCommandArguments + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",check_period,\"" + templateHost.CheckPeriod + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",max_check_attempts,\"" + templateHost.MaxCheckAttempts + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",check_interval,\"" + templateHost.CheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",retry_check_interval,\"" + templateHost.RetryCheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",active_checks_enabled,\"" + templateHost.ActiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",passive_checks_enabled,\"" + templateHost.PassiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",notifications_enabled,\"" + templateHost.NotificationsEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",contact_additive_inheritance,\"" + templateHost.ContactAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",cg_additive_inheritance,\"" + templateHost.CgAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",notification_options,\"" + templateHost.NotificationOptions + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",notification_interval,\"" + templateHost.NotificationInterval + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",notification_period,\"" + templateHost.NotificationPeriod + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",first_notification_delay,\"" + templateHost.FirstNotificationDelay + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",recovery_notification_delay,\"" + templateHost.RecoveryNotificationDelay + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",obsess_over_host,\"" + templateHost.ObsessOverHost + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",acknowledgement_timeout,\"" + templateHost.AcknowledgementTimeout + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",check_freshness,\"" + templateHost.CheckFreshness + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",freshness_threshold,\"" + templateHost.FreshnessThreshold + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",flap_detection_enabled,\"" + templateHost.FlapDetectionEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",low_flap_threshold,\"" + templateHost.LowFlapThreshold + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",high_flap_threshold,\"" + templateHost.HighFlapThreshold + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",retain_status_information,\"" + templateHost.RetainStatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",retain_nonstatus_information,\"" + templateHost.RetainNonstatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",stalking_options,\"" + templateHost.StalkingOptions + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",event_handler_enabled,\"" + templateHost.EventHandlerEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",event_handler,\"" + templateHost.EventHandler + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",event_handler_arguments,\"" + templateHost.EventHandlerArguments + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",action_url,\"" + templateHost.ActionURL + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",notes,\"" + templateHost.Notes + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",notes_url,\"" + templateHost.NotesURL + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",icon_image,\"" + templateHost.IconImage + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",icon_image_alt,\"" + templateHost.IconImageAlt + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",statusmap_image,\"" + templateHost.StatusMapImage + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",2d_coords,\"" + templateHost.Coords2d + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",3d_coords,\"" + templateHost.Coords3d + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",activate,\"" + templateHost.Activate + "\"\n")
-		_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",comment,\"" + templateHost.Comment + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,templateHost,\""+templateHost.Name+"\",\""+templateHost.Alias+"\",\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",address,\""+templateHost.Address+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",snmp_community,\""+templateHost.SnmpCommunity+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",snmp_version,\""+templateHost.SnmpVersion+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",timezone,\""+templateHost.Timezone+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",check_command,\""+templateHost.CheckCommand+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",check_command_arguments,\""+templateHost.CheckCommandArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",check_period,\""+templateHost.CheckPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",max_check_attempts,\""+templateHost.MaxCheckAttempts+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",check_interval,\""+templateHost.CheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",retry_check_interval,\""+templateHost.RetryCheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",active_checks_enabled,\""+templateHost.ActiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",passive_checks_enabled,\""+templateHost.PassiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",notifications_enabled,\""+templateHost.NotificationsEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",contact_additive_inheritance,\""+templateHost.ContactAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",cg_additive_inheritance,\""+templateHost.CgAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",notification_options,\""+templateHost.NotificationOptions+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",notification_interval,\""+templateHost.NotificationInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",notification_period,\""+templateHost.NotificationPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",first_notification_delay,\""+templateHost.FirstNotificationDelay+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",recovery_notification_delay,\""+templateHost.RecoveryNotificationDelay+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",obsess_over_host,\""+templateHost.ObsessOverHost+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",acknowledgement_timeout,\""+templateHost.AcknowledgementTimeout+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",check_freshness,\""+templateHost.CheckFreshness+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",freshness_threshold,\""+templateHost.FreshnessThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",flap_detection_enabled,\""+templateHost.FlapDetectionEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",low_flap_threshold,\""+templateHost.LowFlapThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",high_flap_threshold,\""+templateHost.HighFlapThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",retain_status_information,\""+templateHost.RetainStatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",retain_nonstatus_information,\""+templateHost.RetainNonstatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",stalking_options,\""+templateHost.StalkingOptions+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",event_handler_enabled,\""+templateHost.EventHandlerEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",event_handler,\""+templateHost.EventHandler+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",event_handler_arguments,\""+templateHost.EventHandlerArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",action_url,\""+templateHost.ActionURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",notes,\""+templateHost.Notes+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",notes_url,\""+templateHost.NotesURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",icon_image,\""+templateHost.IconImage+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",icon_image_alt,\""+templateHost.IconImageAlt+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",statusmap_image,\""+templateHost.StatusMapImage+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",2d_coords,\""+templateHost.Coords2d+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",3d_coords,\""+templateHost.Coords3d+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",activate,\""+templateHost.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",comment,\""+templateHost.Comment+"\"\n", file, writeFile)
 
 		//Write macros information
 		if len(templateHost.Macros) != 0 {
@@ -165,28 +152,28 @@ func ExportTemplateHost(name []string, regex string, file string, appendFile boo
 				if strings.Contains(m.Value, "\"") {
 					m.Value = strings.ReplaceAll(m.Value, "\"", "'")
 				}
-				_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",macro,\"" + m.Name + "|" + m.Value + "|" + m.IsPassword + "|" + m.Description + "\"\n")
+				request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",macro,\""+m.Name+"|"+m.Value+"|"+m.IsPassword+"|"+m.Description+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Templates information
 		if len(templateHost.Templates) != 0 {
 			for _, t := range templateHost.Templates {
-				_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",template,\"" + t.Name + "\"\n")
+				request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",template,\""+t.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write ContactGroups information
 		if len(templateHost.ContactGroups) != 0 {
 			for _, c := range templateHost.ContactGroups {
-				_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",contactgroup,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",contactgroup,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Contacts information
 		if len(templateHost.Contacts) != 0 {
 			for _, c := range templateHost.Contacts {
-				_, _ = f.WriteString("modify,templateHost,\"" + templateHost.Name + "\",contact,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,templateHost,\""+templateHost.Name+"\",contact,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 	}
@@ -194,7 +181,7 @@ func ExportTemplateHost(name []string, regex string, file string, appendFile boo
 		for _, n := range name {
 			serviceTpl := getAllTemplateServiceRelatedToTemplateHost(debugV, n)
 			if len(serviceTpl) != 0 {
-				err := ExportTemplateService(serviceTpl, "", file, true, false, debugV)
+				err := ExportTemplateService(serviceTpl, "", file, false, debugV)
 				if err != nil {
 					return err
 				}
@@ -318,7 +305,6 @@ func getAllTemplateServiceRelatedToTemplateHost(debugV bool, name string) []stri
 
 func init() {
 	hostCmd.Flags().StringSliceP("name", "n", []string{}, "Host template's name (separate by a comma the multiple values)")
-	hostCmd.Flags().StringP("file", "f", "ExportHostTemplate.csv", "To define the name of the csv file")
 	hostCmd.Flags().StringP("regex", "r", "", "The regex to apply on the host template's name")
 	hostCmd.Flags().Bool("serviceTpl", false, "Export all services templates related to this host template")
 

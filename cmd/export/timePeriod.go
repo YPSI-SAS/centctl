@@ -43,13 +43,12 @@ var timePeriodCmd = &cobra.Command{
 	Short: "Export timePeriod",
 	Long:  `Export timePeriod of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportTimePeriod(name, regex, file, appendFile, all, debugV)
+		err := ExportTimePeriod(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var timePeriodCmd = &cobra.Command{
 }
 
 //ExportTimePeriod permits to export a timePeriod of the centreon server
-func ExportTimePeriod(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportTimePeriod(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportTimePeriod(name []string, regex string, file string, appendFile bool,
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -111,20 +97,20 @@ func ExportTimePeriod(name []string, regex string, file string, appendFile bool,
 		}
 
 		//Write timePeriod informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,timePeriod,\"" + timePeriod.Name + "\",\"" + strings.ReplaceAll(timePeriod.Alias, "\"", "\"\"") + "\"\n")
-		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",sunday,\"" + timePeriod.Sunday + "\"\n")
-		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",monday,\"" + timePeriod.Monday + "\"\n")
-		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",tuesday,\"" + timePeriod.Tuesday + "\"\n")
-		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",thursday,\"" + timePeriod.Thursday + "\"\n")
-		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",wednesday,\"" + timePeriod.Wednesday + "\"\n")
-		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",friday,\"" + timePeriod.Friday + "\"\n")
-		_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",saturday,\"" + timePeriod.Saturday + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,timePeriod,\""+timePeriod.Name+"\",\""+strings.ReplaceAll(timePeriod.Alias, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",sunday,\""+timePeriod.Sunday+"\"\n", file, writeFile)
+		request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",monday,\""+timePeriod.Monday+"\"\n", file, writeFile)
+		request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",tuesday,\""+timePeriod.Tuesday+"\"\n", file, writeFile)
+		request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",thursday,\""+timePeriod.Thursday+"\"\n", file, writeFile)
+		request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",wednesday,\""+timePeriod.Wednesday+"\"\n", file, writeFile)
+		request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",friday,\""+timePeriod.Friday+"\"\n", file, writeFile)
+		request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",saturday,\""+timePeriod.Saturday+"\"\n", file, writeFile)
 
 		//Write Exceptions information
 		if len(timePeriod.Exceptions) != 0 {
 			for _, b := range timePeriod.Exceptions {
-				_, _ = f.WriteString("modify,timePeriod,\"" + timePeriod.Name + "\",exception,\"" + b.Days + ";" + b.Timerange + "\"\n")
+				request.WriteValues("modify,timePeriod,\""+timePeriod.Name+"\",exception,\""+b.Days+";"+b.Timerange+"\"\n", file, writeFile)
 			}
 		}
 	}
@@ -186,7 +172,6 @@ func getAllTimePeriod(debugV bool) []timePeriod.ExportTimePeriod {
 
 func init() {
 	timePeriodCmd.Flags().StringSliceP("name", "n", []string{}, "timePeriod's name (separate by a comma the multiple values)")
-	timePeriodCmd.Flags().StringP("file", "f", "ExportTimePeriod.csv", "To define the name of the csv file")
 	timePeriodCmd.Flags().StringP("regex", "r", "", "The regex to apply on the timePeriod's name")
 
 }

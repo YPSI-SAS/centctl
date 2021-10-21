@@ -43,14 +43,13 @@ var hostCmd = &cobra.Command{
 	Short: "Export host",
 	Long:  `Export host of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
 		services, _ := cmd.Flags().GetBool("services")
-		err := ExportHost(name, regex, file, appendFile, all, debugV, services)
+		err := ExportHost(name, regex, file, all, debugV, services)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -58,7 +57,7 @@ var hostCmd = &cobra.Command{
 }
 
 //ExportHost permits to export a host of the centreon server
-func ExportHost(name []string, regex string, file string, appendFile bool, all bool, debugV bool, services bool) error {
+func ExportHost(name []string, regex string, file string, all bool, debugV bool, services bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -66,22 +65,9 @@ func ExportHost(name []string, regex string, file string, appendFile bool, all b
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -112,55 +98,55 @@ func ExportHost(name []string, regex string, file string, appendFile bool, all b
 		}
 
 		//Write host informations
-		_, _ = f.WriteString("\n")
+		request.WriteValues("\n", file, writeFile)
 		if len(host.Templates) != 0 {
-			_, _ = f.WriteString("add,host,\"" + host.Name + "\",\"" + host.Alias + "\",\"" + host.Address + "\",\"" + host.Templates[0].Name + "\",\"" + host.Instance.Name + "\",\n")
+			request.WriteValues("add,host,\""+host.Name+"\",\""+host.Alias+"\",\""+host.Address+"\",\""+host.Templates[0].Name+"\",\""+host.Instance.Name+"\",\n", file, writeFile)
 		} else {
-			_, _ = f.WriteString("add,host,\"" + host.Name + "\",\"" + host.Alias + "\",\"" + host.Address + "\",,\"" + host.Instance.Name + "\",\n")
+			request.WriteValues("add,host,\""+host.Name+"\",\""+host.Alias+"\",\""+host.Address+"\",,\""+host.Instance.Name+"\",\n", file, writeFile)
 		}
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",snmp_community,\"" + host.SnmpCommunity + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",snmp_version,\"" + host.SnmpVersion + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",timezone,\"" + host.Timezone + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",check_command,\"" + host.CheckCommand + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",check_command_arguments,\"" + host.CheckCommandArguments + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",check_period,\"" + host.CheckPeriod + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",max_check_attempts,\"" + host.MaxCheckAttempts + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",check_interval,\"" + host.CheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",retry_check_interval,\"" + host.RetryCheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",active_checks_enabled,\"" + host.ActiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",passive_checks_enabled,\"" + host.PassiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",notifications_enabled,\"" + host.NotificationsEnabled + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",contact_additive_inheritance,\"" + host.ContactAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",cg_additive_inheritance,\"" + host.CgAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",notification_options,\"" + host.NotificationOptions + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",notification_interval,\"" + host.NotificationInterval + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",notification_period,\"" + host.NotificationPeriod + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",first_notification_delay,\"" + host.FirstNotificationDelay + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",recovery_notification_delay,\"" + host.RecoveryNotificationDelay + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",obsess_over_host,\"" + host.ObsessOverHost + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",acknowledgement_timeout,\"" + host.AcknowledgementTimeout + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",check_freshness,\"" + host.CheckFreshness + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",freshness_threshold,\"" + host.FreshnessThreshold + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",flap_detection_enabled,\"" + host.FlapDetectionEnabled + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",low_flap_threshold,\"" + host.LowFlapThreshold + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",high_flap_threshold,\"" + host.HighFlapThreshold + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",retain_status_information,\"" + host.RetainStatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",retain_nonstatus_information,\"" + host.RetainNonstatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",stalking_options,\"" + host.StalkingOptions + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",event_handler_enabled,\"" + host.EventHandlerEnabled + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",event_handler,\"" + host.EventHandler + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",event_handler_arguments,\"" + host.EventHandlerArguments + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",action_url,\"" + host.ActionURL + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",notes,\"" + host.Notes + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",notes_url,\"" + host.NotesURL + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",icon_image,\"" + host.IconImage + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",icon_image_alt,\"" + host.IconImageAlt + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",statusmap_image,\"" + host.StatusMapImage + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",geo_coords,\"" + host.GeoCoords + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",2d_coords,\"" + host.Coords2d + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",3d_coords,\"" + host.Coords3d + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",activate,\"" + host.Activate + "\"\n")
-		_, _ = f.WriteString("modify,host,\"" + host.Name + "\",comment,\"" + host.Comment + "\"\n")
+		request.WriteValues("modify,host,\""+host.Name+"\",snmp_community,\""+host.SnmpCommunity+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",snmp_version,\""+host.SnmpVersion+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",timezone,\""+host.Timezone+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",check_command,\""+host.CheckCommand+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",check_command_arguments,\""+host.CheckCommandArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",check_period,\""+host.CheckPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",max_check_attempts,\""+host.MaxCheckAttempts+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",check_interval,\""+host.CheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",retry_check_interval,\""+host.RetryCheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",active_checks_enabled,\""+host.ActiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",passive_checks_enabled,\""+host.PassiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",notifications_enabled,\""+host.NotificationsEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",contact_additive_inheritance,\""+host.ContactAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",cg_additive_inheritance,\""+host.CgAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",notification_options,\""+host.NotificationOptions+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",notification_interval,\""+host.NotificationInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",notification_period,\""+host.NotificationPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",first_notification_delay,\""+host.FirstNotificationDelay+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",recovery_notification_delay,\""+host.RecoveryNotificationDelay+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",obsess_over_host,\""+host.ObsessOverHost+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",acknowledgement_timeout,\""+host.AcknowledgementTimeout+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",check_freshness,\""+host.CheckFreshness+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",freshness_threshold,\""+host.FreshnessThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",flap_detection_enabled,\""+host.FlapDetectionEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",low_flap_threshold,\""+host.LowFlapThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",high_flap_threshold,\""+host.HighFlapThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",retain_status_information,\""+host.RetainStatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",retain_nonstatus_information,\""+host.RetainNonstatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",stalking_options,\""+host.StalkingOptions+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",event_handler_enabled,\""+host.EventHandlerEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",event_handler,\""+host.EventHandler+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",event_handler_arguments,\""+host.EventHandlerArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",action_url,\""+host.ActionURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",notes,\""+host.Notes+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",notes_url,\""+host.NotesURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",icon_image,\""+host.IconImage+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",icon_image_alt,\""+host.IconImageAlt+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",statusmap_image,\""+host.StatusMapImage+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",geo_coords,\""+host.GeoCoords+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",2d_coords,\""+host.Coords2d+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",3d_coords,\""+host.Coords3d+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",activate,\""+host.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,host,\""+host.Name+"\",comment,\""+host.Comment+"\"\n", file, writeFile)
 
 		//Write macros information
 		if len(host.Macros) != 0 {
@@ -168,54 +154,54 @@ func ExportHost(name []string, regex string, file string, appendFile bool, all b
 				if strings.Contains(m.Value, "\"") {
 					m.Value = strings.ReplaceAll(m.Value, "\"", "'")
 				}
-				_, _ = f.WriteString("modify,host,\"" + host.Name + "\",macro,\"" + m.Name + "|" + m.Value + "|" + m.IsPassword + "|" + m.Description + "\"\n")
+				request.WriteValues("modify,host,\""+host.Name+"\",macro,\""+m.Name+"|"+m.Value+"|"+m.IsPassword+"|"+m.Description+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Templates information
 		if len(host.Templates) != 0 {
 			for _, t := range host.Templates {
-				_, _ = f.WriteString("modify,host,\"" + host.Name + "\",template,\"" + t.Name + "\"\n")
+				request.WriteValues("modify,host,\""+host.Name+"\",template,\""+t.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Parents information
 		if len(host.Parents) != 0 {
 			for _, p := range host.Parents {
-				_, _ = f.WriteString("modify,host,\"" + host.Name + "\",parent,\"" + p.Name + "\"\n")
+				request.WriteValues("modify,host,\""+host.Name+"\",parent,\""+p.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Childs information
 		if len(host.Childs) != 0 {
 			for _, c := range host.Childs {
-				_, _ = f.WriteString("modify,host,\"" + host.Name + "\",child,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,host,\""+host.Name+"\",child,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write ContactGroups information
 		if len(host.ContactGroups) != 0 {
 			for _, c := range host.ContactGroups {
-				_, _ = f.WriteString("modify,host,\"" + host.Name + "\",contactgroup,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,host,\""+host.Name+"\",contactgroup,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Contacts information
 		if len(host.Contacts) != 0 {
 			for _, c := range host.Contacts {
-				_, _ = f.WriteString("modify,host,\"" + host.Name + "\",contact,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,host,\""+host.Name+"\",contact,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write HostGroups information
 		if len(host.HostGroups) != 0 {
 			for _, h := range host.HostGroups {
-				_, _ = f.WriteString("modify,host,\"" + host.Name + "\",hostgroup,\"" + h.Name + "\"\n")
+				request.WriteValues("modify,host,\""+host.Name+"\",hostgroup,\""+h.Name+"\"\n", file, writeFile)
 			}
 		}
 	}
 	if services {
-		err := ExportService([]string{}, file, name, true, true, debugV)
+		err := ExportService([]string{}, file, name, true, debugV)
 		if err != nil {
 			return err
 		}
@@ -345,7 +331,6 @@ func getAllHost(debugV bool) []host.ExportHost {
 
 func init() {
 	hostCmd.Flags().StringSliceP("name", "n", []string{}, "Host's name (separate by a comma the multiple values)")
-	hostCmd.Flags().StringP("file", "f", "ExportHost.csv", "To define the name of the csv file")
 	hostCmd.Flags().StringP("regex", "r", "", "The regex to apply on the host's name")
 	hostCmd.Flags().Bool("services", false, "Export all services related to this host")
 }

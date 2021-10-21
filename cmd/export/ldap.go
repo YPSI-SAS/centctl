@@ -43,13 +43,12 @@ var ldapCmd = &cobra.Command{
 	Short: "Export LDAP",
 	Long:  `Export LDAP of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportLDAP(name, regex, file, appendFile, all, debugV)
+		err := ExportLDAP(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var ldapCmd = &cobra.Command{
 }
 
 //ExportLDAP permits to export a LDAP of the centreon server
-func ExportLDAP(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportLDAP(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportLDAP(name []string, regex string, file string, appendFile bool, all b
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -111,14 +97,14 @@ func ExportLDAP(name []string, regex string, file string, appendFile bool, all b
 		}
 
 		//Write LDAP informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,LDAP,\"" + LDAP.Name + "\",\"" + LDAP.Description + "\"\n")
-		_, _ = f.WriteString("modify,LDAP,\"" + LDAP.Name + "\",enable,\"" + LDAP.Status + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,LDAP,\""+LDAP.Name+"\",\""+LDAP.Description+"\"\n", file, writeFile)
+		request.WriteValues("modify,LDAP,\""+LDAP.Name+"\",enable,\""+LDAP.Status+"\"\n", file, writeFile)
 
 		//Write Server information
 		if len(LDAP.Servers) != 0 {
 			for _, c := range LDAP.Servers {
-				_, _ = f.WriteString("modify,LDAP,\"" + LDAP.Name + "\",server,\"" + c.Address + ";" + c.Port + ";" + c.SSL + ";" + c.TLS + "\"\n")
+				request.WriteValues("modify,LDAP,\""+LDAP.Name+"\",server,\""+c.Address+";"+c.Port+";"+c.SSL+";"+c.TLS+"\"\n", file, writeFile)
 			}
 		}
 
@@ -183,7 +169,6 @@ func getAllLDAP(debugV bool) []LDAP.ExportLDAP {
 
 func init() {
 	ldapCmd.Flags().StringSliceP("name", "n", []string{}, "LDAP's name (separate by a comma the multiple values)")
-	ldapCmd.Flags().StringP("file", "f", "ExportLDAP.csv", "To define the name of the csv file")
 	ldapCmd.Flags().StringP("regex", "r", "", "The regex to apply on the LDAP's name")
 
 }

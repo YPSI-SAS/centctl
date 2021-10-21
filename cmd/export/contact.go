@@ -45,13 +45,12 @@ var contactCmd = &cobra.Command{
 	Short: "Export contact",
 	Long:  `Export contact of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		alias, _ := cmd.Flags().GetStringSlice("alias")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportContact(alias, regex, file, appendFile, all, debugV)
+		err := ExportContact(alias, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -59,7 +58,7 @@ var contactCmd = &cobra.Command{
 }
 
 //ExportContact permits to export a contact of the centreon server
-func ExportContact(alias []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportContact(alias []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(alias) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -67,22 +66,9 @@ func ExportContact(alias []string, regex string, file string, appendFile bool, a
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -114,12 +100,12 @@ func ExportContact(alias []string, regex string, file string, appendFile bool, a
 
 		rand.Seed(time.Now().UnixNano())
 		//Write contact informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,contact,\"" + contact.Name + "\"," + contact.Alias + "," + contact.Email + "," + randSeq(10) + ",\n")
-		_, _ = f.WriteString("modify,contact," + contact.Alias + ",pager," + contact.Pager + "\n")
-		_, _ = f.WriteString("modify,contact," + contact.Alias + ",access," + contact.GuiAccess + "\n")
-		_, _ = f.WriteString("modify,contact," + contact.Alias + ",admin," + contact.Admin + "\n")
-		_, _ = f.WriteString("modify,contact," + contact.Alias + ",activate," + contact.Activate + "\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,contact,\""+contact.Name+"\","+contact.Alias+","+contact.Email+","+randSeq(10)+",\n", file, writeFile)
+		request.WriteValues("modify,contact,"+contact.Alias+",pager,"+contact.Pager+"\n", file, writeFile)
+		request.WriteValues("modify,contact,"+contact.Alias+",access,"+contact.GuiAccess+"\n", file, writeFile)
+		request.WriteValues("modify,contact,"+contact.Alias+",admin,"+contact.Admin+"\n", file, writeFile)
+		request.WriteValues("modify,contact,"+contact.Alias+",activate,"+contact.Activate+"\n", file, writeFile)
 
 	}
 	return nil
@@ -181,7 +167,6 @@ func randSeq(n int) string {
 
 func init() {
 	contactCmd.Flags().StringSliceP("alias", "a", []string{}, "contact's alias (separate by a comma the multiple values)")
-	contactCmd.Flags().StringP("file", "f", "ExportContact.csv", "To define the name of the csv file")
 	contactCmd.Flags().StringP("regex", "r", "", "The regex to apply on the contact's alias")
 
 }

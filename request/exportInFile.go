@@ -22,44 +22,49 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package export
+package request
 
 import (
-	"centctl/cmd/export/acl"
-	"centctl/cmd/export/category"
-	"centctl/cmd/export/group"
-	"centctl/cmd/export/template"
-
-	"github.com/spf13/cobra"
+	"fmt"
+	"os"
+	"strings"
 )
 
-// Cmd represents the export command
-var Cmd = &cobra.Command{
-	Use:   "export",
-	Short: "Export in a csv file an object",
-	Long:  `Export in a csv file an object defined right after.`,
-	// Run: func(cmd *cobra.Command, args []string) {	},
+func VerifyFile(file string) (error, *os.File) {
+	//Check if the name of file contains the extension
+	if !strings.Contains(file, ".csv") {
+		file = file + ".csv"
+	}
+
+	//Create the file
+	var f *os.File
+	var err error
+	f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		return err, f
+	}
+	return nil, f
 }
 
-func init() {
-	Cmd.AddCommand(acl.Cmd)
-	Cmd.AddCommand(category.Cmd)
-	Cmd.AddCommand(contactCmd)
-	Cmd.AddCommand(commandCmd)
-	Cmd.AddCommand(engineCFGCmd)
-	Cmd.AddCommand(group.Cmd)
-	Cmd.AddCommand(hostCmd)
-	Cmd.AddCommand(ldapCmd)
-	Cmd.AddCommand(pollerCmd)
-	Cmd.AddCommand(resourceCFGCmd)
-	Cmd.AddCommand(serviceCmd)
-	Cmd.AddCommand(template.Cmd)
-	Cmd.AddCommand(timePeriodCmd)
-	Cmd.AddCommand(trapCmd)
-	Cmd.AddCommand(vendorCmd)
-	Cmd.AddCommand(allCmd)
+func writeInFile(values string, file string) error {
+	var f *os.File
+	var err error
 
-	Cmd.PersistentFlags().Bool("all", false, "Export all objects of this type in the csv file")
-	Cmd.PersistentFlags().StringP("file", "f", "", "To define the name of the csv file")
+	err, f = VerifyFile(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
+	_, _ = f.WriteString(values)
+	return nil
+}
+
+func WriteValues(values string, file string, writeFile bool) {
+	if writeFile {
+		_ = writeInFile(values, file)
+	} else {
+		fmt.Printf(values)
+	}
 }

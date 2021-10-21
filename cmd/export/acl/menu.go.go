@@ -43,13 +43,12 @@ var menuCmd = &cobra.Command{
 	Short: "Export ACL menu",
 	Long:  `Export ACL menu of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportACLMenu(name, regex, file, appendFile, all, debugV)
+		err := ExportACLMenu(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,29 +56,17 @@ var menuCmd = &cobra.Command{
 }
 
 //ExportACLMenu permits to export an ACL menu of the centreon server
-func ExportACLMenu(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportACLMenu(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println("You must pass flag name or flag all or flag regex")
 		os.Exit(1)
 	}
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
 
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -109,10 +96,10 @@ func ExportACLMenu(name []string, regex string, file string, appendFile bool, al
 			continue
 		}
 
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,aclMenu,\"" + menu.Name + "\",\"" + strings.ReplaceAll(menu.Alias, "\"", "\"\"") + "\"\n")
-		_, _ = f.WriteString("modify,aclMenu,\"" + menu.Name + "\",activate,\"" + menu.Activate + "\"\n")
-		_, _ = f.WriteString("modify,aclMenu,\"" + menu.Name + "\",comment,\"" + strings.ReplaceAll(menu.Comment, "\"", "\"\"") + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,aclMenu,\""+menu.Name+"\",\""+strings.ReplaceAll(menu.Alias, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,aclMenu,\""+menu.Name+"\",activate,\""+menu.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,aclMenu,\""+menu.Name+"\",comment,\""+strings.ReplaceAll(menu.Comment, "\"", "\"\"")+"\"\n", file, writeFile)
 	}
 	return nil
 }
@@ -165,6 +152,5 @@ func getAllMenu(debugV bool) []ACL.ExportMenu {
 
 func init() {
 	menuCmd.Flags().StringSliceP("name", "n", []string{}, "ACL menu's name (separate by a comma the multiple values)")
-	menuCmd.Flags().StringP("file", "f", "ExportACLMenu.csv", "To define the name of the csv file")
 	menuCmd.Flags().StringP("regex", "r", "", "The regex to apply on the ACL menu's name")
 }
