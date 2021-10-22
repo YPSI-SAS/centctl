@@ -69,7 +69,7 @@ var importCmd = &cobra.Command{
 	},
 }
 
-//ImportCSV permits to import objects contains in a CSV file
+//ImportCSV permits to import objects
 func ImportCSV(file string, debugV bool, apply bool, detail bool) {
 	//colorRed := "\033[1;31m%s\033[0m"
 	if file != "" {
@@ -77,9 +77,12 @@ func ImportCSV(file string, debugV bool, apply bool, detail bool) {
 	} else {
 		importStdin(debugV, detail)
 	}
-	exportPoller(apply, debugV)
+	if apply {
+		exportPoller(debugV)
+	}
 }
 
+//importStdin permits to read stdin and import objects
 func importStdin(debugV bool, detail bool) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -108,7 +111,7 @@ func importStdin(debugV bool, detail bool) {
 
 }
 
-//importCSVFile permits to validate the configuration of the csv
+//importCSVFile permits to read CSV file and import objects
 func importCSVFile(file string, debugV bool, detail bool) {
 	//Verification that the file has a correct extension
 	if !strings.Contains(file, ".csv") {
@@ -150,6 +153,7 @@ func importCSVFile(file string, debugV bool, detail bool) {
 	}
 }
 
+//executeActionObject permits to execute add or modify action on the object
 func executeActionOnObject(record []string, debugV bool, detail bool) {
 	var err error
 	colorOrange := colorMessage.GetColorOrange()
@@ -703,6 +707,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 	}
 }
 
+//validation permits to verify the action line
 func validation(record []string) bool {
 	colorRed := colorMessage.GetColorRed()
 	okFile := true
@@ -907,6 +912,7 @@ func validation(record []string) bool {
 	return okFile
 }
 
+//ValidateLine permits to validate if the line is conform with action
 func ValidateLine(minNum int, maxNum int, record []string, valName string, name string) bool {
 	colorRed := colorMessage.GetColorRed()
 	okFile := true
@@ -945,20 +951,20 @@ type result struct {
 	Pollers []pollerStruct `json:"result"`
 }
 
-func exportPoller(apply bool, debugV bool) {
-
-	if apply {
-		pollers := getPollers(debugV)
-		for _, p := range pollers {
-			err := applyPoller.Apply(p, debugV)
-			if err != nil {
-				fmt.Printf(colorRed, "ERROR: ")
-				fmt.Println(err.Error())
-			}
+//exportPoller permits to export the poller
+func exportPoller(debugV bool) {
+	pollers := getPollers(debugV)
+	for _, p := range pollers {
+		err := applyPoller.Apply(p, debugV)
+		if err != nil {
+			fmt.Printf(colorRed, "ERROR: ")
+			fmt.Println(err.Error())
 		}
 	}
+
 }
 
+//getPollers permits to get all pollers in centreon
 func getPollers(debugV bool) []string {
 	var pollers []string
 

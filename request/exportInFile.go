@@ -30,6 +30,7 @@ import (
 	"strings"
 )
 
+//VerifyFile permits to verify that the file exists and return file
 func VerifyFile(file string) (error, *os.File) {
 	//Check if the name of file contains the extension
 	if !strings.Contains(file, ".csv") {
@@ -47,6 +48,7 @@ func VerifyFile(file string) (error, *os.File) {
 	return nil, f
 }
 
+//writeInFile permits to write values in file
 func writeInFile(values string, file string) error {
 	var f *os.File
 	var err error
@@ -61,6 +63,7 @@ func writeInFile(values string, file string) error {
 	return nil
 }
 
+//WriteValues choose if values is write in file or in stdout depending on writeFile param
 func WriteValues(values string, file string, writeFile bool) {
 	if writeFile {
 		_ = writeInFile(values, file)
