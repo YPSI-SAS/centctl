@@ -148,5 +148,4 @@ func ExportAll(file string, debugV bool) error {
 }
 
 func init() {
-	allCmd.Flags().StringP("file", "f", "ExportAll.csv", "To define the name of the csv file")
 }
