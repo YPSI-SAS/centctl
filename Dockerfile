@@ -20,13 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM golang:alpine
+FROM golang:alpine as builder
+LABEL maintainer "YPSI SAS"
 
 RUN adduser -D centuser \
     && mkdir /app \
     && chown -R centuser /app
 
-ADD . /app/
+ADD . /app
 
 WORKDIR /app
 
@@ -34,9 +35,12 @@ ARG lastTag
 ARG lastCommit
 
 # Build centctl
-RUN GOOS=linux GOARCH=amd64 go build -ldflags '-w -s -X $(MODULE)/cmd.lastGitTag=${lastTag} -X $(MODULE)/cmd.lastGitCommit=${lastCommit}' -o centctl main.go
+RUN GOOS=linux GOARCH=amd64 go build \ 
+    -ldflags '-w -s -X $(MODULE)/cmd.lastGitTag=${lastTag} -X $(MODULE)/cmd.lastGitCommit=${lastCommit}' \
+    -o centctl main.go
 
-USER centuser
-# Entrypoint (expose automatically centctl command)
+USER centuser:centuser
+
+# Entrypoint (expose centctl command)
 ENTRYPOINT ["/app/centctl"]
 CMD ["-h"]
