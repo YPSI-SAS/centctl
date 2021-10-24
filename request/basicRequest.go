@@ -128,6 +128,7 @@ func GeneriqueCommandV2Post(urlCentreon string, requestBody []byte, command stri
 		err = json.Unmarshal(body, &raw)
 		if err != nil {
 			// handle err
+			return err, []byte{}
 		}
 		_, ok := raw["code"]
 		if ok {
