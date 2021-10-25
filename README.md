@@ -16,6 +16,7 @@ Create a file called `centctl.yaml` in your PC and put the complete path of this
 * `LOGIN` it's the login that you use for the connection at the server
 * `PASSWORD` it's the password that you use for the connection at the server
 * `VERSION` it's the version of the API that you want to use (possibles values : v1 or v2)
+* `default` define the default server to connected 
 
 ```yaml
 servers:
@@ -24,6 +25,7 @@ servers:
      login: "LOGIN"
      password: "PASSWORD"
      version: "VERSION"
+     default: true
    - server: "NAMESERVER2"
      url: "URL" 
      login: "LOGIN"

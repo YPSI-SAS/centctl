@@ -158,10 +158,9 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&serverName, "server", "", "server name (required)")
+	rootCmd.PersistentFlags().StringVar(&serverName, "server", "", "server name")
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "helping")
 	rootCmd.PersistentFlags().Bool("DEBUG", false, "debugging")
-	rootCmd.MarkPersistentFlagRequired("server")
 
 	rootCmd.AddCommand(export.Cmd)
 	rootCmd.AddCommand(downtime.Cmd)
@@ -210,11 +209,23 @@ func initConfig() {
 				index = i
 			}
 		}
+		if index == -1 && serverName == "" {
+			for i, v := range servers {
+				if "1" == v["default"] {
+					index = i
+				}
+			}
+			if index == -1 {
+				fmt.Printf(colorRed, "ERROR: ")
+				fmt.Println(errors.New("No default server in yaml file"))
+			}
+		}
 
 		//If it exists => made authentification and create token and url as environments variables
 		if index >= 0 {
 			var token string
 			var err error
+			name := servers[index]["server"]
 			url := servers[index]["url"]
 			login := servers[index]["login"]
 			password := servers[index]["password"]
@@ -229,7 +240,7 @@ func initConfig() {
 				logger.Error("centctl authentification - " + err.Error())
 				os.Exit(1)
 			}
-			os.Setenv("SERVER", serverName)
+			os.Setenv("SERVER", name)
 			os.Setenv("LOGIN", login)
 			os.Setenv("PASSWORD", password)
 			os.Setenv("TOKEN", token)
