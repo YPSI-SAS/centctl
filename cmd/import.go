@@ -26,7 +26,6 @@ SOFTWARE.
 package cmd
 
 import (
-	"bufio"
 	"centctl/cmd/add"
 	"centctl/cmd/add/acl"
 	"centctl/cmd/add/broker"
@@ -84,28 +83,20 @@ func ImportCSV(file string, debugV bool, apply bool, detail bool) {
 
 //importStdin permits to read stdin and import objects
 func importStdin(debugV bool, detail bool) {
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		ucl := scanner.Text()
-		record := strings.Split(ucl, ",")
-		if len(record) != 1 {
-			for i, r := range record {
-				if len(r) != 0 {
-					if r[0:1] == "\"" {
-						record[i] = r[1:]
-					}
-				}
-			}
-			for i, r := range record {
-				if len(r) != 0 {
-					if r[len(r)-1:] == "\"" {
-						record[i] = r[:len(r)-1]
-					}
-				}
-			}
-			if validation(record) {
-				executeActionOnObject(record, debugV, detail)
-			}
+	okFile := true
+	//Creation of a reader on the csv
+	r := csv.NewReader(os.Stdin)
+	r.Comma = ','
+	r.Comment = '#'
+	for {
+		//Reading line by line
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		okFile = validation(record)
+		if okFile {
+			executeActionOnObject(record, debugV, detail)
 		}
 	}
 
@@ -430,8 +421,11 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 
 		}
 		if err != nil {
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println(err.Error())
+			if detail || !strings.Contains(err.Error(), "Object already exists") {
+				fmt.Printf(colorRed, "ERROR: ")
+				fmt.Println(err.Error())
+			}
+
 		}
 	case "modify":
 		var value string
@@ -697,8 +691,10 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 		}
 		if err != nil {
 			if value != "" {
-				fmt.Printf(colorRed, "ERROR: ")
-				fmt.Println(err.Error())
+				if detail || !strings.Contains(err.Error(), "Object already exists") {
+					fmt.Printf(colorRed, "ERROR: ")
+					fmt.Println(err.Error())
+				}
 			} else {
 				fmt.Printf(colorOrange, "WARNING: ")
 				fmt.Println(err.Error() + "This value is not set.")
