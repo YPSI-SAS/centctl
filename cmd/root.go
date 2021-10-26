@@ -68,9 +68,10 @@ type ServerList struct {
 		UrlMap   string `yaml:"urlMap"`
 		Default  string `yaml:"default,omitempty"`
 		Proxy    []struct {
-			HttpURL  string `yaml:"httpURL,omitempty"`
-			User     string `yaml:"user,omitempty"`
-			Password string `yaml:"password,omitempty"`
+			HttpURL  string `yaml:"httpURL"`
+			HttpsURL string `yaml:"httpsURL"`
+			User     string `yaml:"user"`
+			Password string `yaml:"password"`
 		} `yaml:"proxy,omitempty"`
 	} `yaml:"servers"`
 }
@@ -283,10 +284,25 @@ func initConfig() {
 						os.Setenv("http_proxy", "http://"+proxy["httpURL"])
 					}
 				} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[0].HttpURL != "" {
-					if servers.Servers[index].Proxy[2].Password != "" {
-						os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[1].User+":"+servers.Servers[index].Proxy[2].Password+"@"+servers.Servers[index].Proxy[0].HttpURL)
+					if servers.Servers[index].Proxy[3].Password != "" {
+						os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[2].User+":"+servers.Servers[index].Proxy[3].Password+"@"+servers.Servers[index].Proxy[0].HttpURL)
 					} else {
 						os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[0].HttpURL)
+					}
+				}
+			}
+			if os.Getenv("https_proxy") == "" {
+				if proxy["httpsURL"] != "" {
+					if proxy["password"] != "" {
+						os.Setenv("https_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpsURL"])
+					} else {
+						os.Setenv("https_proxy", "http://"+proxy["httpsURL"])
+					}
+				} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[1].HttpsURL != "" {
+					if servers.Servers[index].Proxy[3].Password != "" {
+						os.Setenv("https_proxy", "http://"+servers.Servers[index].Proxy[2].User+":"+servers.Servers[index].Proxy[3].Password+"@"+servers.Servers[index].Proxy[1].HttpsURL)
+					} else {
+						os.Setenv("https_proxy", "http://"+servers.Servers[index].Proxy[1].HttpsURL)
 					}
 				}
 			}
