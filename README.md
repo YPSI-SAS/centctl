@@ -17,6 +17,26 @@ Create a file called `centctl.yaml` in your PC and put the complete path of this
 * `PASSWORD` it's the password that you use for the connection at the server
 * `VERSION` it's the version of the API that you want to use (possibles values : v1 or v2)
 * `default` define the default server to connected 
+</br>To define the proxy if your server use it, you have three ways:
+  - Define an environment variable named `http_proxy`. Its format is **http://IPAddress:Port** or **http://USERNAME:Password@IPAddress:Port** (In this case all servers use the same proxy)
+  - Define proxy in the top of the yaml file (In this case all servers use the same proxy)
+  ```yaml
+  proxy:
+    - httpURL: "URLProxy"
+    - user: "USERNAME"
+    - password: "PASSWORD" 
+  servers:
+    - server: "NAMESERVER2"
+      url: "URL" 
+      login: "LOGIN"
+      password: "PASSWORD"
+      version: "VERSION"
+  ``` 
+  - Define differents proxies for each server which used it like below.
+</br>It is possible to have servers without a proxy like the NAMESERVER2 below. 
+* `URLProxy` it's the url at use for access to your proxy. Its format is **IPAddress:Port**
+* `USERNAME` it's the user that you use for connection at the proxy (If you don't use it, leave the field blank )
+* `PASSWORD` it's the password that you use for connection at the proxy (If you don't use it, leave the field blank )
 
 ```yaml
 servers:
@@ -26,6 +46,10 @@ servers:
      password: "PASSWORD"
      version: "VERSION"
      default: true
+     proxy:
+      - httpURL: "URLProxy"
+      - user: "USERNAME"
+      - password: "PASSWORD" 
    - server: "NAMESERVER2"
      url: "URL" 
      login: "LOGIN"

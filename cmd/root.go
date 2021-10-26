@@ -56,7 +56,22 @@ import (
 var serverName string
 var colorRed = colorMessage.GetColorRed()
 
-type serverList map[string]string
+type ServerList struct {
+	Servers []struct {
+		Server   string `yaml:"server"`
+		Url      string `yaml:"url"`
+		Login    string `yaml:"login"`
+		Password string `yaml:"password"`
+		Version  string `yaml:"version"`
+		UrlMap   string `yaml:"urlMap"`
+		Default  string `yaml:"default,omitempty"`
+		Proxy    []struct {
+			HttpURL  string `yaml:"httpURL,omitempty"`
+			User     string `yaml:"user,omitempty"`
+			Password string `yaml:"password,omitempty"`
+		} `yaml:"proxy,omitempty"`
+	} `yaml:"servers"`
+}
 
 //Token represents the generate token by the authentification
 type Token struct {
@@ -80,6 +95,15 @@ func AuthentificationV1(urlServer string, login string, password string) (string
 		url.Values{"username": {login}, "password": {password}})
 	if err != nil {
 		return "", err
+	}
+	if resp.StatusCode == 401 {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(resp.Status)
+		os.Exit(1)
+	} else if resp.StatusCode == 407 {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(resp.Status)
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
@@ -116,7 +140,6 @@ func AuthentificationV2(urlServer string, login string, password string) (string
 	if err != nil {
 		return "", err
 	}
-	//fmt.Println(string(requestBody))
 
 	urlCentreon := urlServer + "/api/beta/login"
 
@@ -125,6 +148,16 @@ func AuthentificationV2(urlServer string, login string, password string) (string
 
 	if err != nil {
 		return "", err
+	}
+
+	if resp.StatusCode == 401 {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(resp.Status)
+		os.Exit(1)
+	} else if resp.StatusCode == 407 {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(resp.Status)
+		os.Exit(1)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -196,22 +229,24 @@ func initConfig() {
 		}
 
 		//Recover the servers from the config file
-		servers := make([]serverList, 0)
-		err := viper.UnmarshalKey("servers", &servers)
+		servers := &ServerList{}
+		proxy := make(map[string]string, 0)
+		err := viper.Unmarshal(servers)
 		if err != nil {
 			fmt.Printf("unable to decode into struct, %v", err)
 		}
+		_ = viper.UnmarshalKey("proxy", &proxy)
 
 		//Search if the server(s) exist(s) in the list of servers
 		index := -1
-		for i, v := range servers {
-			if serverName == v["server"] {
+		for i, v := range servers.Servers {
+			if serverName == v.Server {
 				index = i
 			}
 		}
 		if index == -1 && serverName == "" {
-			for i, v := range servers {
-				if "1" == v["default"] {
+			for i, v := range servers.Servers {
+				if "1" == v.Default {
 					index = i
 				}
 			}
@@ -225,11 +260,26 @@ func initConfig() {
 		if index >= 0 {
 			var token string
 			var err error
-			name := servers[index]["server"]
-			url := servers[index]["url"]
-			login := servers[index]["login"]
-			password := servers[index]["password"]
-			version := servers[index]["version"]
+			name := servers.Servers[index].Server
+			url := servers.Servers[index].Url
+			login := servers.Servers[index].Login
+			password := servers.Servers[index].Password
+			version := servers.Servers[index].Version
+			if os.Getenv("http_proxy") == "" {
+				if proxy["httpURL"] != "" {
+					if proxy["password"] != "" {
+						os.Setenv("http_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpURL"])
+					} else {
+						os.Setenv("http_proxy", "http://"+proxy["httpURL"])
+					}
+				} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[0].HttpURL != "" {
+					if servers.Servers[index].Proxy[2].Password != "" {
+						os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[1].User+":"+servers.Servers[index].Proxy[2].Password+"@"+servers.Servers[index].Proxy[0].HttpURL)
+					} else {
+						os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[0].HttpURL)
+					}
+				}
+			}
 			if version == "v1" {
 				token, err = AuthentificationV1(url, login, password)
 			} else {
