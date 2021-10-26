@@ -13,6 +13,7 @@ Create a file called `centctl.yaml` in your PC and put the complete path of this
 
 * `NAMESERVER` it's the name of the server that you will use in the flag --server. <span style="color: #FF0000"> WARNING </span> : The name of the server must be unique
 * `URL` it's the url at use for access to your centreon server. Its format is **https://monserveurcentreon.fr/centreon** and you replace **monserveurcentreon.fr** by the server. <span style="color: #FF0000"> WARNING </span> : remember to put **http** if your url is not a secure url
+* `insecure` key is use when the URL server is in https. It is same the flag (--insecure) to forced the connection.
 * `LOGIN` it's the login that you use for the connection at the server
 * `PASSWORD` it's the password that you use for the connection at the server
 * `VERSION` it's the version of the API that you want to use (possibles values : v1 or v2)
@@ -44,6 +45,7 @@ Create a file called `centctl.yaml` in your PC and put the complete path of this
 servers:
    - server: "NAMESERVER"
      url: "URL" 
+     insecure: true
      login: "LOGIN"
      password: "PASSWORD"
      version: "VERSION"

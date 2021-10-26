@@ -67,6 +67,7 @@ type ServerList struct {
 		Version  string `yaml:"version"`
 		UrlMap   string `yaml:"urlMap"`
 		Default  string `yaml:"default,omitempty"`
+		Insecure string `yaml:"insecure,omitempty"`
 		Proxy    []struct {
 			HttpURL  string `yaml:"httpURL"`
 			HttpsURL string `yaml:"httpsURL"`
@@ -133,6 +134,7 @@ func AuthentificationV1(urlServer string, login string, password string, insecur
 
 //AuthentificationV2 allow the authentification at the server specified with API v2
 func AuthentificationV2(urlServer string, login string, password string, insecure bool) (string, error) {
+	fmt.Println(insecure)
 	request := make(map[string]interface{})
 	request["security"] = map[string]interface{}{
 		"credentials": map[string]interface{}{
@@ -305,6 +307,14 @@ func initConfig() {
 						os.Setenv("https_proxy", "http://"+servers.Servers[index].Proxy[1].HttpsURL)
 					}
 				}
+			}
+			if servers.Servers[index].Insecure != "" {
+				if servers.Servers[index].Insecure == "1" {
+					insecure = true
+				} else {
+					insecure = false
+				}
+
 			}
 			if version == "v1" {
 				token, err = AuthentificationV1(url, login, password, insecure)
