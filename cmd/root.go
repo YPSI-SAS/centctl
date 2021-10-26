@@ -37,6 +37,7 @@ import (
 	"centctl/cmd/modify"
 	"centctl/cmd/show"
 	"centctl/cmd/submit"
+	"crypto/tls"
 
 	"centctl/colorMessage"
 	"encoding/json"
@@ -54,6 +55,7 @@ import (
 )
 
 var serverName string
+var insecure bool
 var colorRed = colorMessage.GetColorRed()
 
 type ServerList struct {
@@ -89,8 +91,11 @@ var rootCmd = &cobra.Command{
 }
 
 //AuthentificationV1 allow the authentification at the server specified with API v1
-func AuthentificationV1(urlServer string, login string, password string) (string, error) {
+func AuthentificationV1(urlServer string, login string, password string, insecure bool) (string, error) {
 	urlCentreon := urlServer + "/api/index.php?action=authenticate"
+	if insecure {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
 	resp, err := http.PostForm(urlCentreon,
 		url.Values{"username": {login}, "password": {password}})
 	if err != nil {
@@ -126,7 +131,7 @@ func AuthentificationV1(urlServer string, login string, password string) (string
 }
 
 //AuthentificationV2 allow the authentification at the server specified with API v2
-func AuthentificationV2(urlServer string, login string, password string) (string, error) {
+func AuthentificationV2(urlServer string, login string, password string, insecure bool) (string, error) {
 	request := make(map[string]interface{})
 	request["security"] = map[string]interface{}{
 		"credentials": map[string]interface{}{
@@ -142,6 +147,10 @@ func AuthentificationV2(urlServer string, login string, password string) (string
 	}
 
 	urlCentreon := urlServer + "/api/beta/login"
+
+	if insecure {
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
 
 	resp, err := http.Post(urlCentreon, "application/json",
 		bytes.NewBuffer(requestBody))
@@ -192,6 +201,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&serverName, "server", "", "server name")
+	rootCmd.PersistentFlags().BoolVar(&insecure, "insecure", false, "To forced connection https")
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "helping")
 	rootCmd.PersistentFlags().Bool("DEBUG", false, "debugging")
 
@@ -281,9 +291,9 @@ func initConfig() {
 				}
 			}
 			if version == "v1" {
-				token, err = AuthentificationV1(url, login, password)
+				token, err = AuthentificationV1(url, login, password, insecure)
 			} else {
-				token, err = AuthentificationV2(url, login, password)
+				token, err = AuthentificationV2(url, login, password, insecure)
 			}
 			logger := log.New(os.Stdout).WithColor()
 			if err != nil {
