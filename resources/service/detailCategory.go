@@ -26,6 +26,7 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -84,18 +85,32 @@ type DetailCategoryInformations struct {
 
 //StringText permits to display the caracteristics of the service categories to text
 func (s DetailCategoryServer) StringText() string {
-	var values string = "Service categories list for server " + s.Server.Name + ": \n"
-
+	var values string
 	category := s.Server.Category
 	if category != nil {
-		values += (*category).ID + "\t"
-		values += (*category).Name + "\t"
-		values += (*category).Alias + "\t"
-		values += (*category).Level + "\n"
+		elements := [][]string{{"0", "Category service:"}, {"1", "ID: " + (*category).ID}, {"1", "Name: " + (*category).Name + "\t" + "Alias: " + (*category).Alias}, {"1", "Level: " + (*category).Level}}
+		if len((*category).Services) == 0 {
+			elements = append(elements, []string{"1", "Services: []"})
+		} else {
+			elements = append(elements, []string{"1", "Services:"})
+			for _, service := range (*category).Services {
+				elements = append(elements, []string{"2", service.HostName + " (ID=" + service.HostID + ")"})
+				elements = append(elements, []string{"2", service.ServiceDescription + " (ID=" + service.ServiceID + ")"})
+			}
+		}
+		if len((*category).ServiceTemplates) == 0 {
+			elements = append(elements, []string{"1", "Service Templates: []"})
+		} else {
+			elements = append(elements, []string{"1", "Service Templates:"})
+			for _, service := range (*category).ServiceTemplates {
+				elements = append(elements, []string{"2", service.ServiceTemplateDescription + " (ID=" + service.TemplateID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "category: null\n"
 	}
-
 	return fmt.Sprintf(values)
 }
 

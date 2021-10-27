@@ -26,6 +26,7 @@ SOFTWARE.
 package resourceCFG
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -60,22 +61,30 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the resourceCFG to text
 func (s DetailServer) StringText() string {
-	var values string = "ResourceCFG list for server " + s.Server.Name + ": \n"
+	var values string
 	resourceCFG := s.Server.ResourceCFG
 	if resourceCFG != nil {
-		values += "ID: " + (*resourceCFG).ID + "\t"
-		values += "Name: " + (*resourceCFG).Name + "\t"
-		values += "Value: " + (*resourceCFG).Value + "\t"
-		values += "Comment: " + (*resourceCFG).Comment + "\t"
-		values += "Activate: " + (*resourceCFG).Activate + "\t"
-		values += "Instance: "
-		for index, inst := range (*resourceCFG).Instance {
-			values += inst
-			if index != len((*resourceCFG).Instance)-1 {
-				values += ", "
+		elements := [][]string{{"0", "ResourceCFG:"}}
+		elements = append(elements, []string{"1", "ID: " + (*resourceCFG).ID})
+		elements = append(elements, []string{"1", "Name: " + (*resourceCFG).Name})
+		elements = append(elements, []string{"1", "Value: " + (*resourceCFG).Value})
+		elements = append(elements, []string{"1", "Comment: " + (*resourceCFG).Comment})
+		elements = append(elements, []string{"1", "Activate: " + (*resourceCFG).Activate})
+		if len((*resourceCFG).Instance) != 0 {
+			var instances string
+			for index, inst := range (*resourceCFG).Instance {
+				instances += inst
+				if index != len((*resourceCFG).Instance)-1 {
+					instances += " | "
+				}
 			}
+			elements = append(elements, []string{"1", "Instances: " + instances})
+		} else {
+			elements = append(elements, []string{"1", "Instances: []"})
 		}
-		values += "\n"
+
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "resourceCFG: null\n"
 	}

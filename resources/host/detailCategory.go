@@ -26,6 +26,7 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -70,13 +71,20 @@ type DetailCategoryInformations struct {
 
 //StringText permits to display the caracteristics of the host categories to text
 func (s DetailCategoryServer) StringText() string {
-	var values string = "Host categories list for server " + s.Server.Name + ": \n"
+	var values string
 	category := s.Server.Category
 	if category != nil {
-		values += (*category).ID + "\t"
-		values += (*category).Name + "\t"
-		values += (*category).Alias + "\t"
-		values += (*category).Level + "\n"
+		elements := [][]string{{"0", "Category host:"}, {"1", "ID: " + (*category).ID}, {"1", "Name: " + (*category).Name + "\t" + "Alias: " + (*category).Alias}, {"1", "Level: " + (*category).Level}}
+		if len((*category).Members) == 0 {
+			elements = append(elements, []string{"1", "Members: []"})
+		} else {
+			elements = append(elements, []string{"1", "Members:"})
+			for _, member := range (*category).Members {
+				elements = append(elements, []string{"2", member.Name + " (ID=" + member.ID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "category: null\n"
 	}

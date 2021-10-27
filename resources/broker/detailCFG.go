@@ -26,6 +26,7 @@ SOFTWARE.
 package broker
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -57,13 +58,13 @@ type DetailInformationsCFG struct {
 
 //StringText permits to display the caracteristics of the BrokerCFGs to text
 func (s DetailServerCFG) StringText() string {
-	var values string = "BrokerCFG list for server " + s.Server.Name + ": \n"
+	var values string
 
 	brokerCFG := s.Server.BrokerCFG
 	if brokerCFG != nil {
-		values += "ID: " + (*brokerCFG).ID + "\t"
-		values += "Name: " + (*brokerCFG).Name + "\t"
-		values += "Instance: " + (*brokerCFG).Instance + "\n"
+		elements := [][]string{{"0", "Broker CFG:"}, {"1", "ID: " + (*brokerCFG).ID}, {"1", "Name: " + (*brokerCFG).Name}, {"1", "Instance: " + (*brokerCFG).Instance}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "brokerCFG: null\n"
 	}

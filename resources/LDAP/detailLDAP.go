@@ -26,6 +26,7 @@ SOFTWARE.
 package LDAP
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -74,13 +75,30 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the LDAP to text
 func (s DetailServer) StringText() string {
-	var values string = "LDAP list for server " + s.Server.Name + ": \n"
+	var values string
 	ldap := s.Server.LDAP
 	if ldap != nil {
-		values += "ID: " + (*ldap).ID + "\t"
-		values += "Name: " + (*ldap).Name + "\t"
-		values += "Status: " + (*ldap).Status + "\t"
-		values += "Description: " + (*ldap).Description + "\n"
+		elements := [][]string{{"0", "LDAP:"}}
+		elements = append(elements, []string{"1", "ID: " + (*ldap).ID})
+		elements = append(elements, []string{"1", "Name: " + (*ldap).Name})
+		elements = append(elements, []string{"1", "Status: " + (*ldap).Status})
+		elements = append(elements, []string{"1", "Description: " + (*ldap).Description})
+		if len((*ldap).Servers) == 0 {
+			elements = append(elements, []string{"1", "Servers: []"})
+		} else {
+			elements = append(elements, []string{"1", "Servers:"})
+			for _, server := range (*ldap).Servers {
+				elements = append(elements, []string{"2", "ID: " + server.ID})
+				elements = append(elements, []string{"3", "Address: " + server.Address})
+				elements = append(elements, []string{"3", "Port: " + server.Port})
+				elements = append(elements, []string{"3", "SSL: " + server.SSL})
+				elements = append(elements, []string{"3", "TLS: " + server.TLS})
+				elements = append(elements, []string{"3", "Order: " + server.Order})
+			}
+		}
+
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "LDAP: null\n"
 	}

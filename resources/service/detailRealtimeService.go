@@ -26,6 +26,7 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -99,26 +100,61 @@ type DetailRealtimeInformations struct {
 
 //StringText permits to display the caracteristics of the service to text
 func (s DetailRealtimeServer) StringText() string {
-	var values string = "Service detail for server " + s.Server.Name + ": \n"
+	var values string
 	service := s.Server.Service
 	if service != nil {
-		values += "ID: " + strconv.Itoa((*service).ID) + "\t"
-		values += "Description: " + (*service).Description + "\t"
-		values += "State: " + strconv.Itoa((*service).State) + "\t"
-		values += "Status code: " + strconv.Itoa((*service).Status.Code) + "\t"
-		values += "Status name: " + (*service).Status.Name + "\t"
-		values += "State type: " + strconv.Itoa((*service).StateType) + "\t"
-		values += "Output: " + (*service).Output + "\t"
-		values += "Max check attempts: " + strconv.Itoa((*service).MaxCheckAttempts) + "\t"
-		values += "Next check: " + (*service).NextCheck + "\t"
-		values += "Last update: " + (*service).LastUpdate + "\t"
-		values += "Last check: " + (*service).LastCheck + "\t"
-		values += "Last state change: " + (*service).LastStateChange + "\t"
-		values += "Last hard state change: " + (*service).LastHardStateChange + "\t"
-		values += "Acknowledged: " + strconv.FormatBool((*service).Acknowledged) + "\t"
-		values += "Activate: " + strconv.FormatBool((*service).Activate) + "\t"
-		values += "Checked: " + strconv.FormatBool((*service).Checked) + "\t"
-		values += "Scheduled downtime depth: " + strconv.Itoa((*service).ScheduledDowntimeDepth) + "\n"
+		elements := [][]string{{"0", "Service:"}}
+		elements = append(elements, []string{"1", "ID: " + strconv.Itoa((*service).ID)})
+		elements = append(elements, []string{"1", "Description: " + (*service).Description})
+		elements = append(elements, []string{"1", "State: " + strconv.Itoa((*service).State)})
+		elements = append(elements, []string{"1", "State type: " + strconv.Itoa((*service).StateType)})
+		elements = append(elements, []string{"1", "Status: " + (*service).Status.Name + "(Code: " + strconv.Itoa((*service).Status.Code) + ")"})
+		elements = append(elements, []string{"1", "Output: " + (*service).Output})
+		elements = append(elements, []string{"1", "Max check attempts: " + strconv.Itoa((*service).MaxCheckAttempts)})
+		elements = append(elements, []string{"1", "Next check: " + (*service).NextCheck})
+		elements = append(elements, []string{"1", "Last updata: " + (*service).LastUpdate})
+		elements = append(elements, []string{"1", "Last check: " + (*service).LastCheck})
+		elements = append(elements, []string{"1", "Last state change: " + (*service).LastStateChange})
+		elements = append(elements, []string{"1", "Last hard state change: " + (*service).LastHardStateChange})
+		elements = append(elements, []string{"1", "Acknowledged: " + strconv.FormatBool((*service).Acknowledged)})
+		elements = append(elements, []string{"1", "Activate: " + strconv.FormatBool((*service).Activate)})
+		elements = append(elements, []string{"1", "Checked: " + strconv.FormatBool((*service).Checked)})
+		elements = append(elements, []string{"1", "Schedule downtime depth: " + strconv.Itoa((*service).ScheduledDowntimeDepth)})
+
+		if (*service).Acknowledgement != nil {
+			elements = append(elements, []string{"1", "Acknowledgement:"})
+			elements = append(elements, []string{"2", "Author: " + (*service).Acknowledgement.AuthorName + " (ID: " + strconv.Itoa((*service).Acknowledgement.AuthorID) + ")"})
+			elements = append(elements, []string{"2", "Comment: " + (*service).Acknowledgement.Comment})
+			elements = append(elements, []string{"2", "Entry time: " + (*service).Acknowledgement.EntryTime})
+			elements = append(elements, []string{"2", "Notify contact: " + strconv.FormatBool((*service).Acknowledgement.NotifyContact)})
+			elements = append(elements, []string{"2", "Persistent Comment: " + strconv.FormatBool((*service).Acknowledgement.PersistentComment)})
+			elements = append(elements, []string{"2", "Sticky: " + strconv.FormatBool((*service).Acknowledgement.Sticky)})
+			elements = append(elements, []string{"2", "Host ID: " + strconv.Itoa((*service).Acknowledgement.HostID)})
+			elements = append(elements, []string{"2", "Poller ID: " + strconv.Itoa((*service).Acknowledgement.PollerID)})
+		} else {
+			elements = append(elements, []string{"2", "Acknowledgement:[]"})
+		}
+
+		if len((*service).Downtimes) == 0 {
+			elements = append(elements, []string{"1", "Downtimes: []"})
+		} else {
+			elements = append(elements, []string{"1", "Downtimes:"})
+			for _, downtime := range (*service).Downtimes {
+				elements = append(elements, []string{"2", "Author: " + downtime.AuthorName + " (ID: " + strconv.Itoa(downtime.AuthorID) + ")"})
+				elements = append(elements, []string{"2", "Host ID: " + strconv.Itoa(downtime.HostID)})
+				elements = append(elements, []string{"3", "Comment: " + downtime.Comment})
+				elements = append(elements, []string{"3", "Duration: " + strconv.Itoa(downtime.Duration)})
+				elements = append(elements, []string{"3", "Entry time: " + downtime.EntryTime})
+				elements = append(elements, []string{"3", "Start time: " + downtime.StartTime})
+				elements = append(elements, []string{"3", "End time: " + downtime.EndTime})
+				elements = append(elements, []string{"3", "Started: " + strconv.FormatBool(downtime.Started)})
+				elements = append(elements, []string{"3", "Fixed: " + strconv.FormatBool(downtime.Fixed)})
+
+			}
+		}
+
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "service: null\n"
 	}

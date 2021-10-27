@@ -26,9 +26,13 @@ SOFTWARE.
 package resourceCFG
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,24 +64,25 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the resourceCFG to text
 func (s Server) StringText() string {
-	var values string = "ResourceCFG list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.ResourceCFG, func(i, j int) bool {
+		return strings.ToLower(s.Server.ResourceCFG[i].Name) < strings.ToLower(s.Server.ResourceCFG[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Value", "Comment", "Activate", "Instance"})
 	for i := 0; i < len(s.Server.ResourceCFG); i++ {
-		values += "ID: " + s.Server.ResourceCFG[i].ID + "\t"
-		values += "Name: " + s.Server.ResourceCFG[i].Name + "\t"
-		values += "Value: " + s.Server.ResourceCFG[i].Value + "\t"
-		values += "Comment: " + s.Server.ResourceCFG[i].Comment + "\t"
-		values += "Activate: " + s.Server.ResourceCFG[i].Activate + "\t"
-		values += "Instance: "
-		for index, inst := range s.Server.ResourceCFG[i].Instance {
-			values += inst
-			if index != len(s.Server.ResourceCFG[i].Instance)-1 {
-				values += ", "
+		var instance string
+		if len(s.Server.ResourceCFG[i].Instance) != 0 {
+			for index, inst := range s.Server.ResourceCFG[i].Instance {
+				instance += inst
+				if index != len(s.Server.ResourceCFG[i].Instance)-1 {
+					instance += "| "
+				}
 			}
 		}
-		values += "\n"
-
+		table = append(table, []string{s.Server.ResourceCFG[i].ID, s.Server.ResourceCFG[i].Name, s.Server.ResourceCFG[i].Value, s.Server.ResourceCFG[i].Comment, s.Server.ResourceCFG[i].Activate, instance})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the resourceCFG to csv

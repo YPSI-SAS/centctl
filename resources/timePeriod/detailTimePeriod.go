@@ -26,6 +26,7 @@ SOFTWARE.
 package timePeriod
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -76,20 +77,33 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the TimePeriods to text
 func (s DetailServer) StringText() string {
-	var values string = "TimePeriod list for server " + s.Server.Name + ": \n"
+	var values string
 
 	timePeriod := s.Server.TimePeriods
 	if timePeriod != nil {
-		values += "ID: " + (*timePeriod).ID + "\t"
-		values += "Name: " + (*timePeriod).Name + "\t"
-		values += "Alias: " + (*timePeriod).Alias + "\t"
-		values += "Monday: " + (*timePeriod).Monday + "\t"
-		values += "Tuesday: " + (*timePeriod).Tuesday + "\t"
-		values += "Wednesday: " + (*timePeriod).Wednesday + "\t"
-		values += "Thursday: " + (*timePeriod).Thursday + "\t"
-		values += "Friday: " + (*timePeriod).Friday + "\t"
-		values += "Saturday: " + (*timePeriod).Saturday + "\t"
-		values += "Sunday: " + (*timePeriod).Sunday + "\n"
+		elements := [][]string{{"0", "TimePeriod:"}}
+		elements = append(elements, []string{"1", "ID: " + (*timePeriod).ID})
+		elements = append(elements, []string{"1", "Name: " + (*timePeriod).Name})
+		elements = append(elements, []string{"1", "Alias: " + (*timePeriod).Alias})
+		elements = append(elements, []string{"1", "Monday: " + (*timePeriod).Monday})
+		elements = append(elements, []string{"1", "Tuesday: " + (*timePeriod).Tuesday})
+		elements = append(elements, []string{"1", "Wednesday: " + (*timePeriod).Wednesday})
+		elements = append(elements, []string{"1", "Thursday: " + (*timePeriod).Thursday})
+		elements = append(elements, []string{"1", "Friday: " + (*timePeriod).Friday})
+		elements = append(elements, []string{"1", "Saturday: " + (*timePeriod).Saturday})
+		elements = append(elements, []string{"1", "Sunday: " + (*timePeriod).Sunday})
+
+		if len((*timePeriod).Exceptions) == 0 {
+			elements = append(elements, []string{"1", "Exceptions: []"})
+		} else {
+			elements = append(elements, []string{"1", "Exceptions:"})
+			for _, server := range (*timePeriod).Exceptions {
+				elements = append(elements, []string{"2", "Days: " + server.Days + "\tTimerange: " + server.Timerange})
+			}
+		}
+
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "timePeriod: null\n"
 	}

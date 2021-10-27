@@ -26,9 +26,13 @@ SOFTWARE.
 package command
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,15 +64,22 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the commands to text
 func (s Server) StringText() string {
-	var values string = "Command list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Commands, func(i, j int) bool {
+		return strings.ToLower(s.Server.Commands[i].Name) < strings.ToLower(s.Server.Commands[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Type", "CmdLine"})
 	for i := 0; i < len(s.Server.Commands); i++ {
-		values += "ID: " + s.Server.Commands[i].ID + "\t"
-		values += "Name: " + s.Server.Commands[i].Name + "\t"
-		values += "Type: " + s.Server.Commands[i].Type + "\t"
-		values += "CmdLine: " + s.Server.Commands[i].CmdLine + "\n"
-
+		var cmdLine string
+		if len(s.Server.Commands[i].CmdLine) < 90 {
+			cmdLine = s.Server.Commands[i].CmdLine
+		} else {
+			cmdLine = s.Server.Commands[i].CmdLine[:90]
+		}
+		table = append(table, []string{s.Server.Commands[i].ID, s.Server.Commands[i].Name, s.Server.Commands[i].Type, cmdLine})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the commands to csv

@@ -65,13 +65,17 @@ func ShowBrokerLogger(name string, id int, debugV bool, output string) error {
 	}
 
 	//Permits to recover the broker logger contain into the response body
-	brokerOutputs := broker.DetailResultLogger{}
-	json.Unmarshal(body, &brokerOutputs)
+	brokerLoggers := broker.DetailResultLogger{}
+	json.Unmarshal(body, &brokerLoggers)
 
 	server := broker.DetailServerLogger{
 		Server: broker.DetailInformationsLogger{
-			Name:         os.Getenv("SERVER"),
-			BrokerLogger: brokerOutputs.BrokerLoggers,
+			Name: os.Getenv("SERVER"),
+			BrokerLogger: broker.DetailBrokerLogger{
+				ID:         strconv.Itoa(id),
+				BrokerName: name,
+				Parameters: brokerLoggers.BrokerLoggers,
+			},
 		},
 	}
 

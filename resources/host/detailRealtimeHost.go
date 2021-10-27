@@ -26,6 +26,7 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -93,28 +94,61 @@ type DetailRealtimeInformations struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s DetailRealtimeServer) StringText() string {
-	var values string = "Host detail for server " + s.Server.Name + ": \n"
+	var values string
 	host := s.Server.Host
 	if host != nil {
-		values += "ID: " + strconv.Itoa((*host).ID) + "\t"
-		values += "Name: " + (*host).Name + "\t"
-		values += "Alias: " + (*host).Alias + "\t"
-		values += "IP address: " + (*host).Address + "\t"
-		values += "State: " + strconv.Itoa((*host).State) + "\t"
-		values += "State type: " + strconv.Itoa((*host).StateType) + "\t"
-		values += "Output: " + (*host).Output + "\t"
-		values += "Check command: " + (*host).CheckCommand + "\t"
-		values += "Max check attempts: " + strconv.Itoa((*host).MaxCheckAttempts) + "\t"
-		values += "Check attempt: " + strconv.Itoa((*host).CheckAttempt) + "\t"
-		values += "Last check: " + (*host).LastCheck + "\t"
-		values += "Last state change: " + (*host).LastStateChange + "\t"
-		values += "Last hard state change: " + (*host).LastHardStateChange + "\t"
-		values += "Acknowledged: " + strconv.FormatBool((*host).Acknowledged) + "\t"
-		values += "Activate: " + strconv.FormatBool((*host).Activate) + "\t"
-		values += "Poller name: " + (*host).PollerName + "\t"
-		values += "Poller id: " + strconv.Itoa((*host).PollerID) + "\t"
-		values += "Passive checks: " + strconv.FormatBool((*host).PassiveChecks) + "\t"
-		values += "Notify: " + strconv.FormatBool((*host).Notify) + "\n"
+		elements := [][]string{{"0", "Host:"}}
+		elements = append(elements, []string{"1", "ID: " + strconv.Itoa((*host).ID)})
+		elements = append(elements, []string{"1", "Name: " + (*host).Name + "\tAlias: " + (*host).Alias})
+		elements = append(elements, []string{"1", "IP address: " + (*host).Address})
+		elements = append(elements, []string{"1", "State: " + strconv.Itoa((*host).State)})
+		elements = append(elements, []string{"1", "State type: " + strconv.Itoa((*host).StateType)})
+		elements = append(elements, []string{"1", "Output: " + (*host).Output})
+		elements = append(elements, []string{"1", "Check command: " + (*host).CheckCommand})
+		elements = append(elements, []string{"1", "Max check attempts: " + strconv.Itoa((*host).MaxCheckAttempts)})
+		elements = append(elements, []string{"1", "Check attempt: " + strconv.Itoa((*host).CheckAttempt)})
+		elements = append(elements, []string{"1", "Last check: " + (*host).LastCheck})
+		elements = append(elements, []string{"1", "Last state change: " + (*host).LastStateChange})
+		elements = append(elements, []string{"1", "Last hard state change: " + (*host).LastHardStateChange})
+		elements = append(elements, []string{"1", "Acknowledged: " + strconv.FormatBool((*host).Acknowledged)})
+		elements = append(elements, []string{"1", "Activate: " + strconv.FormatBool((*host).Activate)})
+		elements = append(elements, []string{"1", "Poller name: " + (*host).PollerName})
+		elements = append(elements, []string{"1", "Poller id: " + strconv.Itoa((*host).PollerID)})
+		elements = append(elements, []string{"1", "Passive checks: " + strconv.FormatBool((*host).PassiveChecks)})
+		elements = append(elements, []string{"1", "Notify: " + strconv.FormatBool((*host).Notify)})
+
+		if (*host).Acknowledgement != nil {
+			elements = append(elements, []string{"1", "Acknowledgement:"})
+			elements = append(elements, []string{"2", "Author: " + (*host).Acknowledgement.AuthorName + " (ID: " + strconv.Itoa((*host).Acknowledgement.AuthorID) + ")"})
+			elements = append(elements, []string{"2", "Comment: " + (*host).Acknowledgement.Comment})
+			elements = append(elements, []string{"2", "Entry time: " + (*host).Acknowledgement.EntryTime})
+			elements = append(elements, []string{"2", "Notify contact: " + strconv.FormatBool((*host).Acknowledgement.NotifyContact)})
+			elements = append(elements, []string{"2", "Persistent Comment: " + strconv.FormatBool((*host).Acknowledgement.PersistentComment)})
+			elements = append(elements, []string{"2", "Sticky: " + strconv.FormatBool((*host).Acknowledgement.Sticky)})
+
+		} else {
+			elements = append(elements, []string{"2", "Acknowledgement:[]"})
+		}
+
+		if len((*host).Downtimes) == 0 {
+			elements = append(elements, []string{"1", "Downtimes: []"})
+		} else {
+			elements = append(elements, []string{"1", "Downtimes:"})
+			for _, downtime := range (*host).Downtimes {
+				elements = append(elements, []string{"2", "Author: " + downtime.AuthorName + " (ID: " + strconv.Itoa(downtime.AuthorID) + ")"})
+				elements = append(elements, []string{"3", "Comment: " + downtime.Comment})
+				elements = append(elements, []string{"3", "Duration: " + strconv.Itoa(downtime.Duration)})
+				elements = append(elements, []string{"3", "Entry time: " + downtime.EntryTime})
+				elements = append(elements, []string{"3", "Start time: " + downtime.StartTime})
+				elements = append(elements, []string{"3", "End time: " + downtime.EndTime})
+				elements = append(elements, []string{"3", "Started: " + strconv.FormatBool(downtime.Started)})
+				elements = append(elements, []string{"3", "Fixed: " + strconv.FormatBool(downtime.Fixed)})
+
+			}
+		}
+
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "Host: null\n"
 	}

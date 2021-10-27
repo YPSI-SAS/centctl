@@ -26,6 +26,7 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -60,15 +61,13 @@ type DetailMenuInformations struct {
 
 //StringText permits to display the caracteristics of the ACL Menus to text
 func (s DetailMenuServer) StringText() string {
-	var values string = "ACL Menu list for server " + s.Server.Name + ": \n"
+	var values string
 
 	menu := s.Server.Menu
 	if menu != nil {
-		values += (*menu).ID + "\t"
-		values += (*menu).Name + "\t"
-		values += (*menu).Alias + "\t"
-		values += (*menu).Comment + "\t"
-		values += (*menu).Activate + "\n"
+		elements := [][]string{{"0", "ACL menu:"}, {"1", "ID: " + (*menu).ID}, {"1", "Name: " + (*menu).Name}, {"1", "Alias: " + (*menu).Alias}, {"1", "Comment: " + (*menu).Comment}, {"1", "Activate: " + (*menu).Activate}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "menu: null\n"
 	}

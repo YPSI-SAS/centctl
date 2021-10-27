@@ -26,9 +26,13 @@ SOFTWARE.
 package poller
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -58,15 +62,16 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the pollers to text
 func (s Server) StringText() string {
-	var values string = "Poller list for server" + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Pollers, func(i, j int) bool {
+		return strings.ToLower(s.Server.Pollers[i].Label) < strings.ToLower(s.Server.Pollers[j].Label)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"Type", "Label", "CentreonID", "Hostname", "Address"})
 	for i := 0; i < len(s.Server.Pollers); i++ {
-		values += "Type: " + s.Server.Pollers[i].Type + "\t"
-		values += "Label: " + s.Server.Pollers[i].Label + "\t"
-		values += "CentreonID: " + s.Server.Pollers[i].Metadata.CentreonID + "\t"
-		values += "Hosname: " + s.Server.Pollers[i].Metadata.HostName + "\t"
-		values += "Address: " + s.Server.Pollers[i].Metadata.Address + "\n"
+		table = append(table, []string{s.Server.Pollers[i].Type, s.Server.Pollers[i].Label, s.Server.Pollers[i].Metadata.CentreonID, s.Server.Pollers[i].Metadata.HostName, s.Server.Pollers[i].Metadata.Address})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the pollers to csv

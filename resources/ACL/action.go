@@ -26,9 +26,13 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -59,15 +63,16 @@ type ActionInformations struct {
 
 //StringText permits to display the caracteristics of the ACL actions to text
 func (s ActionServer) StringText() string {
-	var values string = "ACL action list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Actions, func(i, j int) bool {
+		return strings.ToLower(s.Server.Actions[i].Name) < strings.ToLower(s.Server.Actions[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Description", "Activate"})
 	for i := 0; i < len(s.Server.Actions); i++ {
-		values += s.Server.Actions[i].ID + "\t"
-		values += s.Server.Actions[i].Name + "\t"
-		values += s.Server.Actions[i].Description + "\t"
-		values += s.Server.Actions[i].Activate + "\n"
-
+		table = append(table, []string{s.Server.Actions[i].ID, s.Server.Actions[i].Name, s.Server.Actions[i].Description, s.Server.Actions[i].Activate})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the ACL actions to csv

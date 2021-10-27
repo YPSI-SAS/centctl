@@ -134,7 +134,6 @@ func AuthentificationV1(urlServer string, login string, password string, insecur
 
 //AuthentificationV2 allow the authentification at the server specified with API v2
 func AuthentificationV2(urlServer string, login string, password string, insecure bool) (string, error) {
-	fmt.Println(insecure)
 	request := make(map[string]interface{})
 	request["security"] = map[string]interface{}{
 		"credentials": map[string]interface{}{

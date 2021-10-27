@@ -26,9 +26,13 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -61,18 +65,16 @@ type RealtimeInformations struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s RealtimeServer) StringText() string {
-	var values string = "Host list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Hosts, func(i, j int) bool {
+		return strings.ToLower(s.Server.Hosts[i].Name) < strings.ToLower(s.Server.Hosts[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "IP address", "State", "Acknowledged", "Activate", "Poller name"})
 	for i := 0; i < len(s.Server.Hosts); i++ {
-		values += "ID: " + s.Server.Hosts[i].ID + "\t"
-		values += "Name: " + s.Server.Hosts[i].Name + "\t"
-		values += "Alias: " + s.Server.Hosts[i].Alias + "\t"
-		values += "IP address: " + s.Server.Hosts[i].Address + "\t"
-		values += "State: " + GetState(s.Server.Hosts[i].State) + "\t"
-		values += "Acknowledged: " + GetAcknowledgment(s.Server.Hosts[i].Acknowledged) + "\t"
-		values += "Activate: " + s.Server.Hosts[i].Activate + "\t"
-		values += "Poller name: " + s.Server.Hosts[i].PollerName + "\n"
+		table = append(table, []string{s.Server.Hosts[i].ID, s.Server.Hosts[i].Name, s.Server.Hosts[i].Alias, s.Server.Hosts[i].Address, GetState(s.Server.Hosts[i].State), GetAcknowledgment(s.Server.Hosts[i].Acknowledged), s.Server.Hosts[i].Activate, s.Server.Hosts[i].PollerName})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the hosts to csv

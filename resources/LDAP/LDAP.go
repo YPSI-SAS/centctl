@@ -26,9 +26,13 @@ SOFTWARE.
 package LDAP
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -58,15 +62,16 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the LDAP to text
 func (s Server) StringText() string {
-	var values string = "LDAP list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.LDAP, func(i, j int) bool {
+		return strings.ToLower(s.Server.LDAP[i].Name) < strings.ToLower(s.Server.LDAP[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Status", "Description"})
 	for i := 0; i < len(s.Server.LDAP); i++ {
-		values += "ID: " + s.Server.LDAP[i].ID + "\t"
-		values += "Name: " + s.Server.LDAP[i].Name + "\t"
-		values += "Status: " + s.Server.LDAP[i].Status + "\t"
-		values += "Description: " + s.Server.LDAP[i].Description + "\n"
-
+		table = append(table, []string{s.Server.LDAP[i].ID, s.Server.LDAP[i].Name, s.Server.LDAP[i].Status, s.Server.LDAP[i].Description})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the LDAP to csv

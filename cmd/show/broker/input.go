@@ -70,8 +70,12 @@ func ShowBrokerInput(name string, id int, debugV bool, output string) error {
 
 	server := broker.DetailServerInput{
 		Server: broker.DetailInformationsInput{
-			Name:        os.Getenv("SERVER"),
-			BrokerInput: brokerInputs.BrokerInputs,
+			Name: os.Getenv("SERVER"),
+			BrokerInput: broker.DetailBrokerInput{
+				ID:         strconv.Itoa(id),
+				BrokerName: name,
+				Parameters: brokerInputs.BrokerInputs,
+			},
 		},
 	}
 
@@ -85,7 +89,7 @@ func ShowBrokerInput(name string, id int, debugV bool, output string) error {
 }
 
 func init() {
-	inputCmd.Flags().StringP("name", "n", "", "To define the name of the broker input")
+	inputCmd.Flags().StringP("name", "n", "", "To define the name of the broker")
 	inputCmd.MarkFlagRequired("name")
 	inputCmd.Flags().IntP("id", "i", -1, "To define the id of the broke input")
 	inputCmd.MarkFlagRequired("id")

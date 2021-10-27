@@ -26,6 +26,7 @@ SOFTWARE.
 package vendor
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -57,12 +58,15 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the Vendors to text
 func (s DetailServer) StringText() string {
-	var values string = "Vendor list for server " + s.Server.Name + ": \n"
+	var values string
 	vendor := s.Server.Vendor
 	if vendor != nil {
-		values += "ID: " + (*vendor).ID + "\t"
-		values += "Name: " + (*vendor).Name + "\t"
-		values += "Alias: " + (*vendor).Alias + "\n"
+		elements := [][]string{{"0", "Vendor:"}}
+		elements = append(elements, []string{"1", "ID: " + (*vendor).ID})
+		elements = append(elements, []string{"1", "Name: " + (*vendor).Name})
+		elements = append(elements, []string{"1", "Alias: " + (*vendor).Alias})
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "vendor: null\n"
 	}

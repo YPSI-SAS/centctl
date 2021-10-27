@@ -26,6 +26,7 @@ SOFTWARE.
 package contact
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -69,13 +70,12 @@ type DetailGroupInformations struct {
 
 //StringText permits to display the caracteristics of the contact group to text
 func (s DetailGroupServer) StringText() string {
-	var values string = "contact group list for server " + s.Server.Name + ": \n"
+	var values string
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "\t"
-		values += (*group).Name + "\t"
-		values += (*group).Alias + "\n"
-
+		elements := [][]string{{"0", "Contact group:"}, {"1", "ID: " + (*group).ID}, {"1", "Name: " + (*group).Name}, {"1", "Alias: " + (*group).Alias}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "group: null\n"
 	}

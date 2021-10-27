@@ -26,6 +26,7 @@ SOFTWARE.
 package engineCFG
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -58,14 +59,13 @@ type DetailInformationsEngineCFG struct {
 
 //StringText permits to display the caracteristics of the EngineCFG to text
 func (s DetailServerEngineCFG) StringText() string {
-	var values string = "EngineCFG list for server " + s.Server.Name + ": \n"
+	var values string
 
 	engineCFG := s.Server.EngineCFG
 	if engineCFG != nil {
-		values += "ID: " + (*engineCFG).ID + "\t"
-		values += "Name: " + (*engineCFG).Name + "\t"
-		values += "Instance: " + (*engineCFG).Instance + "\t"
-		values += "Comment: " + (*engineCFG).Comment + "\n"
+		elements := [][]string{{"0", "EngineCFG:"}, {"1", "ID: " + (*engineCFG).ID}, {"1", "Name: " + (*engineCFG).Name}, {"1", "Instance: " + (*engineCFG).Instance}, {"1", "Comment: " + (*engineCFG).Comment}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "engineCFG: null\n"
 	}

@@ -26,6 +26,7 @@ SOFTWARE.
 package dependency
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -60,15 +61,12 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the Dependencies to text
 func (s DetailServer) StringText() string {
-	var values string = "Dependency list for server " + s.Server.Name + ": \n"
+	var values string
 	dependency := s.Server.Dependency
 	if dependency != nil {
-		values += "ID: " + (*dependency).ID + "\t"
-		values += "Name: " + (*dependency).Name + "\t"
-		values += "Description: " + (*dependency).Description + "\t"
-		values += "Inherits parent: " + (*dependency).InheritsParent + "\t"
-		values += "Execution Failure Criteria: " + (*dependency).ExecutionFailureCriteria + "\t"
-		values += "Notification Failure Criteria: " + (*dependency).NotificationFailureCriteria + "\n"
+		elements := [][]string{{"0", "Dependency:"}, {"1", "ID: " + (*dependency).ID}, {"1", "Name: " + (*dependency).Name}, {"1", "Description: " + (*dependency).Description}, {"1", "Inherits parent: " + (*dependency).InheritsParent}, {"1", "Execution Failure Criteria: " + (*dependency).ExecutionFailureCriteria}, {"1", "Notification Failure Criteria: " + (*dependency).NotificationFailureCriteria}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "dependency: null\n"
 	}

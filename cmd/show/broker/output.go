@@ -70,8 +70,12 @@ func ShowBrokerOutput(name string, id int, debugV bool, output string) error {
 
 	server := broker.DetailServerOutput{
 		Server: broker.DetailInformationsOutput{
-			Name:         os.Getenv("SERVER"),
-			BrokerOutput: brokerOutputs.BrokerOutputs,
+			Name: os.Getenv("SERVER"),
+			BrokerOutput: broker.DetailBrokerOutput{
+				ID:         strconv.Itoa(id),
+				BrokerName: name,
+				Parameters: brokerOutputs.BrokerOutputs,
+			},
 		},
 	}
 

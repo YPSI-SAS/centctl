@@ -26,6 +26,7 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -75,18 +76,30 @@ type DetailTimelineInformations struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s DetailTimelineServer) StringText() string {
-	var values string = "service detail for server " + s.Server.Name + ": \n"
+	var values string
+	elements := [][]string{{"0", "Timeline service:"}}
 	for i := 0; i < len(s.Server.TimelineService); i++ {
-		values += "ID: " + strconv.Itoa(s.Server.TimelineService[i].ID) + "\t"
-		values += "Type: " + s.Server.TimelineService[i].Type + "\t"
-		values += "Date: " + s.Server.TimelineService[i].Date + "\t"
-		values += "Start date: " + s.Server.TimelineService[i].StartDate + "\t"
-		values += "End date: " + s.Server.TimelineService[i].EndDate + "\t"
-		values += "Content: " + s.Server.TimelineService[i].Content + "\t"
-		values += "Tries: " + strconv.Itoa(s.Server.TimelineService[i].Tries) + "\t"
-		values += "Contact: " + s.Server.TimelineService[i].Contact.Name + "\t"
-		values += "Status: " + s.Server.TimelineService[i].Status.Name + "\n"
-
+		elements = append(elements, []string{"1", "ID: " + strconv.Itoa(s.Server.TimelineService[i].ID)})
+		elements = append(elements, []string{"2", "Type: " + s.Server.TimelineService[i].Type})
+		elements = append(elements, []string{"2", "Date: " + s.Server.TimelineService[i].Date})
+		elements = append(elements, []string{"2", "Start date: " + s.Server.TimelineService[i].StartDate})
+		elements = append(elements, []string{"2", "End date: " + s.Server.TimelineService[i].EndDate})
+		elements = append(elements, []string{"2", "Content: " + s.Server.TimelineService[i].Content})
+		elements = append(elements, []string{"2", "Tries: " + strconv.Itoa(s.Server.TimelineService[i].Tries)})
+		if s.Server.TimelineService[i].Contact != nil {
+			elements = append(elements, []string{"2", "Contact:"})
+			elements = append(elements, []string{"3", s.Server.TimelineService[i].Contact.Name + " (ID: " + strconv.Itoa(s.Server.TimelineService[i].Contact.ID) + ")"})
+		} else {
+			elements = append(elements, []string{"2", "Contact:[]"})
+		}
+		if s.Server.TimelineService[i].Status != nil {
+			elements = append(elements, []string{"2", "Status:"})
+			elements = append(elements, []string{"3", s.Server.TimelineService[i].Status.Name + " (ID: " + strconv.Itoa(s.Server.TimelineService[i].Status.Code) + ")"})
+		} else {
+			elements = append(elements, []string{"2", "Status:[]"})
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	}
 
 	return fmt.Sprintf(values)

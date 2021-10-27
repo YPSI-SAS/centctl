@@ -26,10 +26,14 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -74,21 +78,16 @@ type RealtimeResultBody struct {
 
 //StringText permits to display the caracteristics of the services to text
 func (s RealtimeServer) StringText() string {
-	var values string = "Service list for server=" + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Services, func(i, j int) bool {
+		return strings.ToLower(s.Server.Services[i].Name) < strings.ToLower(s.Server.Services[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Parent ID", "Parent name", "Parent address", "PollerID", "Status code", "Status name", "Acknowledged", "ActiveCheck"})
 	for i := 0; i < len(s.Server.Services); i++ {
-		values += "ID: " + strconv.Itoa(s.Server.Services[i].ServiceID) + "\t"
-		values += "Name: " + s.Server.Services[i].Name + "\t"
-		values += "Parent ID: " + strconv.Itoa(s.Server.Services[i].Parent.ID) + "\t"
-		values += "Parent name: " + s.Server.Services[i].Parent.Name + "\t"
-		values += "Parent address: " + s.Server.Services[i].Parent.Address + "\t"
-		values += "Parent pollerID: " + strconv.Itoa(s.Server.Services[i].Parent.PollerID) + "\t"
-		values += "Status code: " + strconv.Itoa(s.Server.Services[i].Status.Code) + "\t"
-		values += "Status name: " + s.Server.Services[i].Status.Name + "\t"
-		values += "Information: " + s.Server.Services[i].Information + "\t"
-		values += "Acknowledged: " + strconv.FormatBool(s.Server.Services[i].Acknowledged) + "\t"
-		values += "ActiveCheck: " + strconv.FormatBool(s.Server.Services[i].ActiveCheck) + "\n"
+		table = append(table, []string{strconv.Itoa(s.Server.Services[i].ServiceID), s.Server.Services[i].Name, strconv.Itoa(s.Server.Services[i].Parent.ID), s.Server.Services[i].Parent.Name, s.Server.Services[i].Parent.Address, strconv.Itoa(s.Server.Services[i].Parent.PollerID), strconv.Itoa(s.Server.Services[i].Status.Code), s.Server.Services[i].Status.Name, strconv.FormatBool(s.Server.Services[i].Acknowledged), strconv.FormatBool(s.Server.Services[i].ActiveCheck)})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the services to csv

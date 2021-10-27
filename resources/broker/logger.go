@@ -26,9 +26,13 @@ SOFTWARE.
 package broker
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -56,12 +60,16 @@ type InformationsLogger struct {
 
 //StringText permits to display the caracteristics of the BrokerLoggers to text
 func (s ServerLogger) StringText() string {
-	var values string = "BrokerLogger list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.BrokerLoggers, func(i, j int) bool {
+		return strings.ToLower(s.Server.BrokerLoggers[i].Name) < strings.ToLower(s.Server.BrokerLoggers[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.BrokerLoggers); i++ {
-		values += "ID: " + s.Server.BrokerLoggers[i].ID + "\t"
-		values += "Name: " + s.Server.BrokerLoggers[i].Name + "\n"
+		table = append(table, []string{s.Server.BrokerLoggers[i].ID, s.Server.BrokerLoggers[i].Name})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the BrokerLoggers to csv

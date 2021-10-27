@@ -26,6 +26,7 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -59,14 +60,12 @@ type DetailTemplateInformations struct {
 
 //StringText permits to display the caracteristics of the host templates to text
 func (s DetailTemplateServer) StringText() string {
-	var values string = "Host template list for server " + s.Server.Name + ": \n"
+	var values string
 	template := s.Server.Template
 	if template != nil {
-		values += (*template).ID + "\t"
-		values += (*template).Name + "\t"
-		values += (*template).Alias + "\t"
-		values += (*template).Address + "\t"
-		values += (*template).Activate + "\n"
+		elements := [][]string{{"0", "Template host:"}, {"1", "ID: " + (*template).ID}, {"1", "Name: " + (*template).Name}, {"1", "Alias: " + (*template).Alias}, {"1", "Address: " + (*template).Address}, {"1", "Activate: " + (*template).Activate}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "template: null\n"
 	}

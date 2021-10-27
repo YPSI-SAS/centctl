@@ -26,6 +26,7 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -69,12 +70,20 @@ type DetailGroupInformations struct {
 
 //StringText permits to display the caracteristics of the host group to text
 func (s DetailGroupServer) StringText() string {
-	var values string = "Host group list for server " + s.Server.Name + ": \n"
+	var values string
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "\t"
-		values += (*group).Name + "\t"
-		values += (*group).Alias + "\n"
+		elements := [][]string{{"0", "Group host:"}, {"1", "ID: " + (*group).ID}, {"1", "Name: " + (*group).Name + "\t" + "Alias: " + (*group).Alias}}
+		if len((*group).Members) == 0 {
+			elements = append(elements, []string{"1", "Members: []"})
+		} else {
+			elements = append(elements, []string{"1", "Members:"})
+			for _, member := range (*group).Members {
+				elements = append(elements, []string{"2", member.Name + " (ID=" + member.ID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "group: null\n"
 	}

@@ -26,6 +26,7 @@ SOFTWARE.
 package poller
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -58,14 +59,17 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the pollers to text
 func (s DetailServer) StringText() string {
-	var values string = "Poller list for server" + s.Server.Name + ": \n"
+	var values string
 	poller := s.Server.Poller
 	if poller != nil {
-		values += "Type: " + (*poller).Type + "\t"
-		values += "Label: " + (*poller).Label + "\t"
-		values += "CentreonID: " + (*poller).Metadata.CentreonID + "\t"
-		values += "Hosname: " + (*poller).Metadata.HostName + "\t"
-		values += "Address: " + (*poller).Metadata.Address + "\n"
+		elements := [][]string{{"0", "Poller:"}}
+		elements = append(elements, []string{"1", "Type: " + (*poller).Type})
+		elements = append(elements, []string{"1", "Label: " + (*poller).Label})
+		elements = append(elements, []string{"1", "CentreonID: " + (*poller).Metadata.CentreonID})
+		elements = append(elements, []string{"1", "HostName: " + (*poller).Metadata.HostName})
+		elements = append(elements, []string{"1", "Address: " + (*poller).Metadata.Address})
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "poller: null\n"
 	}

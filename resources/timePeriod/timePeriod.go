@@ -26,9 +26,13 @@ SOFTWARE.
 package timePeriod
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -64,21 +68,16 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the TimePeriods to text
 func (s Server) StringText() string {
-	var values string = "TimePeriod list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.TimePeriods, func(i, j int) bool {
+		return strings.ToLower(s.Server.TimePeriods[i].Name) < strings.ToLower(s.Server.TimePeriods[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"})
 	for i := 0; i < len(s.Server.TimePeriods); i++ {
-		values += "ID: " + s.Server.TimePeriods[i].ID + "\t"
-		values += "Name: " + s.Server.TimePeriods[i].Name + "\t"
-		values += "Alias: " + s.Server.TimePeriods[i].Alias + "\t"
-		values += "Monday: " + s.Server.TimePeriods[i].Monday + "\t"
-		values += "Tuesday: " + s.Server.TimePeriods[i].Tuesday + "\t"
-		values += "Wednesday: " + s.Server.TimePeriods[i].Wednesday + "\t"
-		values += "Thursday: " + s.Server.TimePeriods[i].Thursday + "\t"
-		values += "Friday: " + s.Server.TimePeriods[i].Friday + "\t"
-		values += "Saturday: " + s.Server.TimePeriods[i].Saturday + "\t"
-		values += "Sunday: " + s.Server.TimePeriods[i].Sunday + "\n"
-
+		table = append(table, []string{s.Server.TimePeriods[i].ID, s.Server.TimePeriods[i].Name, s.Server.TimePeriods[i].Alias, s.Server.TimePeriods[i].Monday, s.Server.TimePeriods[i].Tuesday, s.Server.TimePeriods[i].Wednesday, s.Server.TimePeriods[i].Thursday, s.Server.TimePeriods[i].Friday, s.Server.TimePeriods[i].Saturday, s.Server.TimePeriods[i].Sunday})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the TimePeriods to csv

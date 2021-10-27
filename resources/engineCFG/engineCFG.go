@@ -26,9 +26,13 @@ SOFTWARE.
 package engineCFG
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -58,15 +62,16 @@ type InformationsEngineCFG struct {
 
 //StringText permits to display the caracteristics of the EngineCFG to text
 func (s ServerEngineCFG) StringText() string {
-	var values string = "EngineCFG list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.EngineCFG, func(i, j int) bool {
+		return strings.ToLower(s.Server.EngineCFG[i].Name) < strings.ToLower(s.Server.EngineCFG[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Instance", "Comment"})
 	for i := 0; i < len(s.Server.EngineCFG); i++ {
-		values += "ID: " + s.Server.EngineCFG[i].ID + "\t"
-		values += "Name: " + s.Server.EngineCFG[i].Name + "\t"
-		values += "Instance: " + s.Server.EngineCFG[i].Instance + "\t"
-		values += "Comment: " + s.Server.EngineCFG[i].Comment + "\n"
-
+		table = append(table, []string{s.Server.EngineCFG[i].ID, s.Server.EngineCFG[i].Name, s.Server.EngineCFG[i].Instance, s.Server.EngineCFG[i].Comment})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the EngineCFG to csv

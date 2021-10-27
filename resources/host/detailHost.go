@@ -26,6 +26,7 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -84,14 +85,28 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s DetailServer) StringText() string {
-	var values string = "Host detail for server " + s.Server.Name + ": \n"
+	var values string
 	host := s.Server.Host
 	if host != nil {
-		values += "ID: " + (*host).ID + "\t"
-		values += "Name: " + (*host).Name + "\t"
-		values += "Alias: " + (*host).Alias + "\t"
-		values += "IP address: " + (*host).Address + "\t"
-		values += "Activate: " + (*host).Activate + "\n"
+		elements := [][]string{{"0", "Host:"}, {"1", "ID: " + (*host).ID}, {"1", "Name: " + (*host).Name + "\t" + "Alias: " + (*host).Alias}, {"1", "IP address: " + (*host).Address}, {"1", "Activate: " + (*host).Activate}}
+		if len((*host).Child) == 0 {
+			elements = append(elements, []string{"1", "Child: []"})
+		} else {
+			elements = append(elements, []string{"1", "Child:"})
+			for _, child := range (*host).Child {
+				elements = append(elements, []string{"2", child.Name + " (ID=" + child.ID + ")"})
+			}
+		}
+		if len((*host).Parent) == 0 {
+			elements = append(elements, []string{"1", "Parent: []"})
+		} else {
+			elements = append(elements, []string{"1", "Parent:"})
+			for _, parent := range (*host).Parent {
+				elements = append(elements, []string{"2", parent.Name + " (ID=" + parent.ID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "Host: null\n"
 	}

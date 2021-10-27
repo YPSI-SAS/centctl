@@ -26,10 +26,14 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -68,19 +72,16 @@ type RealtimeResultBodyV2 struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s RealtimeServerV2) StringText() string {
-	var values string = "Host list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Hosts, func(i, j int) bool {
+		return strings.ToLower(s.Server.Hosts[i].Name) < strings.ToLower(s.Server.Hosts[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "IP address", "Status code", "Status name", "Acknowledged", "Activate check", "Poller ID"})
 	for i := 0; i < len(s.Server.Hosts); i++ {
-		values += "ID: " + strconv.Itoa(s.Server.Hosts[i].ID) + "\t"
-		values += "Name: " + s.Server.Hosts[i].Name + "\t"
-		values += "Alias: " + s.Server.Hosts[i].Alias + "\t"
-		values += "IP address: " + s.Server.Hosts[i].Address + "\t"
-		values += "Status code: " + strconv.Itoa(s.Server.Hosts[i].Status.Code) + "\t"
-		values += "Status name: " + s.Server.Hosts[i].Status.Name + "\t"
-		values += "Acknowledged: " + strconv.FormatBool(s.Server.Hosts[i].Acknowledged) + "\t"
-		values += "ActiveCheck: " + strconv.FormatBool(s.Server.Hosts[i].ActiveCheck) + "\t"
-		values += "Poller ID: " + strconv.Itoa(s.Server.Hosts[i].PollerID) + "\n"
+		table = append(table, []string{strconv.Itoa(s.Server.Hosts[i].ID), s.Server.Hosts[i].Name, s.Server.Hosts[i].Alias, s.Server.Hosts[i].Address, strconv.Itoa(s.Server.Hosts[i].Status.Code), s.Server.Hosts[i].Status.Name, strconv.FormatBool(s.Server.Hosts[i].Acknowledged), strconv.FormatBool(s.Server.Hosts[i].ActiveCheck), strconv.Itoa(s.Server.Hosts[i].PollerID)})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the hosts to csv

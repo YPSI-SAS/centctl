@@ -26,9 +26,13 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -57,12 +61,16 @@ type TemplateInformations struct {
 
 //StringText permits to display the caracteristics of the service templates to text
 func (s TemplateServer) StringText() string {
-	var values string = "Service template list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Templates, func(i, j int) bool {
+		return strings.ToLower(s.Server.Templates[i].Description) < strings.ToLower(s.Server.Templates[j].Description)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Description"})
 	for i := 0; i < len(s.Server.Templates); i++ {
-		values += s.Server.Templates[i].ID + "\t"
-		values += s.Server.Templates[i].Description + "\n"
+		table = append(table, []string{s.Server.Templates[i].ID, s.Server.Templates[i].Description})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the service templates to csv

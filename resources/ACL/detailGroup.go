@@ -26,6 +26,7 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -59,16 +60,14 @@ type DetailGroupInformations struct {
 
 //StringText permits to display the caracteristics of the ACL groups to text
 func (s DetailGroupServer) StringText() string {
-	var values string = "ACL group list for server " + s.Server.Name + ": \n"
-
+	var values string
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "\t"
-		values += (*group).Name + "\t"
-		values += (*group).Alias + "\t"
-		values += (*group).Activate + "\n"
+		elements := [][]string{{"0", "ACL group:"}, {"1", "ID: " + (*group).ID}, {"1", "Name: " + (*group).Name}, {"1", "Alias: " + (*group).Alias}, {"1", "Activate: " + (*group).Activate}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
-		values += "group: null\n"
+		values = "group: null\n"
 	}
 
 	return fmt.Sprintf(values)

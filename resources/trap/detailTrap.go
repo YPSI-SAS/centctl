@@ -26,6 +26,7 @@ SOFTWARE.
 package trap
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -58,14 +59,17 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the Traps to text
 func (s DetailServer) StringText() string {
-	var values string = "Trap list for server " + s.Server.Name + ": \n"
+	var values string
 
 	trap := s.Server.Trap
 	if trap != nil {
-		values += "ID: " + (*trap).ID + "\t"
-		values += "Name: " + (*trap).Name + "\t"
-		values += "Oid: " + (*trap).Oid + "\t"
-		values += "Manufacturer: " + (*trap).Manufacturer + "\n"
+		elements := [][]string{{"0", "Trap:"}}
+		elements = append(elements, []string{"1", "ID: " + (*trap).ID})
+		elements = append(elements, []string{"1", "Name: " + (*trap).Name})
+		elements = append(elements, []string{"1", "Oid: " + (*trap).Oid})
+		elements = append(elements, []string{"1", "Manufacturer: " + (*trap).Manufacturer})
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "trap: null\n"
 	}

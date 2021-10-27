@@ -26,9 +26,13 @@ SOFTWARE.
 package contact
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -56,12 +60,16 @@ type GroupInformations struct {
 
 //StringText permits to display the caracteristics of the contact Groups to text
 func (s GroupServer) StringText() string {
-	var values string = "contact group list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.Groups, func(i, j int) bool {
+		return strings.ToLower(s.Server.Groups[i].Name) < strings.ToLower(s.Server.Groups[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.Groups); i++ {
-		values += s.Server.Groups[i].ID + "\t"
-		values += s.Server.Groups[i].Name + "\n"
+		table = append(table, []string{s.Server.Groups[i].ID, s.Server.Groups[i].Name})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the contact ResultGroup to csv

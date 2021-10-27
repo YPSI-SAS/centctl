@@ -26,6 +26,7 @@ SOFTWARE.
 package centreonProxy
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -55,15 +56,13 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the commands to text
 func (s Server) StringText() string {
-	var values string = "CentreonProxy list for server " + s.Server.Name + ": \n"
+	var values string
 
 	centreonProxy := s.Server.CentreonProxy
 	if centreonProxy != nil {
-		values += "URL: " + (*centreonProxy).URL + "\t"
-		values += "Port: " + strconv.Itoa((*centreonProxy).Port) + "\t"
-		values += "User: " + (*centreonProxy).User + "\t"
-		values += "Password: " + (*centreonProxy).Password + "\t"
-		values += "Protocol: " + (*centreonProxy).Protocol + "\n"
+		elements := [][]string{{"0", "centreonProxy:"}, {"1", "URL: " + (*centreonProxy).URL}, {"1", "Port: " + strconv.Itoa((*centreonProxy).Port)}, {"1", "User: " + (*centreonProxy).User}, {"1", "Password: " + (*centreonProxy).Password}, {"1", "Protocol: " + (*centreonProxy).Protocol}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "centreonProxy: null\n"
 	}

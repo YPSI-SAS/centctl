@@ -26,6 +26,7 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -85,12 +86,30 @@ type DetailGroupInformations struct {
 
 //StringText permits to display the caracteristics of the service groups to text
 func (s DetailGroupServer) StringText() string {
-	var values string = "Service Group list for server " + s.Server.Name + ": \n"
+	var values string
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "\t"
-		values += (*group).Name + "\t"
-		values += (*group).Alias + "\n"
+		elements := [][]string{{"0", "Group service:"}, {"1", "ID: " + (*group).ID}, {"1", "Name: " + (*group).Name + "\t" + "Alias: " + (*group).Alias}}
+		if len((*group).Services) == 0 {
+			elements = append(elements, []string{"1", "Services: []"})
+		} else {
+			elements = append(elements, []string{"1", "Services:"})
+			for _, service := range (*group).Services {
+				elements = append(elements, []string{"2", "Host: " + service.HostName + " (ID=" + service.HostID + ")"})
+				elements = append(elements, []string{"2", "Service: " + service.ServiceDescription + " (ID=" + service.ServiceID + ")"})
+			}
+		}
+		if len((*group).HostGroupServices) == 0 {
+			elements = append(elements, []string{"1", "Host group services: []"})
+		} else {
+			elements = append(elements, []string{"1", "Host group services:"})
+			for _, service := range (*group).HostGroupServices {
+				elements = append(elements, []string{"2", "Host group: " + service.HostGroupName + " (ID=" + service.HostGroupID + ")"})
+				elements = append(elements, []string{"2", "Host group service: " + service.ServiceDescription + " (ID=" + service.ServiceID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "group: null\n"
 	}

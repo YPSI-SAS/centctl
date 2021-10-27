@@ -26,6 +26,7 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
@@ -59,13 +60,12 @@ type DetailActionInformations struct {
 
 //StringText permits to display the caracteristics of the ACL actions to text
 func (s DetailActionServer) StringText() string {
-	var values string = "ACL action list for server " + s.Server.Name + ": \n"
+	var values string
 	action := s.Server.Action
 	if action != nil {
-		values += (*action).ID + "\t"
-		values += (*action).Name + "\t"
-		values += (*action).Description + "\t"
-		values += (*action).Activate + "\n"
+		elements := [][]string{{"0", "ACL action:"}, {"1", "ID: " + (*action).ID}, {"1", "Name: " + (*action).Name}, {"1", "Description: " + (*action).Description}, {"1", "Activate: " + (*action).Activate}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "action: null\n"
 	}

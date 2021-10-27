@@ -26,21 +26,30 @@ SOFTWARE.
 package broker
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
 
-//DetailBrokerOutput represents the caracteristics of a BrokerOutput
-type DetailBrokerOutput struct {
+//DetailParametersOutput represents the caracteristics of a BrokerOutput
+type DetailParametersOutput struct {
 	ParamKey   string `json:"parameter key" yaml:"parameter key"`     //BrokerOutput param key
 	ParamValue string `json:"parameter value" yaml:"parameter value"` //BrokerOutput param value
 }
 
+type DetailBrokerOutput struct {
+	ID         string                   `json:"ID" yaml:"ID"`
+	BrokerName string                   `json:"broker_name" yaml:"broker_name"`
+	Parameters []DetailParametersOutput `json:"parameters" yaml:"parameters"`
+}
+
 //DetailResultOutput represents a poller array
 type DetailResultOutput struct {
-	BrokerOutputs []DetailBrokerOutput `json:"result" yaml:"result"`
+	BrokerOutputs []DetailParametersOutput `json:"result" yaml:"result"`
 }
 
 //DetailServerOutput represents a server with informations
@@ -50,26 +59,37 @@ type DetailServerOutput struct {
 
 //DetailInformationsOutput represents the informations of the server
 type DetailInformationsOutput struct {
-	Name         string               `json:"name" yaml:"name"`
-	BrokerOutput []DetailBrokerOutput `json:"broker_output" yaml:"broker_output"`
+	Name         string             `json:"name" yaml:"name"`
+	BrokerOutput DetailBrokerOutput `json:"broker_output" yaml:"broker_output"`
 }
 
 //StringText permits to display the caracteristics of the BrokerOutputs to text
 func (s DetailServerOutput) StringText() string {
-	var values string = "BrokerOutput list for server " + s.Server.Name + ": \n"
-	for i := 0; i < len(s.Server.BrokerOutput); i++ {
-		values += "ID: " + s.Server.BrokerOutput[i].ParamKey + "\t"
-		values += "Name: " + s.Server.BrokerOutput[i].ParamValue + "\n"
+	var values string
+	for i := 0; i < len(s.Server.BrokerOutput.Parameters); i++ {
+		values += "ID: " + s.Server.BrokerOutput.Parameters[i].ParamKey + "\t"
+		values += "Name: " + s.Server.BrokerOutput.Parameters[i].ParamValue + "\n"
 	}
+	elements := [][]string{{"0", "Broker output:"}, {"1", "ID: " + s.Server.BrokerOutput.ID}, {"1", "BrokerName: " + s.Server.BrokerOutput.BrokerName}}
+	elements = append(elements, []string{"1", "Parameters:"})
+	sort.SliceStable(s.Server.BrokerOutput.Parameters, func(i, j int) bool {
+		return strings.ToLower(s.Server.BrokerOutput.Parameters[i].ParamKey) < strings.ToLower(s.Server.BrokerOutput.Parameters[j].ParamKey)
+	})
+	for _, params := range s.Server.BrokerOutput.Parameters {
+		elements = append(elements, []string{"2", params.ParamKey + " \t(value=" + params.ParamValue + ")"})
+	}
+	items := resources.GenerateListItems(elements, "")
+	values = resources.BulletList(items)
+
 	return fmt.Sprintf(values)
 }
 
 //StringCSV permits to display the caracteristics of the BrokerOutputs to csv
 func (s DetailServerOutput) StringCSV() string {
-	var values string = "Server,ID,Name\n"
-	values += s.Server.Name + ","
-	for i := 0; i < len(s.Server.BrokerOutput); i++ {
-		values += "\"" + s.Server.BrokerOutput[i].ParamKey + "\"" + "," + "\"" + s.Server.BrokerOutput[i].ParamValue + "\"" + "\n"
+	var values string = "Server,outputID,brokerName,Key,Value\n"
+	for i := 0; i < len(s.Server.BrokerOutput.Parameters); i++ {
+		values += s.Server.Name + "," + s.Server.BrokerOutput.ID + "," + s.Server.BrokerOutput.BrokerName + ","
+		values += "\"" + s.Server.BrokerOutput.Parameters[i].ParamKey + "\"" + "," + "\"" + s.Server.BrokerOutput.Parameters[i].ParamValue + "\"" + "\n"
 	}
 	return fmt.Sprintf(values)
 }

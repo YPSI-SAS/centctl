@@ -26,9 +26,13 @@ SOFTWARE.
 package broker
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -57,13 +61,16 @@ type InformationsCFG struct {
 
 //StringText permits to display the caracteristics of the BrokerCFGs to text
 func (s ServerCFG) StringText() string {
-	var values string = "BrokerCFG list for server " + s.Server.Name + ": \n"
+	sort.SliceStable(s.Server.BrokerCFGs, func(i, j int) bool {
+		return strings.ToLower(s.Server.BrokerCFGs[i].Name) < strings.ToLower(s.Server.BrokerCFGs[j].Name)
+	})
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Instance"})
 	for i := 0; i < len(s.Server.BrokerCFGs); i++ {
-		values += "ID: " + s.Server.BrokerCFGs[i].ID + "\t"
-		values += "Name: " + s.Server.BrokerCFGs[i].Name + "\t"
-		values += "Instance: " + s.Server.BrokerCFGs[i].Instance + "\n"
+		table = append(table, []string{s.Server.BrokerCFGs[i].ID, s.Server.BrokerCFGs[i].Name, s.Server.BrokerCFGs[i].Instance})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the BrokerCFGs to csv
