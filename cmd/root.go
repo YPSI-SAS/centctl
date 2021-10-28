@@ -57,6 +57,14 @@ import (
 var serverName string
 var insecure bool
 var colorRed = colorMessage.GetColorRed()
+var serverLogin string
+var serverPassword string
+var serverUrl string
+var serverVersion string
+var serverHttpProxyURL string
+var serverHttpsProxyURL string
+var serverUserProxy string
+var serverPasswordProxy string
 
 type ServerList struct {
 	Servers []struct {
@@ -65,7 +73,6 @@ type ServerList struct {
 		Login    string `yaml:"login"`
 		Password string `yaml:"password"`
 		Version  string `yaml:"version"`
-		UrlMap   string `yaml:"urlMap"`
 		Default  string `yaml:"default,omitempty"`
 		Insecure string `yaml:"insecure,omitempty"`
 		Proxy    []struct {
@@ -206,6 +213,14 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&insecure, "insecure", false, "To forced connection https")
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "helping")
 	rootCmd.PersistentFlags().Bool("DEBUG", false, "debugging")
+	rootCmd.PersistentFlags().StringVar(&serverLogin, "login", "", "Server Login")
+	rootCmd.PersistentFlags().StringVar(&serverPassword, "password", "", "Server Password")
+	rootCmd.PersistentFlags().StringVar(&serverUrl, "url", "", "Server URL")
+	rootCmd.PersistentFlags().StringVar(&serverVersion, "version", "", "Server version")
+	rootCmd.PersistentFlags().StringVar(&serverHttpProxyURL, "proxyHTTP", "", "URL proxy HTTP")
+	rootCmd.PersistentFlags().StringVar(&serverHttpsProxyURL, "proxyHTTPs", "", "URL proxy HTTPs")
+	rootCmd.PersistentFlags().StringVar(&serverPasswordProxy, "proxyPassword", "", "Proxy password")
+	rootCmd.PersistentFlags().StringVar(&serverUserProxy, "proxyUser", "", "Proxy user")
 
 	rootCmd.AddCommand(export.Cmd)
 	rootCmd.AddCommand(downtime.Cmd)
@@ -225,115 +240,144 @@ func initConfig() {
 	if os.Args[1] != "version" && os.Args[1] != "completion" {
 		// colorRed := colorMessage.GetColorRed()
 		cfgFile := os.Getenv("CENTCTL_CONF")
-		if cfgFile == "" {
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println("The environment variable CENTCTL_CONF is required")
-			os.Exit(1)
-		}
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 
 		viper.AutomaticEnv() // read in environment variables that match
 
+		var name string
+		var login string
+		var password string
+		var url string
+		var version string
 		// If a config file is not found.
 		if err := viper.ReadInConfig(); err != nil {
-			fmt.Println("Use config file:", viper.ConfigFileUsed())
+			if serverLogin != "" && serverPassword != "" && serverUrl != "" && serverVersion != "" && serverName != "" {
+				name = serverName
+				login = serverLogin
+				password = serverPassword
+				version = serverVersion
+				url = serverUrl
+				if serverHttpProxyURL != "" && serverPasswordProxy != "" && serverUserProxy != "" {
+					os.Setenv("http_proxy", "http://"+serverUserProxy+":"+serverPasswordProxy+"@"+serverHttpProxyURL)
+				} else if serverHttpProxyURL != "" {
+					os.Setenv("http_proxy", "http://"+serverHttpProxyURL)
+				}
+				if serverHttpsProxyURL != "" && serverPasswordProxy != "" && serverUserProxy != "" {
+					os.Setenv("https_proxy", "http://"+serverUserProxy+":"+serverPasswordProxy+"@"+serverHttpsProxyURL)
+				} else if serverHttpsProxyURL != "" {
+					os.Setenv("https_proxy", "http://"+serverHttpsProxyURL)
+				}
+			} else {
+				fmt.Printf(colorRed, "ERROR: ")
+				fmt.Println("Fill in the server either in the yaml configuration file or with the following flags: --server --password --login --url --version")
+				os.Exit(1)
+			}
+		} else {
+			name, login, password, url, version = getValueInFile()
 		}
 
-		//Recover the servers from the config file
-		servers := &ServerList{}
-		proxy := make(map[string]string, 0)
-		err := viper.Unmarshal(servers)
+		var token string
+		var err error
+		if version == "v1" {
+			token, err = AuthentificationV1(url, login, password, insecure)
+		} else {
+			token, err = AuthentificationV2(url, login, password, insecure)
+		}
+		logger := log.New(os.Stdout).WithColor()
 		if err != nil {
-			fmt.Printf("unable to decode into struct, %v", err)
+			logger.Error("centctl authentification - " + err.Error())
+			os.Exit(1)
 		}
-		_ = viper.UnmarshalKey("proxy", &proxy)
+		os.Setenv("SERVER", name)
+		os.Setenv("LOGIN", login)
+		os.Setenv("PASSWORD", password)
+		os.Setenv("TOKEN", token)
+		os.Setenv("URL", url)
+		os.Setenv("VERSION", version)
+	}
 
-		//Search if the server(s) exist(s) in the list of servers
-		index := -1
+}
+func getValueInFile() (string, string, string, string, string) {
+	//Recover the servers from the config file
+	servers := &ServerList{}
+	proxy := make(map[string]string, 0)
+	err := viper.Unmarshal(servers)
+	if err != nil {
+		fmt.Printf("unable to decode into struct, %v", err)
+	}
+	_ = viper.UnmarshalKey("proxy", &proxy)
+
+	//Search if the server(s) exist(s) in the list of servers
+	index := -1
+	for i, v := range servers.Servers {
+		if serverName == v.Server {
+			index = i
+		}
+	}
+	if index == -1 && serverName == "" {
 		for i, v := range servers.Servers {
-			if serverName == v.Server {
+			if "1" == v.Default {
 				index = i
 			}
 		}
-		if index == -1 && serverName == "" {
-			for i, v := range servers.Servers {
-				if "1" == v.Default {
-					index = i
-				}
-			}
-			if index == -1 {
-				fmt.Printf(colorRed, "ERROR: ")
-				fmt.Println(errors.New("No default server in yaml file"))
-			}
-		}
-
-		//If it exists => made authentification and create token and url as environments variables
-		if index >= 0 {
-			var token string
-			var err error
-			name := servers.Servers[index].Server
-			url := servers.Servers[index].Url
-			login := servers.Servers[index].Login
-			password := servers.Servers[index].Password
-			version := servers.Servers[index].Version
-			if os.Getenv("http_proxy") == "" {
-				if proxy["httpURL"] != "" {
-					if proxy["password"] != "" {
-						os.Setenv("http_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpURL"])
-					} else {
-						os.Setenv("http_proxy", "http://"+proxy["httpURL"])
-					}
-				} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[0].HttpURL != "" {
-					if servers.Servers[index].Proxy[3].Password != "" {
-						os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[2].User+":"+servers.Servers[index].Proxy[3].Password+"@"+servers.Servers[index].Proxy[0].HttpURL)
-					} else {
-						os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[0].HttpURL)
-					}
-				}
-			}
-			if os.Getenv("https_proxy") == "" {
-				if proxy["httpsURL"] != "" {
-					if proxy["password"] != "" {
-						os.Setenv("https_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpsURL"])
-					} else {
-						os.Setenv("https_proxy", "http://"+proxy["httpsURL"])
-					}
-				} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[1].HttpsURL != "" {
-					if servers.Servers[index].Proxy[3].Password != "" {
-						os.Setenv("https_proxy", "http://"+servers.Servers[index].Proxy[2].User+":"+servers.Servers[index].Proxy[3].Password+"@"+servers.Servers[index].Proxy[1].HttpsURL)
-					} else {
-						os.Setenv("https_proxy", "http://"+servers.Servers[index].Proxy[1].HttpsURL)
-					}
-				}
-			}
-			if servers.Servers[index].Insecure != "" {
-				if servers.Servers[index].Insecure == "1" {
-					insecure = true
-				} else {
-					insecure = false
-				}
-
-			}
-			if version == "v1" {
-				token, err = AuthentificationV1(url, login, password, insecure)
-			} else {
-				token, err = AuthentificationV2(url, login, password, insecure)
-			}
-			logger := log.New(os.Stdout).WithColor()
-			if err != nil {
-				logger.Error("centctl authentification - " + err.Error())
-				os.Exit(1)
-			}
-			os.Setenv("SERVER", name)
-			os.Setenv("LOGIN", login)
-			os.Setenv("PASSWORD", password)
-			os.Setenv("TOKEN", token)
-			os.Setenv("URL", url)
-			os.Setenv("VERSION", version)
-		} else if serverName != "" {
+		if index == -1 {
 			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println(errors.New("The server is not correct"))
+			fmt.Println(errors.New("No default server in yaml file"))
 		}
 	}
+
+	//If it exists => made authentification and create token and url as environments variables
+	if index >= 0 {
+		name := servers.Servers[index].Server
+		url := servers.Servers[index].Url
+		login := servers.Servers[index].Login
+		password := servers.Servers[index].Password
+		version := servers.Servers[index].Version
+		if os.Getenv("http_proxy") == "" {
+			if proxy["httpURL"] != "" {
+				if proxy["password"] != "" {
+					os.Setenv("http_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpURL"])
+				} else {
+					os.Setenv("http_proxy", "http://"+proxy["httpURL"])
+				}
+			} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[0].HttpURL != "" {
+				if servers.Servers[index].Proxy[3].Password != "" {
+					os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[2].User+":"+servers.Servers[index].Proxy[3].Password+"@"+servers.Servers[index].Proxy[0].HttpURL)
+				} else {
+					os.Setenv("http_proxy", "http://"+servers.Servers[index].Proxy[0].HttpURL)
+				}
+			}
+		}
+		if os.Getenv("https_proxy") == "" {
+			if proxy["httpsURL"] != "" {
+				if proxy["password"] != "" {
+					os.Setenv("https_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpsURL"])
+				} else {
+					os.Setenv("https_proxy", "http://"+proxy["httpsURL"])
+				}
+			} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[1].HttpsURL != "" {
+				if servers.Servers[index].Proxy[3].Password != "" {
+					os.Setenv("https_proxy", "http://"+servers.Servers[index].Proxy[2].User+":"+servers.Servers[index].Proxy[3].Password+"@"+servers.Servers[index].Proxy[1].HttpsURL)
+				} else {
+					os.Setenv("https_proxy", "http://"+servers.Servers[index].Proxy[1].HttpsURL)
+				}
+			}
+		}
+		if servers.Servers[index].Insecure != "" {
+			if servers.Servers[index].Insecure == "1" {
+				insecure = true
+			} else {
+				insecure = false
+			}
+
+		}
+		return name, login, password, url, version
+	} else if serverName != "" {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(errors.New("The server is not correct"))
+		os.Exit(1)
+		return "", "", "", "", ""
+	}
+	return "", "", "", "", ""
 }
