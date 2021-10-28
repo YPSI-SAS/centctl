@@ -28,8 +28,6 @@ package service
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -63,9 +61,6 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the services to text
 func (s Server) StringText() string {
-	sort.SliceStable(s.Server.Services, func(i, j int) bool {
-		return strings.ToLower(s.Server.Services[i].Description) < strings.ToLower(s.Server.Services[j].Description)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Description", "Host ID", "Host name", "Activate"})
 	for i := 0; i < len(s.Server.Services); i++ {

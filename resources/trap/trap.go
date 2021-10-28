@@ -28,8 +28,6 @@ package trap
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -62,9 +60,6 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the Traps to text
 func (s Server) StringText() string {
-	sort.SliceStable(s.Server.Traps, func(i, j int) bool {
-		return strings.ToLower(s.Server.Traps[i].Name) < strings.ToLower(s.Server.Traps[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Oid", "Manufacturer"})
 	for i := 0; i < len(s.Server.Traps); i++ {

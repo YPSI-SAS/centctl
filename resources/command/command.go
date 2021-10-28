@@ -28,8 +28,6 @@ package command
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -64,9 +62,6 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the commands to text
 func (s Server) StringText() string {
-	sort.SliceStable(s.Server.Commands, func(i, j int) bool {
-		return strings.ToLower(s.Server.Commands[i].Name) < strings.ToLower(s.Server.Commands[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Type", "CmdLine"})
 	for i := 0; i < len(s.Server.Commands); i++ {

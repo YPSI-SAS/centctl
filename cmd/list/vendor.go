@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -75,9 +74,7 @@ func ListVendor(output string, regex string, debugV bool) error {
 
 	//Sort vendors based on their ID
 	sort.SliceStable(finalVendors, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalVendors[i].ID)
-		valJ, _ := strconv.Atoi(finalVendors[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalVendors[i].Name) < strings.ToLower(finalVendors[j].Name)
 	})
 
 	//Organization of data

@@ -28,9 +28,7 @@ package service
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
 	"strconv"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -78,9 +76,6 @@ type RealtimeResultBody struct {
 
 //StringText permits to display the caracteristics of the services to text
 func (s RealtimeServer) StringText() string {
-	sort.SliceStable(s.Server.Services, func(i, j int) bool {
-		return strings.ToLower(s.Server.Services[i].Name) < strings.ToLower(s.Server.Services[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Parent ID", "Parent name", "Parent address", "PollerID", "Status code", "Status name", "Acknowledged", "ActiveCheck"})
 	for i := 0; i < len(s.Server.Services); i++ {

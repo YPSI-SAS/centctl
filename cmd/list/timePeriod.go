@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -75,9 +74,7 @@ func ListTimePeriod(output string, regex string, debugV bool) error {
 
 	//Sort time periods based on their ID
 	sort.SliceStable(finalTimePeriods, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalTimePeriods[i].ID)
-		valJ, _ := strconv.Atoi(finalTimePeriods[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalTimePeriods[i].Name) < strings.ToLower(finalTimePeriods[j].Name)
 	})
 
 	//Organization of data

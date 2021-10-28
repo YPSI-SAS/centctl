@@ -28,8 +28,6 @@ package ACL
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -64,9 +62,6 @@ type ResourceInformations struct {
 
 //StringText permits to display the caracteristics of the ACL Resources to text
 func (s ResourceServer) StringText() string {
-	sort.SliceStable(s.Server.Resources, func(i, j int) bool {
-		return strings.ToLower(s.Server.Resources[i].Name) < strings.ToLower(s.Server.Resources[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Alias", "Comment", "Activate"})
 	for i := 0; i < len(s.Server.Resources); i++ {

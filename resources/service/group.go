@@ -28,8 +28,6 @@ package service
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -60,9 +58,6 @@ type GroupInformations struct {
 
 //StringText permits to display the caracteristics of the service groups to text
 func (s GroupServer) StringText() string {
-	sort.SliceStable(s.Server.Groups, func(i, j int) bool {
-		return strings.ToLower(s.Server.Groups[i].Name) < strings.ToLower(s.Server.Groups[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.Groups); i++ {

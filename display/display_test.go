@@ -453,7 +453,7 @@ func TestDisplayDetailServiceJSON(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -470,7 +470,7 @@ func TestDisplayDetailServiceJSON(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -502,7 +502,7 @@ func TestDisplayDetailServiceYAML(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -519,7 +519,7 @@ func TestDisplayDetailServiceYAML(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -551,7 +551,7 @@ func TestDisplayDetailServiceCSV(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -568,7 +568,7 @@ func TestDisplayDetailServiceCSV(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -594,8 +594,8 @@ func TestDisplayDetailServiceCSV(t *testing.T) {
 	expected += strconv.Itoa(service1.ID) + ","
 	expected += service1.Description + ","
 	expected += strconv.Itoa(service1.State) + ","
-	expected += strconv.Itoa(service1.Status.Code) + ","
-	expected += service1.Status.Name + ","
+	expected += strconv.Itoa(service1.DetailRealtimeServiceStatus.Code) + ","
+	expected += service1.DetailRealtimeServiceStatus.Name + ","
 	expected += strconv.Itoa(service1.StateType) + ","
 	expected += service1.Output + ","
 	expected += strconv.Itoa(service1.MaxCheckAttempts) + ","
@@ -618,7 +618,7 @@ func TestDisplayDetailServiceText(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -635,7 +635,7 @@ func TestDisplayDetailServiceText(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -661,8 +661,8 @@ func TestDisplayDetailServiceText(t *testing.T) {
 	expected += "ID: " + strconv.Itoa(service1.ID) + "\t"
 	expected += "Description: " + service1.Description + "\t"
 	expected += "State: " + strconv.Itoa(service1.State) + "\t"
-	expected += "Status code: " + strconv.Itoa(service1.Status.Code) + "\t"
-	expected += "Status name: " + service1.Status.Name + "\t"
+	expected += "Status code: " + strconv.Itoa(service1.DetailRealtimeServiceStatus.Code) + "\t"
+	expected += "Status name: " + service1.DetailRealtimeServiceStatus.Name + "\t"
 	expected += "State type: " + strconv.Itoa(service1.StateType) + "\t"
 	expected += "Output: " + service1.Output + "\t"
 	expected += "Max check attempts: " + strconv.Itoa(service1.MaxCheckAttempts) + "\t"
@@ -685,7 +685,7 @@ func TestDisplayDetailServiceIncorrectOutput(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -702,7 +702,7 @@ func TestDisplayDetailServiceIncorrectOutput(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",

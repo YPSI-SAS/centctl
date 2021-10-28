@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -75,9 +74,7 @@ func ListResourceCFG(output string, regex string, debugV bool) error {
 
 	//Sort resourceCFG based on their ID
 	sort.SliceStable(finalResourceCFG, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalResourceCFG[i].ID)
-		valJ, _ := strconv.Atoi(finalResourceCFG[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalResourceCFG[i].Name) < strings.ToLower(finalResourceCFG[j].Name)
 	})
 
 	//Organization of data

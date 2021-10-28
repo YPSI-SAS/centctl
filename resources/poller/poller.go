@@ -28,9 +28,7 @@ package poller
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/jszwec/csvutil"
@@ -66,9 +64,6 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the pollers to text
 func (s Server) StringText() string {
-	sort.SliceStable(s.Server.Pollers, func(i, j int) bool {
-		return strings.ToLower(s.Server.Pollers[i].Name) < strings.ToLower(s.Server.Pollers[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Address", "IsRunning", "LastAlive", "Version", "Description"})
 	for i := 0; i < len(s.Server.Pollers); i++ {

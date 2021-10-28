@@ -28,8 +28,6 @@ package host
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -63,10 +61,6 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s Server) StringText() string {
-	//sort.Sort(NameSorterHost(s.Server.Hosts))
-	sort.SliceStable(s.Server.Hosts, func(i, j int) bool {
-		return strings.ToLower(s.Server.Hosts[i].Name) < strings.ToLower(s.Server.Hosts[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Alias", "Address", "Activate"})
 	for i := 0; i < len(s.Server.Hosts); i++ {

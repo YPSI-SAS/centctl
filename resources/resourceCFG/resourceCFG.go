@@ -28,8 +28,6 @@ package resourceCFG
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -64,9 +62,6 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the resourceCFG to text
 func (s Server) StringText() string {
-	sort.SliceStable(s.Server.ResourceCFG, func(i, j int) bool {
-		return strings.ToLower(s.Server.ResourceCFG[i].Name) < strings.ToLower(s.Server.ResourceCFG[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Value", "Comment", "Activate", "Instance"})
 	for i := 0; i < len(s.Server.ResourceCFG); i++ {

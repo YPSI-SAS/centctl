@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -75,9 +74,7 @@ func ListLDAP(output string, regex string, debugV bool) error {
 
 	//Sort LDAP based on their ID
 	sort.SliceStable(finalLDAPs, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalLDAPs[i].ID)
-		valJ, _ := strconv.Atoi(finalLDAPs[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalLDAPs[i].Name) < strings.ToLower(finalLDAPs[j].Name)
 	})
 
 	//Organization of data

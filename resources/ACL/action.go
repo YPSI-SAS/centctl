@@ -28,8 +28,6 @@ package ACL
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -63,9 +61,6 @@ type ActionInformations struct {
 
 //StringText permits to display the caracteristics of the ACL actions to text
 func (s ActionServer) StringText() string {
-	sort.SliceStable(s.Server.Actions, func(i, j int) bool {
-		return strings.ToLower(s.Server.Actions[i].Name) < strings.ToLower(s.Server.Actions[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Description", "Activate"})
 	for i := 0; i < len(s.Server.Actions); i++ {

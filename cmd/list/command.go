@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -102,12 +101,8 @@ func ListCommand(output string, regex string, typeCmd string, debugV bool) error
 		}
 		cmd.Line = json.RawMessage{}
 	}
-
-	//Sort commands based on their ID
 	sort.SliceStable(finalCommands, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalCommands[i].ID)
-		valJ, _ := strconv.Atoi(finalCommands[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalCommands[i].Name) < strings.ToLower(finalCommands[j].Name)
 	})
 
 	//Organization of data

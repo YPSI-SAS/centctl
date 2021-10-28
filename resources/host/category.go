@@ -28,8 +28,6 @@ package host
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -62,9 +60,6 @@ type CategoryInformations struct {
 
 //StringText permits to display the caracteristics of the host categories to text
 func (s CategoryServer) StringText() string {
-	sort.SliceStable(s.Server.Categories, func(i, j int) bool {
-		return strings.ToLower(s.Server.Categories[i].Name) < strings.ToLower(s.Server.Categories[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Alias", "Level"})
 	for i := 0; i < len(s.Server.Categories); i++ {

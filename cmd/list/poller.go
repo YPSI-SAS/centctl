@@ -26,12 +26,15 @@ SOFTWARE.
 package list
 
 import (
+	"centctl/colorMessage"
 	"centctl/display"
 	"centctl/request"
 	"centctl/resources/poller"
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -67,11 +70,19 @@ func ListPoller(output string, regex string, debugV bool) error {
 	//Permits to recover the array result into the body
 	var pollerResult poller.ResultPoller
 	json.Unmarshal(body, &pollerResult)
+	finalPollers := pollerResult.Pollers
+	if regex != "" {
+		finalPollers = deletePoller(finalPollers, regex)
+	}
 
+	//Sort hosts based on their ID
+	sort.SliceStable(finalPollers, func(i, j int) bool {
+		return strings.ToLower(finalPollers[i].Name) < strings.ToLower(finalPollers[j].Name)
+	})
 	server := poller.Server{
 		Server: poller.Informations{
 			Name:    os.Getenv("SERVER"),
-			Pollers: pollerResult.Pollers,
+			Pollers: finalPollers,
 		},
 	}
 
@@ -82,6 +93,24 @@ func ListPoller(output string, regex string, debugV bool) error {
 	}
 	fmt.Println(displayPoller)
 	return nil
+}
+
+func deletePoller(pollers []poller.Poller, regex string) []poller.Poller {
+	colorRed := colorMessage.GetColorRed()
+	index := 0
+	for _, s := range pollers {
+		matched, err := regexp.MatchString(regex, s.Name)
+		if err != nil {
+			fmt.Printf(colorRed, "ERROR:")
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+		if matched {
+			pollers[index] = s
+			index++
+		}
+	}
+	return pollers[:index]
 }
 
 func init() {

@@ -28,8 +28,6 @@ package broker
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -60,9 +58,6 @@ type InformationsLogger struct {
 
 //StringText permits to display the caracteristics of the BrokerLoggers to text
 func (s ServerLogger) StringText() string {
-	sort.SliceStable(s.Server.BrokerLoggers, func(i, j int) bool {
-		return strings.ToLower(s.Server.BrokerLoggers[i].Name) < strings.ToLower(s.Server.BrokerLoggers[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.BrokerLoggers); i++ {

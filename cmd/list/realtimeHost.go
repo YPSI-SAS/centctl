@@ -138,7 +138,7 @@ func ListRealtimeHost(output string, state string, limit int, viewType string, p
 
 	//Sort hosts based on their ID
 	sort.SliceStable(finalHosts, func(i, j int) bool {
-		return finalHosts[i].ID < finalHosts[j].ID
+		return strings.ToLower(finalHosts[i].Name) < strings.ToLower(finalHosts[j].Name)
 	})
 
 	server := host.RealtimeServerV2{

@@ -35,7 +35,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -76,9 +75,7 @@ func ListHost(output string, regex string, debugV bool) error {
 
 	//Sort hosts based on their ID
 	sort.SliceStable(finalHosts, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalHosts[i].ID)
-		valJ, _ := strconv.Atoi(finalHosts[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalHosts[i].Name) < strings.ToLower(finalHosts[j].Name)
 	})
 
 	//Organization of data

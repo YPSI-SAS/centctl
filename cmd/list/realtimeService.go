@@ -141,7 +141,7 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 
 	//Sort services based on their ID
 	sort.SliceStable(finalServices, func(i, j int) bool {
-		return finalServices[i].ServiceID < finalServices[j].ServiceID
+		return strings.ToLower(finalServices[i].Name) < strings.ToLower(finalServices[j].Name)
 	})
 
 	server := service.RealtimeServer{

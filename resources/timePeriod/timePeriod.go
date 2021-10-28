@@ -28,8 +28,6 @@ package timePeriod
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -68,9 +66,6 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the TimePeriods to text
 func (s Server) StringText() string {
-	sort.SliceStable(s.Server.TimePeriods, func(i, j int) bool {
-		return strings.ToLower(s.Server.TimePeriods[i].Name) < strings.ToLower(s.Server.TimePeriods[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Alias", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"})
 	for i := 0; i < len(s.Server.TimePeriods); i++ {

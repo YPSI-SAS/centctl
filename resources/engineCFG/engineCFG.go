@@ -28,8 +28,6 @@ package engineCFG
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -62,9 +60,6 @@ type InformationsEngineCFG struct {
 
 //StringText permits to display the caracteristics of the EngineCFG to text
 func (s ServerEngineCFG) StringText() string {
-	sort.SliceStable(s.Server.EngineCFG, func(i, j int) bool {
-		return strings.ToLower(s.Server.EngineCFG[i].Name) < strings.ToLower(s.Server.EngineCFG[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name", "Instance", "Comment"})
 	for i := 0; i < len(s.Server.EngineCFG); i++ {

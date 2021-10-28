@@ -35,7 +35,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -76,9 +75,7 @@ func ListDependencies(output string, regex string, debugV bool) error {
 
 	//Sort dependencies based on their ID
 	sort.SliceStable(finalDependencies, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalDependencies[i].ID)
-		valJ, _ := strconv.Atoi(finalDependencies[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalDependencies[i].Name) < strings.ToLower(finalDependencies[j].Name)
 	})
 
 	//Organization of data

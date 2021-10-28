@@ -28,8 +28,6 @@ package service
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -61,9 +59,6 @@ type TemplateInformations struct {
 
 //StringText permits to display the caracteristics of the service templates to text
 func (s TemplateServer) StringText() string {
-	sort.SliceStable(s.Server.Templates, func(i, j int) bool {
-		return strings.ToLower(s.Server.Templates[i].Description) < strings.ToLower(s.Server.Templates[j].Description)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Description"})
 	for i := 0; i < len(s.Server.Templates); i++ {

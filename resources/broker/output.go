@@ -28,8 +28,6 @@ package broker
 import (
 	"centctl/resources"
 	"encoding/json"
-	"sort"
-	"strings"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -60,9 +58,6 @@ type InformationsOutput struct {
 
 //StringText permits to display the caracteristics of the BrokerOutputs to text
 func (s ServerOutput) StringText() string {
-	sort.SliceStable(s.Server.BrokerOutputs, func(i, j int) bool {
-		return strings.ToLower(s.Server.BrokerOutputs[i].Name) < strings.ToLower(s.Server.BrokerOutputs[j].Name)
-	})
 	var table pterm.TableData
 	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.BrokerOutputs); i++ {
