@@ -82,7 +82,7 @@ func ShowGroupHost(name string, debugV bool, output string) error {
 		}
 
 		//Permits to recover the member contain into the response body
-		members := host.DetailResultCategoryMember{}
+		members := host.DetailResultGroupMember{}
 		json.Unmarshal(body, &members)
 
 		GroupFind.Members = members.Members

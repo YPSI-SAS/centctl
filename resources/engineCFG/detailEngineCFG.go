@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -74,16 +75,12 @@ func (s DetailServerEngineCFG) StringText() string {
 
 //StringCSV permits to display the caracteristics of the EngineCFG to csv
 func (s DetailServerEngineCFG) StringCSV() string {
-	var values string = "Server,ID,Name,Instance,Comment\n"
-	values += s.Server.Name + ","
-	engineCFG := s.Server.EngineCFG
-	if engineCFG != nil {
-		values += "\"" + (*engineCFG).ID + "\"" + "," + "\"" + (*engineCFG).Name + "\"" + "," + "\"" + (*engineCFG).Instance + "\"" + "," + "\"" + (*engineCFG).Comment + "\"" + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailEngineCFG
+	if s.Server.EngineCFG != nil {
+		p = append(p, *s.Server.EngineCFG)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the EngineCFG to json

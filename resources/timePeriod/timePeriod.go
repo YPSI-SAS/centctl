@@ -28,10 +28,10 @@ package timePeriod
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -82,22 +82,8 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the TimePeriods to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday\n"
-	for i := 0; i < len(s.Server.TimePeriods); i++ {
-		values += "\"" + s.Server.Name + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].ID + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Name + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Alias + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Monday + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Tuesday + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Wednesday + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Thursday + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Friday + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Saturday + "\"" + ","
-		values += "\"" + s.Server.TimePeriods[i].Sunday + "\"" + "\n"
-
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.TimePeriods)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the TimePeriods to json

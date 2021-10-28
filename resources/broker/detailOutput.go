@@ -32,24 +32,19 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
-//DetailParametersOutput represents the caracteristics of a BrokerOutput
-type DetailParametersOutput struct {
-	ParamKey   string `json:"parameter key" yaml:"parameter key"`     //BrokerOutput param key
-	ParamValue string `json:"parameter value" yaml:"parameter value"` //BrokerOutput param value
-}
-
 type DetailBrokerOutput struct {
-	ID         string                   `json:"ID" yaml:"ID"`
-	BrokerName string                   `json:"broker_name" yaml:"broker_name"`
-	Parameters []DetailParametersOutput `json:"parameters" yaml:"parameters"`
+	ID         string           `json:"ID" yaml:"ID"`
+	BrokerName string           `json:"broker_name" yaml:"broker_name"`
+	Parameters DetailParameters `json:"parameters" yaml:"parameters"`
 }
 
 //DetailResultOutput represents a poller array
 type DetailResultOutput struct {
-	BrokerOutputs []DetailParametersOutput `json:"result" yaml:"result"`
+	BrokerOutputs []DetailParameter `json:"result" yaml:"result"`
 }
 
 //DetailServerOutput represents a server with informations
@@ -86,12 +81,9 @@ func (s DetailServerOutput) StringText() string {
 
 //StringCSV permits to display the caracteristics of the BrokerOutputs to csv
 func (s DetailServerOutput) StringCSV() string {
-	var values string = "Server,outputID,brokerName,Key,Value\n"
-	for i := 0; i < len(s.Server.BrokerOutput.Parameters); i++ {
-		values += s.Server.Name + "," + s.Server.BrokerOutput.ID + "," + s.Server.BrokerOutput.BrokerName + ","
-		values += "\"" + s.Server.BrokerOutput.Parameters[i].ParamKey + "\"" + "," + "\"" + s.Server.BrokerOutput.Parameters[i].ParamValue + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	p := []DetailBrokerOutput{s.Server.BrokerOutput}
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the BrokerOutputs to json

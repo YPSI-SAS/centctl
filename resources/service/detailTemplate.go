@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -89,17 +90,12 @@ func (s DetailTemplateServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the service templates to csv
 func (s DetailTemplateServer) StringCSV() string {
-	var values string = "Server,ID,description,alias,checkcommand,checkcommandarg,normalcheckinterval,retrycheckinterval,maxcheckattempts,activechecksenabled,passivechecksenabled\n"
-	values += s.Server.Name + ","
-	template := s.Server.Template
-	if template != nil {
-		values += "\"" + (*template).ID + "\"" + "," + "\"" + (*template).Description + "\"" + "," + "\"" + (*template).Alias + "\"" + "," + "\"" + (*template).CheckCommand + "\"" + "," + "\"" + (*template).CheckCommandArg + "\"" + "," + "\"" + (*template).NormalCheckInterval + "\"" + "," + "\"" + (*template).RetryCheckInterval + "\"" + "," + "\"" + (*template).MaxCheckAttempts + "\"" + "," + "\"" + (*template).ActiveChecksEnabled + "\"" + "," + "\"" + (*template).PassiveChecksEnabled + "\"" + "\n"
-
-	} else {
-		values += ",,,,,,,,,\n"
+	var p []DetailTemplate
+	if s.Server.Template != nil {
+		p = append(p, *s.Server.Template)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the service templates to json

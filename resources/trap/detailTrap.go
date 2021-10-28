@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -78,15 +79,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the Traps to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Oid,Manufacturer\n"
-	values += s.Server.Name + ","
-	trap := s.Server.Trap
-	if trap != nil {
-		values += "\"" + (*trap).ID + "\"" + "," + "\"" + (*trap).Name + "\"" + "," + "\"" + (*trap).Oid + "\"" + "," + "\"" + (*trap).Manufacturer + "\"" + "\n"
-	} else {
-		values += ",,,\n"
+	var p []DetailTrap
+	if s.Server.Trap != nil {
+		p = append(p, *s.Server.Trap)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Traps to json

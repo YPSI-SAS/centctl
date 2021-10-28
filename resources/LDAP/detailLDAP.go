@@ -30,16 +30,30 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailLDAP represents the caracteristics of a LDAP
 type DetailLDAP struct {
-	ID          string             `json:"id" yaml:"id"`                   //LDAP ID
-	Name        string             `json:"name" yaml:"name"`               //LDAP name
-	Description string             `json:"description" yaml:"description"` //LDAP Description
-	Status      string             `json:"status" yaml:"status"`           //LDAP Status
-	Servers     []DetailLDAPServer `json:"servers" yaml:"servers"`
+	ID          string            `json:"id" yaml:"id"`                   //LDAP ID
+	Name        string            `json:"name" yaml:"name"`               //LDAP name
+	Description string            `json:"description" yaml:"description"` //LDAP Description
+	Status      string            `json:"status" yaml:"status"`           //LDAP Status
+	Servers     DetailLDAPServers `json:"servers" yaml:"servers"`
+}
+
+type DetailLDAPServers []DetailLDAPServer
+
+func (t DetailLDAPServers) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, server := range t {
+		value += server.ID + "|" + server.Address + "|" + server.Port + "|" + server.SSL + "|" + server.TLS + "|" + server.Order
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailLDAPServer represents the caracteristics of a member
@@ -107,15 +121,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the LDAP to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Status,Description\n"
-	values += s.Server.Name + ","
-	ldap := s.Server.LDAP
-	if ldap != nil {
-		values += "\"" + (*ldap).ID + "\"" + "," + "\"" + (*ldap).Name + "\"" + "," + "\"" + (*ldap).Status + "\"" + "," + "\"" + (*ldap).Description + "\"" + "\n"
-	} else {
-		values += ",,,\n"
+	var p []DetailLDAP
+	if s.Server.LDAP != nil {
+		p = append(p, *s.Server.LDAP)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the LDAP to json

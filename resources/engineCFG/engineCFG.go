@@ -28,10 +28,10 @@ package engineCFG
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -76,11 +76,8 @@ func (s ServerEngineCFG) StringText() string {
 
 //StringCSV permits to display the caracteristics of the EngineCFG to csv
 func (s ServerEngineCFG) StringCSV() string {
-	var values string = "Server,ID,Name,Instance,Comment\n"
-	for i := 0; i < len(s.Server.EngineCFG); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.EngineCFG[i].ID + "\"" + "," + "\"" + s.Server.EngineCFG[i].Name + "\"" + "," + "\"" + s.Server.EngineCFG[i].Instance + "\"" + "," + "\"" + s.Server.EngineCFG[i].Comment + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.EngineCFG)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the EngineCFG to json

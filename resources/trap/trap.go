@@ -28,10 +28,10 @@ package trap
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -76,11 +76,8 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the Traps to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Oid,Manufacturer\n"
-	for i := 0; i < len(s.Server.Traps); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Traps[i].ID + "\"" + "," + "\"" + s.Server.Traps[i].Name + "\"" + "," + "\"" + s.Server.Traps[i].Oid + "\"" + "," + "\"" + s.Server.Traps[i].Manufacturer + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Traps)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Traps to json

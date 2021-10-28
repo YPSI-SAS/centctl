@@ -28,10 +28,10 @@ package ACL
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -78,11 +78,8 @@ func (s ResourceServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL resource to csv
 func (s ResourceServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	for i := 0; i < len(s.Server.Resources); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Resources[i].ID + "\"" + "," + "\"" + s.Server.Resources[i].Name + "\"" + "," + "\"" + s.Server.Resources[i].Alias + "\"" + "," + "\"" + s.Server.Resources[i].Comment + "\"" + "," + "\"" + s.Server.Resources[i].Activate + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Resources)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL resource to json

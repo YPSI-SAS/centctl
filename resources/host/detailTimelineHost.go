@@ -31,31 +31,32 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailTimelineHost represents the caracteristics of a host
 type DetailTimelineHost struct {
-	ID        int                        `json:"id" yaml:"id"`                 //Host ID
-	Type      string                     `json:"type" yaml:"type"`             //Host name
-	Date      string                     `json:"date" yaml:"date" `            //Host alias
-	StartDate string                     `json:"start_date" yaml:"start_date"` //Host address
-	EndDate   string                     `json:"end_date" yaml:"end_date"`     //Host output
-	Content   string                     `json:"content" yaml:"content"`
-	Tries     int                        `json:"tries" yaml:"tries"`   //Maximum check attempts of the host
-	Status    *DetailTimelineHostStatus  `json:"status" yaml:"status"` //State of the host
-	Contact   *DetailTimelineHostContact `json:"contact" yaml:"contact"`
+	ID                         int                           `json:"id" yaml:"id"`                 //Host ID
+	Type                       string                        `json:"type" yaml:"type"`             //Host name
+	Date                       string                        `json:"date" yaml:"date" `            //Host alias
+	StartDate                  string                        `json:"start_date" yaml:"start_date"` //Host address
+	EndDate                    string                        `json:"end_date" yaml:"end_date"`     //Host output
+	Content                    string                        `json:"content" yaml:"content"`
+	Tries                      int                           `json:"tries" yaml:"tries"` //Maximum check attempts of the host
+	*DetailTimelineHostStatus  `json:"status" yaml:"status"` //State of the host
+	*DetailTimelineHostContact `json:"contact" yaml:"contact"`
 }
 
 type DetailTimelineHostContact struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID   int    `json:"id" yaml:"id" csv:"ContactID"`
+	Name string `json:"name" yaml:"name" csv:"ContactName"`
 }
 
 type DetailTimelineHostStatus struct {
-	Code         int    `json:"code" yaml:"code"`
-	Name         string `json:"name" yaml:"name"`
-	SeverityCode int    `json:"severity_code" yaml:"severity_code"`
+	Code         int    `json:"code" yaml:"code" csv:"StatusCode"`
+	Name         string `json:"name" yaml:"name" csv:"StatusName"`
+	SeverityCode int    `json:"severity_code" yaml:"severity_code" csv:"StatusSeverityCode"`
 }
 
 //TimelineHostResult represents a host Group array
@@ -86,15 +87,15 @@ func (s DetailTimelineServer) StringText() string {
 		elements = append(elements, []string{"2", "End date: " + s.Server.TimelineHost[i].EndDate})
 		elements = append(elements, []string{"2", "Content: " + s.Server.TimelineHost[i].Content})
 		elements = append(elements, []string{"2", "Tries: " + strconv.Itoa(s.Server.TimelineHost[i].Tries)})
-		if s.Server.TimelineHost[i].Contact != nil {
+		if s.Server.TimelineHost[i].DetailTimelineHostContact != nil {
 			elements = append(elements, []string{"2", "Contact:"})
-			elements = append(elements, []string{"3", s.Server.TimelineHost[i].Contact.Name + " (ID: " + strconv.Itoa(s.Server.TimelineHost[i].Contact.ID) + ")"})
+			elements = append(elements, []string{"3", s.Server.TimelineHost[i].DetailTimelineHostContact.Name + " (ID: " + strconv.Itoa(s.Server.TimelineHost[i].DetailTimelineHostContact.ID) + ")"})
 		} else {
 			elements = append(elements, []string{"2", "Contact:[]"})
 		}
-		if s.Server.TimelineHost[i].Status != nil {
+		if s.Server.TimelineHost[i].DetailTimelineHostStatus != nil {
 			elements = append(elements, []string{"2", "Status:"})
-			elements = append(elements, []string{"3", s.Server.TimelineHost[i].Status.Name + " (ID: " + strconv.Itoa(s.Server.TimelineHost[i].Status.Code) + ")"})
+			elements = append(elements, []string{"3", s.Server.TimelineHost[i].DetailTimelineHostStatus.Name + " (ID: " + strconv.Itoa(s.Server.TimelineHost[i].DetailTimelineHostStatus.Code) + ")"})
 		} else {
 			elements = append(elements, []string{"2", "Status:[]"})
 		}
@@ -107,20 +108,8 @@ func (s DetailTimelineServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the TimelineHost to csv
 func (s DetailTimelineServer) StringCSV() string {
-	var values string = "Server,ID,Type,Date,StartDate,EndDate,Content,Tries,Contact,Status\n"
-	for i := 0; i < len(s.Server.TimelineHost); i++ {
-		values += "\"" + s.Server.Name + "\"" + ","
-		values += "\"" + strconv.Itoa(s.Server.TimelineHost[i].ID) + "\"" + ","
-		values += "\"" + s.Server.TimelineHost[i].Type + "\"" + ","
-		values += "\"" + s.Server.TimelineHost[i].Date + "\"" + ","
-		values += "\"" + s.Server.TimelineHost[i].StartDate + "\"" + ","
-		values += "\"" + s.Server.TimelineHost[i].EndDate + "\"" + ","
-		values += "\"" + s.Server.TimelineHost[i].Content + "\"" + ","
-		values += "\"" + strconv.Itoa(s.Server.TimelineHost[i].Tries) + "\"" + ","
-		values += "\"" + s.Server.TimelineHost[i].Contact.Name + "\"" + ","
-		values += "\"" + s.Server.TimelineHost[i].Status.Name + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.TimelineHost)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the TimelineHost to json

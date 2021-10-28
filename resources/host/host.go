@@ -28,10 +28,10 @@ package host
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -78,11 +78,8 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the hosts to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,IPAddress,Activate\n"
-	for i := 0; i < len(s.Server.Hosts); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Hosts[i].ID + "\"" + "," + "\"" + s.Server.Hosts[i].Name + "\"" + "," + "\"" + s.Server.Hosts[i].Alias + "\"" + "," + "\"" + s.Server.Hosts[i].Address + "\"" + "," + "\"" + s.Server.Hosts[i].Activate + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Hosts)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the hosts to json

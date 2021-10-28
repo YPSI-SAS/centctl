@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -77,19 +78,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the commands to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Type,CmdLine\n"
-	values += s.Server.Name + ","
-	cmd := s.Server.Command
-	if cmd != nil {
-		values += "\"" + (*cmd).ID + "\"" + ","
-		values += "\"" + (*cmd).Name + "\"" + ","
-		values += "\"" + (*cmd).Type + "\"" + ","
-		values += "\"" + (*cmd).CmdLine + "\"" + "\n"
-	} else {
-		values += ",,,\n"
-
+	var p []DetailCommand
+	if s.Server.Command != nil {
+		p = append(p, *s.Server.Command)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the commands to json

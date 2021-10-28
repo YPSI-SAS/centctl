@@ -28,10 +28,10 @@ package ACL
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -77,11 +77,8 @@ func (s GroupServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL ResultGroup to csv
 func (s GroupServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	for i := 0; i < len(s.Server.Groups); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Groups[i].ID + "\"" + "," + "\"" + s.Server.Groups[i].Name + "\"" + "," + "\"" + s.Server.Groups[i].Alias + "\"" + "," + "\"" + s.Server.Groups[i].Activate + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Groups)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL ResultGroup to json

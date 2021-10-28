@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -71,19 +72,12 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the commands to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,URL,Port,User,Password,Protocol\n"
-	values += s.Server.Name + ","
-	centreonProxy := s.Server.CentreonProxy
-	if centreonProxy != nil {
-		values += "\"" + (*centreonProxy).URL + "\"" + ","
-		values += "\"" + strconv.Itoa((*centreonProxy).Port) + "\"" + ","
-		values += "\"" + (*centreonProxy).User + "\"" + ","
-		values += "\"" + (*centreonProxy).Password + "\"" + ","
-		values += "\"" + (*centreonProxy).Protocol + "\"" + "\n"
-	} else {
-		values += ",,,,\n"
+	var p []CentreonProxy
+	if s.Server.CentreonProxy != nil {
+		p = append(p, *s.Server.CentreonProxy)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the commands to json

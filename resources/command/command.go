@@ -28,10 +28,10 @@ package command
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -84,15 +84,8 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the commands to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Type,CmdLine\n"
-	for i := 0; i < len(s.Server.Commands); i++ {
-		values += "\"" + s.Server.Name + "\"" + ","
-		values += "\"" + s.Server.Commands[i].ID + "\"" + ","
-		values += "\"" + s.Server.Commands[i].Name + "\"" + ","
-		values += "\"" + s.Server.Commands[i].Type + "\"" + ","
-		values += "\"" + s.Server.Commands[i].CmdLine + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Commands)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the commands to json

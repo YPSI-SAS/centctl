@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -75,16 +76,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the Vendors to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias\n"
-	values += s.Server.Name + ","
-	vendor := s.Server.Vendor
-	if vendor != nil {
-		values += "\"" + (*vendor).ID + "\"" + "," + "\"" + (*vendor).Name + "\"" + "," + "\"" + (*vendor).Alias + "\"" + "\n"
-
-	} else {
-		values += ",,\n"
+	var p []DetailVendor
+	if s.Server.Vendor != nil {
+		p = append(p, *s.Server.Vendor)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Vendors to json

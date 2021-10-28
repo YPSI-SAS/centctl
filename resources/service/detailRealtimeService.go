@@ -31,47 +31,61 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailRealtimeService represents the caracteristics of a service
 type DetailRealtimeService struct {
-	ID                     int                                   `json:"id" yaml:"id"`                   //Service ID
-	Description            string                                `json:"description" yaml:"description"` //Service description
-	State                  int                                   `json:"state" yaml:"state"`             //State of the service
-	Status                 DetailRealtimeServiceStatus           `json:"status" yaml:"status"`
-	StateType              int                                   `json:"state_type" yaml:"state_type"`                         //State type of the service
-	Output                 string                                `json:"output" yaml:"output"`                                 //Service output
-	MaxCheckAttempts       int                                   `json:"max_check_attempts" yaml:"max_check_attempts"`         //Maximum check attempts of the service
-	NextCheck              string                                `json:"next_check" yaml:"next_check"`                         //Next check of the service
-	LastUpdate             string                                `json:"last_update" yaml:"last_update"`                       //Last update of the service
-	LastCheck              string                                `json:"last_check" yaml:"last_check"`                         //Last check of the service
-	LastStateChange        string                                `json:"last_state_change" yaml:"last_state_change"`           //Last state change of the service
-	LastHardStateChange    string                                `json:"last_hard_state_change" yaml:"last_hard_state_change"` //Last hard state change of the service
-	Acknowledged           bool                                  `json:"is_acknowledged" yaml:"is_acknowledged"`               //If the service is acknowledge or not
-	Activate               bool                                  `json:"is_active_checks" yaml:"is_active_checks"`             //If the service is activate or not
-	Checked                bool                                  `json:"is_checked" yaml:"is_checked"`
-	ScheduledDowntimeDepth int                                   `json:"scheduled_downtime_depth" yaml:"scheduled_downtime_depth"` //Schedule downtime depth of the service
-	Acknowledgement        *DetailRealtimeServiceAcknowledgement `json:"acknowledgement" yaml:"acknowledgement"`
-	Downtimes              []DetailRealtimeServiceDowntime       `json:"downtimes" yaml:"downtimes"`
+	ID                                    int    `json:"id" yaml:"id"`                   //Service ID
+	Description                           string `json:"description" yaml:"description"` //Service description
+	State                                 int    `json:"state" yaml:"state"`             //State of the service
+	DetailRealtimeServiceStatus           `json:"status" yaml:"status"`
+	StateType                             int    `json:"state_type" yaml:"state_type"`                         //State type of the service
+	Output                                string `json:"output" yaml:"output"`                                 //Service output
+	MaxCheckAttempts                      int    `json:"max_check_attempts" yaml:"max_check_attempts"`         //Maximum check attempts of the service
+	NextCheck                             string `json:"next_check" yaml:"next_check"`                         //Next check of the service
+	LastUpdate                            string `json:"last_update" yaml:"last_update"`                       //Last update of the service
+	LastCheck                             string `json:"last_check" yaml:"last_check"`                         //Last check of the service
+	LastStateChange                       string `json:"last_state_change" yaml:"last_state_change"`           //Last state change of the service
+	LastHardStateChange                   string `json:"last_hard_state_change" yaml:"last_hard_state_change"` //Last hard state change of the service
+	Acknowledged                          bool   `json:"is_acknowledged" yaml:"is_acknowledged"`               //If the service is acknowledge or not
+	Activate                              bool   `json:"is_active_checks" yaml:"is_active_checks"`             //If the service is activate or not
+	Checked                               bool   `json:"is_checked" yaml:"is_checked"`
+	ScheduledDowntimeDepth                int    `json:"scheduled_downtime_depth" yaml:"scheduled_downtime_depth"` //Schedule downtime depth of the service
+	*DetailRealtimeServiceAcknowledgement `json:"acknowledgement" yaml:"acknowledgement"`
+	Downtimes                             DetailRealtimeServiceDowntimes `json:"downtimes" yaml:"downtimes"`
+}
+
+type DetailRealtimeServiceDowntimes []DetailRealtimeServiceDowntime
+
+func (t DetailRealtimeServiceDowntimes) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, downtime := range t {
+		value += strconv.Itoa(downtime.AuthorID) + "|" + downtime.AuthorName + "|" + downtime.Comment + "|" + strconv.Itoa(downtime.Duration) + "|" + downtime.EntryTime + "|" + downtime.StartTime + "|" + downtime.EndTime + "|" + strconv.FormatBool(downtime.Started) + "|" + strconv.FormatBool(downtime.Fixed)
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 type DetailRealtimeServiceStatus struct {
-	Code         int    `json:"code" yaml:"code"`
-	Name         string `json:"name" yaml:"name"`
-	SeverityCode int    `json:"severity_code" yaml:"severity_code"`
+	Code         int    `json:"code" yaml:"code" csv:"StatusCode"`
+	Name         string `json:"name" yaml:"name" csv:"StatusName"`
+	SeverityCode int    `json:"severity_code" yaml:"severity_code" csv:"StatusSeverityCode"`
 }
 
 type DetailRealtimeServiceAcknowledgement struct {
-	AuthorID          int    `json:"author_id" yaml:"author_id"`
-	AuthorName        string `json:"author_name" yaml:"author_name"`
-	Comment           string `json:"comment" yaml:"comment"`
-	EntryTime         string `json:"entry_time" yaml:"entry_time"`
-	NotifyContact     bool   `json:"is_notify_contacts" yaml:"is_notify_contacts"`
-	PersistentComment bool   `json:"is_persistent_comment" yaml:"is_persistent_comment"`
-	Sticky            bool   `json:"is_sticky" yaml:"is_sticky"`
-	HostID            int    `json:"host_id" yaml:"host_id"`
-	PollerID          int    `json:"poller_id" yaml:"poller_id"`
+	AuthorID          int    `json:"author_id" yaml:"author_id" csv:"AckAuthorID"`
+	AuthorName        string `json:"author_name" yaml:"author_name" csv:"AckAuthorName"`
+	Comment           string `json:"comment" yaml:"comment" csv:"AckComment"`
+	EntryTime         string `json:"entry_time" yaml:"entry_time" csv:"AckEntryTime"`
+	NotifyContact     bool   `json:"is_notify_contacts" yaml:"is_notify_contacts" csv:"AckNotifyContact"`
+	PersistentComment bool   `json:"is_persistent_comment" yaml:"is_persistent_comment" csv:"AckPersistentComment"`
+	Sticky            bool   `json:"is_sticky" yaml:"is_sticky" csv:"AckSticky"`
+	HostID            int    `json:"host_id" yaml:"host_id" csv:"AckHostID"`
+	PollerID          int    `json:"poller_id" yaml:"poller_id" csv:"AckPollerID"`
 }
 
 type DetailRealtimeServiceDowntime struct {
@@ -108,7 +122,7 @@ func (s DetailRealtimeServer) StringText() string {
 		elements = append(elements, []string{"1", "Description: " + (*service).Description})
 		elements = append(elements, []string{"1", "State: " + strconv.Itoa((*service).State)})
 		elements = append(elements, []string{"1", "State type: " + strconv.Itoa((*service).StateType)})
-		elements = append(elements, []string{"1", "Status: " + (*service).Status.Name + "(Code: " + strconv.Itoa((*service).Status.Code) + ")"})
+		elements = append(elements, []string{"1", "Status: " + (*service).DetailRealtimeServiceStatus.Name + "(Code: " + strconv.Itoa((*service).DetailRealtimeServiceStatus.Code) + ")"})
 		elements = append(elements, []string{"1", "Output: " + (*service).Output})
 		elements = append(elements, []string{"1", "Max check attempts: " + strconv.Itoa((*service).MaxCheckAttempts)})
 		elements = append(elements, []string{"1", "Next check: " + (*service).NextCheck})
@@ -121,16 +135,16 @@ func (s DetailRealtimeServer) StringText() string {
 		elements = append(elements, []string{"1", "Checked: " + strconv.FormatBool((*service).Checked)})
 		elements = append(elements, []string{"1", "Schedule downtime depth: " + strconv.Itoa((*service).ScheduledDowntimeDepth)})
 
-		if (*service).Acknowledgement != nil {
+		if (*service).DetailRealtimeServiceAcknowledgement != nil {
 			elements = append(elements, []string{"1", "Acknowledgement:"})
-			elements = append(elements, []string{"2", "Author: " + (*service).Acknowledgement.AuthorName + " (ID: " + strconv.Itoa((*service).Acknowledgement.AuthorID) + ")"})
-			elements = append(elements, []string{"2", "Comment: " + (*service).Acknowledgement.Comment})
-			elements = append(elements, []string{"2", "Entry time: " + (*service).Acknowledgement.EntryTime})
-			elements = append(elements, []string{"2", "Notify contact: " + strconv.FormatBool((*service).Acknowledgement.NotifyContact)})
-			elements = append(elements, []string{"2", "Persistent Comment: " + strconv.FormatBool((*service).Acknowledgement.PersistentComment)})
-			elements = append(elements, []string{"2", "Sticky: " + strconv.FormatBool((*service).Acknowledgement.Sticky)})
-			elements = append(elements, []string{"2", "Host ID: " + strconv.Itoa((*service).Acknowledgement.HostID)})
-			elements = append(elements, []string{"2", "Poller ID: " + strconv.Itoa((*service).Acknowledgement.PollerID)})
+			elements = append(elements, []string{"2", "Author: " + (*service).DetailRealtimeServiceAcknowledgement.AuthorName + " (ID: " + strconv.Itoa((*service).DetailRealtimeServiceAcknowledgement.AuthorID) + ")"})
+			elements = append(elements, []string{"2", "Comment: " + (*service).DetailRealtimeServiceAcknowledgement.Comment})
+			elements = append(elements, []string{"2", "Entry time: " + (*service).DetailRealtimeServiceAcknowledgement.EntryTime})
+			elements = append(elements, []string{"2", "Notify contact: " + strconv.FormatBool((*service).DetailRealtimeServiceAcknowledgement.NotifyContact)})
+			elements = append(elements, []string{"2", "Persistent Comment: " + strconv.FormatBool((*service).DetailRealtimeServiceAcknowledgement.PersistentComment)})
+			elements = append(elements, []string{"2", "Sticky: " + strconv.FormatBool((*service).DetailRealtimeServiceAcknowledgement.Sticky)})
+			elements = append(elements, []string{"2", "Host ID: " + strconv.Itoa((*service).DetailRealtimeServiceAcknowledgement.HostID)})
+			elements = append(elements, []string{"2", "Poller ID: " + strconv.Itoa((*service).DetailRealtimeServiceAcknowledgement.PollerID)})
 		} else {
 			elements = append(elements, []string{"2", "Acknowledgement:[]"})
 		}
@@ -163,31 +177,12 @@ func (s DetailRealtimeServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the service to csv
 func (s DetailRealtimeServer) StringCSV() string {
-	var values string = "Server,ID,Description,State,StatusCode,StatusName,StateType,Output,MaxCheckAttempts,NextCheck,LastUpdate,LastCheck,LastStateChange,LastHardStateChange,Acknowledged,Activate,Checked,ScheduledDowntimeDepth\n"
-	values += s.Server.Name + ","
-	service := s.Server.Service
-	if service != nil {
-		values += "\"" + strconv.Itoa((*service).ID) + "\"" + ","
-		values += "\"" + (*service).Description + "\"" + ","
-		values += "\"" + strconv.Itoa((*service).State) + "\"" + ","
-		values += "\"" + strconv.Itoa((*service).Status.Code) + "\"" + ","
-		values += "\"" + (*service).Status.Name + "\"" + ","
-		values += "\"" + strconv.Itoa((*service).StateType) + "\"" + ","
-		values += "\"" + (*service).Output + "\"" + ","
-		values += "\"" + strconv.Itoa((*service).MaxCheckAttempts) + "\"" + ","
-		values += "\"" + (*service).NextCheck + "\"" + ","
-		values += "\"" + (*service).LastUpdate + "\"" + ","
-		values += "\"" + (*service).LastCheck + "\"" + ","
-		values += "\"" + (*service).LastStateChange + "\"" + ","
-		values += "\"" + (*service).LastHardStateChange + "\"" + ","
-		values += "\"" + strconv.FormatBool((*service).Acknowledged) + "\"" + ","
-		values += "\"" + strconv.FormatBool((*service).Activate) + "\"" + ","
-		values += "\"" + strconv.FormatBool((*service).Checked) + "\"" + ","
-		values += "\"" + strconv.Itoa((*service).ScheduledDowntimeDepth) + "\"" + "\n"
-	} else {
-		values += ",,,,,,,,,,,,,,,,\n"
+	var p []DetailRealtimeService
+	if s.Server.Service != nil {
+		p = append(p, *s.Server.Service)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the service to json

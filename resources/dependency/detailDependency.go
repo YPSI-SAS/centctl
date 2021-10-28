@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -75,15 +76,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the Dependencies to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Description,InheritsParent,ExecutionFailureCriteria,NotificationFailureCriteria\n"
-	dependency := s.Server.Dependency
-	values += s.Server.Name + ","
-	if dependency != nil {
-		values += "\"" + (*dependency).ID + "\"" + "," + "\"" + (*dependency).Name + "\"" + "," + "\"" + (*dependency).Description + "\"" + "," + "\"" + (*dependency).InheritsParent + "\"" + "," + "\"" + (*dependency).ExecutionFailureCriteria + "\"" + "," + "\"" + (*dependency).NotificationFailureCriteria + "\"" + "\n"
-	} else {
-		values += ",,,,,\n"
+	var p []DetailDependency
+	if s.Server.Dependency != nil {
+		p = append(p, *s.Server.Dependency)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Dependencies to json

@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -93,27 +94,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the hosts to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Description,HostID,HostName,CheckCommand,CheckCommandArg,NormalCheckInterval,RetryCheckInterval,MaxCheckAttempts,ActiveChecksEnabled,PassiveChecksEnabled,Activate\n"
-	values += s.Server.Name + ","
-	service := s.Server.Service
-	if service != nil {
-		values += "\"" + (*service).ID + "\"" + ","
-		values += "\"" + (*service).Description + "\"" + ","
-		values += "\"" + (*service).HostID + "\"" + ","
-		values += "\"" + (*service).HostName + "\"" + ","
-		values += "\"" + (*service).CheckCommand + "\"" + ","
-		values += "\"" + (*service).CheckCommandArg + "\"" + ","
-		values += "\"" + (*service).NormalCheckInterval + "\"" + ","
-		values += "\"" + (*service).RetryCheckInterval + "\"" + ","
-		values += "\"" + (*service).MaxCheckAttempts + "\"" + ","
-		values += "\"" + (*service).ActiveChecksEnabled + "\"" + ","
-		values += "\"" + (*service).PassiveChecksEnabled + "\"" + ","
-		values += "\"" + (*service).Activate + "\"" + "\n"
-
-	} else {
-		values += ",,,,,,,,,,,\n"
+	var p []DetailService
+	if s.Server.Service != nil {
+		p = append(p, *s.Server.Service)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the hosts to json

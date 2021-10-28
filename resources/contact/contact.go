@@ -28,10 +28,10 @@ package contact
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -76,11 +76,8 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the contacts to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Email\n"
-	for i := 0; i < len(s.Server.Contacts); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Contacts[i].ID + "\"" + "," + "\"" + s.Server.Contacts[i].Name + "\"" + "," + "\"" + s.Server.Contacts[i].Alias + "\"" + "," + "\"" + s.Server.Contacts[i].Email + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Contacts)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the contacts to json

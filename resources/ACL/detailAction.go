@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -75,17 +76,12 @@ func (s DetailActionServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL actions to csv
 func (s DetailActionServer) StringCSV() string {
-	var values string = "Server,ID,Name,Description,Activate\n"
-	values += s.Server.Name + ","
-	action := s.Server.Action
-	if action != nil {
-		values += "\"" + (*action).ID + "\"" + "," + "\"" + (*action).Name + "\"" + "," + "\"" + (*action).Description + "\"" + "," + "\"" + (*action).Activate + "\"" + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailAction
+	if s.Server.Action != nil {
+		p = append(p, *s.Server.Action)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL actions to json

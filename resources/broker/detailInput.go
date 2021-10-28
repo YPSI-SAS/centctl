@@ -32,23 +32,37 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
-//DetailParametersInput represents the caracteristics of a BrokerInput
-type DetailParametersInput struct {
+//DetailParameter represents the caracteristics of a BrokerInput
+type DetailParameter struct {
 	ParamKey   string `json:"parameter key" yaml:"parameter key"`     //BrokerInput param key
 	ParamValue string `json:"parameter value" yaml:"parameter value"` //BrokerInput param value
 }
 type DetailBrokerInput struct {
-	ID         string                  `json:"ID" yaml:"ID"`
-	BrokerName string                  `json:"broker_name" yaml:"broker_name"`
-	Parameters []DetailParametersInput `json:"parameters" yaml:"parameters"`
+	ID         string           `json:"ID" yaml:"ID"`
+	BrokerName string           `json:"broker_name" yaml:"broker_name"`
+	Parameters DetailParameters `json:"parameters" yaml:"parameters"`
+}
+
+type DetailParameters []DetailParameter
+
+func (t DetailParameters) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, param := range t {
+		value += param.ParamKey + ":" + param.ParamValue
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailResultInput represents a poller array
 type DetailResultInput struct {
-	BrokerInputs []DetailParametersInput `json:"result" yaml:"result"`
+	BrokerInputs []DetailParameter `json:"result" yaml:"result"`
 }
 
 //DetailServerInput represents a server with informations
@@ -85,12 +99,9 @@ func (s DetailServerInput) StringText() string {
 
 //StringCSV permits to display the caracteristics of the BrokerInputs to csv
 func (s DetailServerInput) StringCSV() string {
-	var values string = "Server,inputID,brokerName,Key,Value\n"
-	for i := 0; i < len(s.Server.BrokerInput.Parameters); i++ {
-		values += s.Server.Name + "," + s.Server.BrokerInput.ID + "," + s.Server.BrokerInput.BrokerName + ","
-		values += "\"" + s.Server.BrokerInput.Parameters[i].ParamKey + "\"" + "," + "\"" + s.Server.BrokerInput.Parameters[i].ParamValue + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	p := []DetailBrokerInput{s.Server.BrokerInput}
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the BrokerInputs to json

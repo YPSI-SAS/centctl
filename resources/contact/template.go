@@ -28,18 +28,19 @@ package contact
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
 //Template represents the caracteristics of a contact template
 type Template struct {
-	Name string `json:"name" yaml:"name"` //Template Name
-	ID   string `json:"id" yaml:"id"`     //Template ID
+	Name  string `json:"name" yaml:"name"` //Template Name
+	ID    string `json:"id" yaml:"id"`     //Template ID
+	Alias string `json:"alias" yaml:"alias"`
 }
 
 //ResultTemplate represents a contact template array
@@ -74,11 +75,8 @@ func (s TemplateServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the contact ResultTemplate to csv
 func (s TemplateServer) StringCSV() string {
-	var values string = "Server,Name\n"
-	for i := 0; i < len(s.Server.Templates); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Templates[i].Name + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Templates)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the contact ResultTemplate to json

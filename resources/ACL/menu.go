@@ -28,10 +28,10 @@ package ACL
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -78,11 +78,8 @@ func (s MenuServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL ResultMenu to csv
 func (s MenuServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	for i := 0; i < len(s.Server.Menus); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Menus[i].ID + "\"" + "," + "\"" + s.Server.Menus[i].Name + "\"" + "," + "\"" + s.Server.Menus[i].Alias + "\"" + "," + "\"" + s.Server.Menus[i].Comment + "\"" + "," + "\"" + s.Server.Menus[i].Activate + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Menus)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL ResultMenu to json

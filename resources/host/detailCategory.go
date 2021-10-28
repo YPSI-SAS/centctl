@@ -30,16 +30,30 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailCategory represents the caracteristics of a host Category
 type DetailCategory struct {
-	ID      string                 `json:"id" yaml:"id"`     //Category ID
-	Name    string                 `json:"name" yaml:"name"` //Category Name
-	Alias   string                 `json:"alias" yaml:"alias"`
-	Level   string                 `json:"level" yaml:"level"`
-	Members []DetailCategoryMember `json:"members" yaml:"members"`
+	ID      string                `json:"id" yaml:"id"`     //Category ID
+	Name    string                `json:"name" yaml:"name"` //Category Name
+	Alias   string                `json:"alias" yaml:"alias"`
+	Level   string                `json:"level" yaml:"level"`
+	Members DetailCategoryMembers `json:"members" yaml:"members"`
+}
+
+type DetailCategoryMembers []DetailCategoryMember
+
+func (t DetailCategoryMembers) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, parent := range t {
+		value += parent.ID + "|" + parent.Name
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailCategoryMember represents the caracteristics of a member
@@ -93,16 +107,12 @@ func (s DetailCategoryServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the host ResultCategory to csv
 func (s DetailCategoryServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Level\n"
-	values += s.Server.Name + ","
-	category := s.Server.Category
-	if category != nil {
-		values += "\"" + (*category).ID + "\"" + "," + "\"" + (*category).Name + "\"" + "," + "\"" + (*category).Alias + "\"" + "," + "\"" + (*category).Level + "\"" + "\n"
-	} else {
-		values += ",,,\n"
+	var p []DetailCategory
+	if s.Server.Category != nil {
+		p = append(p, *s.Server.Category)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the host ResultCategory to json

@@ -28,10 +28,10 @@ package broker
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -75,11 +75,8 @@ func (s ServerCFG) StringText() string {
 
 //StringCSV permits to display the caracteristics of the BrokerCFGs to csv
 func (s ServerCFG) StringCSV() string {
-	var values string = "Server,ID,Name,Instance\n"
-	for i := 0; i < len(s.Server.BrokerCFGs); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.BrokerCFGs[i].ID + "\"" + "," + "\"" + s.Server.BrokerCFGs[i].Name + "\"" + "," + "\"" + s.Server.BrokerCFGs[i].Instance + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.BrokerCFGs)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the BrokerCFGs to json

@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -77,15 +78,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the contacts to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Email,Pager,GuiAccess,Admin,Activate\n"
-	values += s.Server.Name + ","
-	contact := s.Server.Contact
-	if contact != nil {
-		values += "\"" + (*contact).ID + "\"" + "," + "\"" + (*contact).Name + "\"" + "," + "\"" + (*contact).Alias + "\"" + "," + "\"" + (*contact).Email + "\"" + "," + "\"" + (*contact).Pager + "\"" + "," + "\"" + (*contact).GuiAccess + "\"" + "," + "\"" + (*contact).Admin + "\"" + "," + "\"" + (*contact).Activate + "\"" + "\n"
-	} else {
-		values += ",,,,,,,\n"
+	var p []DetailContact
+	if s.Server.Contact != nil {
+		p = append(p, *s.Server.Contact)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the contacts to json

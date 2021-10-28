@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -75,17 +76,12 @@ func (s DetailGroupServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL ResultGroup to csv
 func (s DetailGroupServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	values += s.Server.Name + ","
-	group := s.Server.Group
-	if group != nil {
-		values += "\"" + (*group).ID + "\"" + "," + "\"" + (*group).Name + "\"" + "," + "\"" + (*group).Alias + "\"" + "," + "\"" + (*group).Activate + "\"" + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailGroup
+	if s.Server.Group != nil {
+		p = append(p, *s.Server.Group)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL ResultGroup to json

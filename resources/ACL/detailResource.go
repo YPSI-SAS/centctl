@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -77,16 +78,12 @@ func (s DetailResourceServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL resource to csv
 func (s DetailResourceServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	values += s.Server.Name + ","
-	resource := s.Server.Resource
-	if resource != nil {
-		values += "\"" + (*resource).ID + "\"" + "," + "\"" + (*resource).Name + "\"" + "," + "\"" + (*resource).Alias + "\"" + "," + "\"" + (*resource).Comment + "\"" + "," + "\"" + (*resource).Activate + "\"" + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailResource
+	if s.Server.Resource != nil {
+		p = append(p, *s.Server.Resource)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL resource to json

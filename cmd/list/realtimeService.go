@@ -129,8 +129,8 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 
 	//Recovery the parent's pollerID
 	for i, s := range services {
-		pollerID, _ := request.IDPollerHost(s.Parent.ID, debugV)
-		services[i].Parent.PollerID = pollerID
+		pollerID, _ := request.IDPollerHost(s.RealtimeParent.ID, debugV)
+		services[i].RealtimeParent.PollerID = pollerID
 	}
 
 	//Get final service based on pollerID
@@ -163,7 +163,7 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 func findAndDeleteService(services []service.RealtimeService, poller int) []service.RealtimeService {
 	index := 0
 	for _, s := range services {
-		if s.Parent.PollerID == poller {
+		if s.RealtimeParent.PollerID == poller {
 			services[index] = s
 			index++
 		}

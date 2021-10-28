@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,8 +42,34 @@ type DetailHost struct {
 	Address  string `json:"address" yaml:"address"`   //Host address
 	Activate string `json:"activate" yaml:"activate"` //If the host is activate or not
 
-	Parent []DetailHostParent `json:"parents" yaml:"parents"`
-	Child  []DetailHostChild  `json:"childs" yaml:"childs"`
+	Parent DetailHostParents `json:"parents" yaml:"parents"`
+	Child  DetailHostChilds  `json:"childs" yaml:"childs"`
+}
+
+type DetailHostParents []DetailHostParent
+
+func (t DetailHostParents) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, parent := range t {
+		value += parent.ID + "|" + parent.Name
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
+}
+
+type DetailHostChilds []DetailHostParent
+
+func (t DetailHostChilds) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, child := range t {
+		value += child.ID + "|" + child.Name
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailResult represents a host Group array
@@ -58,7 +85,7 @@ type DetailHostParent struct {
 
 //DetailResultHostParent represents a member array
 type DetailResultHostParent struct {
-	Parents []DetailHostParent `json:"result" yaml:"result"`
+	Parents DetailHostParents `json:"result" yaml:"result"`
 }
 
 //DetailHostChild represents the caracteristics of a child
@@ -69,7 +96,7 @@ type DetailHostChild struct {
 
 //DetailResultHostChild represents a member array
 type DetailResultHostChild struct {
-	Childs []DetailHostChild `json:"result" yaml:"result"`
+	Childs DetailHostChilds `json:"result" yaml:"result"`
 }
 
 //DetailServer represents a server with informations
@@ -116,20 +143,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the hosts to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,IPAddressCheck,Activate\n"
-	values += s.Server.Name + ","
-	host := s.Server.Host
-	if host != nil {
-		values += "\"" + (*host).ID + "\"" + ","
-		values += "\"" + (*host).Name + "\"" + ","
-		values += "\"" + (*host).Alias + "\"" + ","
-		values += "\"" + (*host).Address + "\"" + ","
-		values += "\"" + (*host).Activate + "\"" + "\n"
-
-	} else {
-		values += ",,,,\n"
+	var p []DetailHost
+	if s.Server.Host != nil {
+		p = append(p, *s.Server.Host)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the hosts to json

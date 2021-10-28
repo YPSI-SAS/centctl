@@ -30,15 +30,29 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailGroup represents the caracteristics of a contact group
 type DetailGroup struct {
-	Name     string               `json:"name" yaml:"name"` //group Name
-	ID       string               `json:"id" yaml:"id"`     //group ID
-	Alias    string               `json:"alias" yaml:"alias"`
-	Contacts []DetailGroupContact `json:"contacts" yaml:"contacts"`
+	Name     string              `json:"name" yaml:"name"` //group Name
+	ID       string              `json:"id" yaml:"id"`     //group ID
+	Alias    string              `json:"alias" yaml:"alias"`
+	Contacts DetailGroupContacts `json:"contacts" yaml:"contacts"`
+}
+
+type DetailGroupContacts []DetailGroupContact
+
+func (t DetailGroupContacts) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, parent := range t {
+		value += parent.ID + "|" + parent.Name
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailGroupContact represents the caracteristics of a contact
@@ -85,15 +99,12 @@ func (s DetailGroupServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the contact group to csv
 func (s DetailGroupServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias\n"
-	values += s.Server.Name + ","
-	group := s.Server.Group
-	if group != nil {
-		values += "\"" + (*group).ID + "\"" + "," + "\"" + (*group).Name + "\"" + "," + "\"" + (*group).Alias + "\"" + "\n"
-	} else {
-		values += ",,\n"
+	var p []DetailGroup
+	if s.Server.Group != nil {
+		p = append(p, *s.Server.Group)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the contact group to json

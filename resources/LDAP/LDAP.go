@@ -28,10 +28,10 @@ package LDAP
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -76,11 +76,8 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the LDAP to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Status,Description\n"
-	for i := 0; i < len(s.Server.LDAP); i++ {
-		values += s.Server.Name + "," + s.Server.LDAP[i].ID + "," + s.Server.LDAP[i].Name + "," + s.Server.LDAP[i].Status + "," + s.Server.LDAP[i].Description + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.LDAP)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the LDAP to json

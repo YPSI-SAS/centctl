@@ -28,10 +28,10 @@ package host
 import (
 	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"sort"
 	"strings"
 
+	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
@@ -76,11 +76,8 @@ func (s CategoryServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the host ResultCategory to csv
 func (s CategoryServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Level\n"
-	for i := 0; i < len(s.Server.Categories); i++ {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + s.Server.Categories[i].ID + "\"" + "," + "\"" + s.Server.Categories[i].Name + "\"" + "," + "\"" + s.Server.Categories[i].Alias + "\"" + "," + "\"" + s.Server.Categories[i].Level + "\"" + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Categories)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the host ResultCategory to json

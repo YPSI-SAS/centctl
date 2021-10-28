@@ -30,6 +30,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -77,16 +78,12 @@ func (s DetailMenuServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL ResultMenu to csv
 func (s DetailMenuServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	values += s.Server.Name + ","
-	menu := s.Server.Menu
-	if menu != nil {
-		values += "\"" + (*menu).ID + "\"" + "," + "\"" + (*menu).Name + "\"" + "," + "\"" + (*menu).Alias + "\"" + "," + "\"" + (*menu).Comment + "\"" + "," + "\"" + (*menu).Activate + "\"" + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailMenu
+	if s.Server.Menu != nil {
+		p = append(p, *s.Server.Menu)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL ResultMenu to json

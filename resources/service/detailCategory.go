@@ -30,17 +30,44 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailCategory represents the caracteristics of a service Category
 type DetailCategory struct {
-	ID               string                          `json:"id" yaml:"id"`
-	Name             string                          `json:"name" yaml:"name"` //Category name
-	Alias            string                          `json:"alias" yaml:"alias"`
-	Level            string                          `json:"level" yaml:"level"`
-	Services         []DetailCategoryService         `json:"services" yaml:"services"`
-	ServiceTemplates []DetailCategoryServiceTemplate `json:"service_templates" yaml:"service_templates"`
+	ID               string                         `json:"id" yaml:"id"`
+	Name             string                         `json:"name" yaml:"name"` //Category name
+	Alias            string                         `json:"alias" yaml:"alias"`
+	Level            string                         `json:"level" yaml:"level"`
+	Services         DetailCategoryServices         `json:"services" yaml:"services"`
+	ServiceTemplates DetailCategoryServiceTemplates `json:"service_templates" yaml:"service_templates"`
+}
+
+type DetailCategoryServices []DetailCategoryService
+
+func (t DetailCategoryServices) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, service := range t {
+		value += service.HostID + "|" + service.HostName + "|" + service.ServiceID + "|" + service.ServiceDescription
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
+}
+
+type DetailCategoryServiceTemplates []DetailCategoryServiceTemplate
+
+func (t DetailCategoryServiceTemplates) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, service := range t {
+		value += service.TemplateID + "|" + service.ServiceTemplateDescription
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailResultCategory represents a service Category array
@@ -116,16 +143,12 @@ func (s DetailCategoryServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the service category to csv
 func (s DetailCategoryServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Level\n"
-	values += s.Server.Name + ","
-	category := s.Server.Category
-	if category != nil {
-		values += "\"" + (*category).ID + "\"" + "," + "\"" + (*category).Name + "\"" + "," + "\"" + (*category).Alias + "\"" + "," + "\"" + (*category).Level + "\"" + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailCategory
+	if s.Server.Category != nil {
+		p = append(p, *s.Server.Category)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the service category to json

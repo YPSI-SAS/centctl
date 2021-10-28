@@ -29,18 +29,25 @@ import (
 	"centctl/resources"
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailResourceCFG represents the caracteristics of a resourceCFG
 type DetailResourceCFG struct {
-	ID       string   `json:"id" yaml:"id"`           //resourceCFG ID
-	Name     string   `json:"name" yaml:"name"`       //resourceCFG name
-	Value    string   `json:"value" yaml:"value"`     //resourceCFG value
-	Comment  string   `json:"comment" yaml:"comment"` //resourceCFG comment
-	Activate string   `json:"activate"`
-	Instance []string `json:"instance"`
+	ID       string    `json:"id" yaml:"id"`           //resourceCFG ID
+	Name     string    `json:"name" yaml:"name"`       //resourceCFG name
+	Value    string    `json:"value" yaml:"value"`     //resourceCFG value
+	Comment  string    `json:"comment" yaml:"comment"` //resourceCFG comment
+	Activate string    `json:"activate"`
+	Instance Instances `json:"instance"`
+}
+type Instances []string
+
+func (t Instances) MarshalCSV() ([]byte, error) {
+	return []byte(strings.Join(t, ",")), nil
 }
 
 //DetailResult represents a poller array
@@ -93,21 +100,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the resourceCFG to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Value,Comment,Activate,Instance\n"
-	resourceCFG := s.Server.ResourceCFG
-	if resourceCFG != nil {
-		values += "\"" + s.Server.Name + "\"" + "," + "\"" + (*resourceCFG).ID + "\"" + "," + "\"" + (*resourceCFG).Name + "\"" + "," + "\"" + (*resourceCFG).Value + "\"" + "," + "\"" + (*resourceCFG).Comment + "\"" + "," + "\"" + (*resourceCFG).Activate + "\"" + "," + "\""
-		for index, inst := range (*resourceCFG).Instance {
-			values += inst
-			if index != len((*resourceCFG).Instance)-1 {
-				values += "|"
-			}
-		}
-		values += "\"" + "\n"
-	} else {
-		values += ",,,,,\n"
+	var p []DetailResourceCFG
+	if s.Server.ResourceCFG != nil {
+		p = append(p, *s.Server.ResourceCFG)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the resourceCFG to json
