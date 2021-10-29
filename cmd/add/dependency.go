@@ -65,8 +65,11 @@ func init() {
 	dependencyCmd.MarkFlagRequired("name")
 	dependencyCmd.Flags().StringP("description", "d", "", "To define the description of the dependency")
 	dependencyCmd.MarkFlagRequired("description")
-	dependencyCmd.Flags().StringP("type", "t", "", "To define the type of the dependency (HOST,HG,SG,SERVICE ou META)")
+	dependencyCmd.Flags().StringP("type", "t", "", "To define the type of the dependency (host,hg,sg,service ou meta)")
 	dependencyCmd.MarkFlagRequired("type")
+	dependencyCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"host", "hg", "sg", "service", "meta"}, cobra.ShellCompDirectiveDefault
+	})
 	dependencyCmd.Flags().StringP("parentName", "p", "", "To define the name of the parent resource (if type is SERVICE the parentName must be in the form \"HOSTNAME,SERVICENAME\") ")
 	dependencyCmd.MarkFlagRequired("parentName")
 }

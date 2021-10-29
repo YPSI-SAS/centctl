@@ -101,4 +101,7 @@ func init() {
 	hostCmd.MarkFlagRequired("id")
 	hostCmd.Flags().String("status", "", "Host status that can be submitted (up, down, unreachable)")
 	hostCmd.MarkFlagRequired("status")
+	hostCmd.RegisterFlagCompletionFunc("status", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"up", "down", "unreachable"}, cobra.ShellCompDirectiveDefault
+	})
 }

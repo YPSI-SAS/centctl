@@ -76,6 +76,9 @@ func init() {
 	engineCFGCmd.MarkFlagRequired("name")
 	engineCFGCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: brokermodule")
 	engineCFGCmd.MarkFlagRequired("parameter")
+	engineCFGCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"brokermodule", "nagios_name", "instance", "nagios_activate"}, cobra.ShellCompDirectiveDefault
+	})
 	engineCFGCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	engineCFGCmd.MarkFlagRequired("value")
 }

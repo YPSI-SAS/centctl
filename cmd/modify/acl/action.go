@@ -80,6 +80,9 @@ func init() {
 	actionCmd.MarkFlagRequired("name")
 	actionCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: grant,revoke")
 	actionCmd.MarkFlagRequired("parameter")
+	actionCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "description", "activate", "grant", "revoke"}, cobra.ShellCompDirectiveDefault
+	})
 	actionCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	actionCmd.MarkFlagRequired("value")
 	actionCmd.Flags().Bool("apply", false, "Export configuration of the poller")

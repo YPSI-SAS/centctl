@@ -191,8 +191,14 @@ func deleteRealtimeService(services []service.RealtimeService, regex string) []s
 
 func init() {
 	realtimeServiceCmd.Flags().StringP("state", "s", "all", "The state of the hosts you want to list (all, warning, critical, ok, unknown, pending)")
+	realtimeServiceCmd.RegisterFlagCompletionFunc("state", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"unknown", "ok", "pending", "critical", "warning", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	realtimeServiceCmd.Flags().IntP("limit", "l", 60, "The number of hosts you want to list")
 	realtimeServiceCmd.Flags().StringP("viewType", "v", "all", "The type of services (all or unhandled")
+	realtimeServiceCmd.RegisterFlagCompletionFunc("viewType", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"unhandled", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	realtimeServiceCmd.Flags().IntP("poller", "p", -1, "The ID poller")
 	realtimeServiceCmd.Flags().StringP("regex", "r", "", "The regex to apply on the service's name")
 

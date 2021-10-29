@@ -65,6 +65,9 @@ func init() {
 	pollerCmd.MarkFlagRequired("name")
 	pollerCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	pollerCmd.MarkFlagRequired("parameter")
+	pollerCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "localhost", "ns_ip_address", "engine_start_command", "engine_stop_command", "engine_restart_command", "engine_reload_command", "nagios_bin", "nagiostats_bin", "ssh_port", "broker_reload_command", "centreonbroker_cfg_path", "centreonbroker_module_path"}, cobra.ShellCompDirectiveDefault
+	})
 	pollerCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	pollerCmd.MarkFlagRequired("value")
 	pollerCmd.Flags().Bool("apply", false, "Export configuration of the poller")

@@ -158,6 +158,9 @@ func getAllCommand(debugV bool) []command.ExportCommand {
 func init() {
 	commandCmd.Flags().StringSliceP("name", "n", []string{}, "Command's name (separate by a comma the multiple values)")
 	commandCmd.Flags().StringP("type", "t", "all", "To define the type of command (all, notif, check, misc, discovery)")
+	commandCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"check", "notif", "misc", "discovery", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	commandCmd.Flags().StringP("regex", "r", "", "The regex to apply on the command's name")
 
 }

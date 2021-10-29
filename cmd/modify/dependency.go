@@ -79,6 +79,9 @@ func init() {
 	dependencyCmd.MarkFlagRequired("name")
 	dependencyCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: parent,child")
 	dependencyCmd.MarkFlagRequired("parameter")
+	dependencyCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "description", "inherits_parent", "execution_failure_criteria", "notification_failure_criteria", "comment", "parent", "child"}, cobra.ShellCompDirectiveDefault
+	})
 	dependencyCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	dependencyCmd.MarkFlagRequired("value")
 

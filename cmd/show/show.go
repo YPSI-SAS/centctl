@@ -67,4 +67,7 @@ func init() {
 	Cmd.AddCommand(vendorCmd)
 
 	Cmd.PersistentFlags().String("output", "json", "Type of output (json, yaml, text, csv)")
+	Cmd.RegisterFlagCompletionFunc("output", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"json", "text", "yaml", "csv"}, cobra.ShellCompDirectiveDefault
+	})
 }

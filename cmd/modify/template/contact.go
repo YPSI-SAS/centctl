@@ -64,6 +64,9 @@ func init() {
 	contactCmd.MarkFlagRequired("name")
 	contactCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	contactCmd.MarkFlagRequired("parameter")
+	contactCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "alias", "comment", "email", "password", "access", "language", "admin", "authtype", "hostnotifcmd", "svcnotifcmd", "hostnotifperiod", "svcnotifperiod", "hostnotifopt", "servicenotifopt", "address1", "address2", "address3", "address4", "address5", "address6", "ldap_dn", "enable_notifications", "autologin_key", "template", "timezone"}, cobra.ShellCompDirectiveDefault
+	})
 	contactCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	contactCmd.MarkFlagRequired("value")
 }

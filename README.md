@@ -86,7 +86,7 @@ Reload your shell and verify that bash-completion is correctly installed by typi
 Add the completion script to the `/etc/bash_completion.d` directory:
 
 ```sh
-centctl completion >/etc/bash_completion.d/centctl
+centctl completion [bash|zsh|fish|powershell] >/etc/bash_completion.d/centctl
 ``` 
 
 After reloading your shell, centctl autocompletion should be working.

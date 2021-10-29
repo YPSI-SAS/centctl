@@ -65,7 +65,7 @@ func ModifyTemplateHost(name string, parameter string, value string, debugV bool
 		action = "addhosttemplate"
 		values = value + ";" + name
 		object = "STPL"
-	case "hostcategorie":
+	case "category":
 		action = "addmember"
 		values = value + ";" + name
 		object = "HC"
@@ -101,8 +101,11 @@ func ModifyTemplateHost(name string, parameter string, value string, debugV bool
 func init() {
 	hostCmd.Flags().StringP("name", "n", "", "To define the name of the host template to be modified")
 	hostCmd.MarkFlagRequired("name")
-	hostCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: template,contactgroup,contact,linkedservice,hostcategorie,macro")
+	hostCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: template,contactgroup,contact,linkedservice,category,macro")
 	hostCmd.MarkFlagRequired("parameter")
+	hostCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "localhost", "ns_ip_address", "ns_activate", "engine_start_command", "engine_stop_command", "engine_restart_command", "engine_reload_command", "nagios_bin", "template", "contactgroup", "contact", "linkedservice", "category", "macro", "nagiostats_bin", "ssh_port", "broker_reload_command", "centreonbroker_module_path", "centreonbroker_cfg_path"}, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
 	hostCmd.MarkFlagRequired("value")
 }

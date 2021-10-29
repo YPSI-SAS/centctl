@@ -76,6 +76,9 @@ func init() {
 	hostCmd.MarkFlagRequired("name")
 	hostCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: member")
 	hostCmd.MarkFlagRequired("parameter")
+	hostCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "alias", "member"}, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. ")
 	hostCmd.MarkFlagRequired("value")
 }

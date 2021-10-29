@@ -983,6 +983,7 @@ func getPollers(debugV bool) []string {
 func init() {
 	rootCmd.AddCommand(importCmd)
 	importCmd.Flags().StringP("file", "f", "", "To define the file which contains the objects to be imported")
+	importCmd.MarkFlagFilename("file", "csv")
 	importCmd.Flags().Bool("apply", false, "Export configuration of the poller")
 	importCmd.Flags().Bool("DETAIL", false, "Details information for all addition or modification")
 }

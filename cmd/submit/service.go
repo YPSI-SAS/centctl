@@ -105,4 +105,7 @@ func init() {
 	serviceCmd.MarkFlagRequired("serviceID")
 	serviceCmd.Flags().String("status", "", "Service status that can be submitted (ok or warning or critical or unknown)")
 	serviceCmd.MarkFlagRequired("status")
+	serviceCmd.RegisterFlagCompletionFunc("status", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"ok", "warning", "critical", "unknown"}, cobra.ShellCompDirectiveDefault
+	})
 }

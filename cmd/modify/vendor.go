@@ -65,6 +65,9 @@ func init() {
 	vendorCmd.MarkFlagRequired("name")
 	vendorCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation")
 	vendorCmd.MarkFlagRequired("parameter")
+	vendorCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"alias", "name", "description"}, cobra.ShellCompDirectiveDefault
+	})
 	vendorCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	vendorCmd.MarkFlagRequired("value")
 }

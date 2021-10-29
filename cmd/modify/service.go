@@ -120,6 +120,9 @@ func init() {
 	serviceCmd.MarkFlagRequired("description")
 	serviceCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: host,trap,category,contactgroup,contact,servicegroup,macro")
 	serviceCmd.MarkFlagRequired("parameter")
+	serviceCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"host", "trap", "category", "contactgroup", "contact", "servicegroup", "macro", "activate", "description", "is_volatile", "check_period", "check_command", "check_command_arguments", "max_check_attempts", "normal_check_interval", "retry_check_interval", "active_checks_enabled", "passive_checks_enabled", "notifications_enabled", "contact_additive_inheritance", "cg_additive_inheritance", "notification_interval", "notification_period", "notification_options", "first_notification_delay", "recovery_notification_delay", "obsess_over_service", "check_freshness", "freshness_threshold", "event_handler_enabled", "flap_detection_enabled", "retain_status_information", "retain_nonstatus_information", "event_handler", "event_handler_arguments", "notes", "notes_url", "action_url", "icon_image", "icon_image_alt", "comment", "service_notification_options"}, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
 	serviceCmd.MarkFlagRequired("value")
 	serviceCmd.Flags().Bool("apply", false, "Export configuration of the poller")

@@ -83,6 +83,9 @@ func init() {
 	menuCmd.MarkFlagRequired("name")
 	menuCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: grantrw, grantro,revoke")
 	menuCmd.MarkFlagRequired("parameter")
+	menuCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "alias", "activate", "comment", "grantrw", "grantro", "revoke"}, cobra.ShellCompDirectiveDefault
+	})
 	menuCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is grantrw or grantro or revoke the value must be of the form : menuName or menuName;subMenuName")
 	menuCmd.MarkFlagRequired("value")
 	menuCmd.Flags().Bool("apply", false, "Export configuration of the poller")

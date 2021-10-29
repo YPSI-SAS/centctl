@@ -50,6 +50,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/withmandala/go-log"
+	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/viper"
 )
@@ -222,6 +223,20 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&serverPasswordProxy, "proxyPassword", "", "Proxy password")
 	rootCmd.PersistentFlags().StringVar(&serverUserProxy, "proxyUser", "", "Proxy user")
 
+	rootCmd.RegisterFlagCompletionFunc("server", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var serversList []string
+		if os.Getenv("CENTCTL_CONF") != "" {
+			servers := &ServerList{}
+			yamlFile, _ := ioutil.ReadFile(os.Getenv("CENTCTL_CONF"))
+			_ = yaml.Unmarshal(yamlFile, servers)
+			for _, server := range servers.Servers {
+				serversList = append(serversList, server.Server)
+			}
+		}
+		return serversList, cobra.ShellCompDirectiveDefault
+	})
+
+	rootCmd.AddCommand(completionCmd)
 	rootCmd.AddCommand(export.Cmd)
 	rootCmd.AddCommand(downtime.Cmd)
 	rootCmd.AddCommand(list.Cmd)
