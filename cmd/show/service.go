@@ -258,8 +258,25 @@ func displayMetrics(hostID int, serviceID int, debugV bool, description string, 
 func init() {
 	serviceCmd.Flags().StringP("name", "n", "", "Host's name")
 	serviceCmd.MarkFlagRequired("name")
+	serviceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("description", "d", "", "Service's description")
 	serviceCmd.MarkFlagRequired("description")
+	serviceCmd.RegisterFlagCompletionFunc("description", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if serviceCmd.Flag("name").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetServiceDescriptions(serviceCmd.Flag("name").Value.String())
+			}
+		}
+
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().Bool("metrics", false, "To display metrics of the service")
 	serviceCmd.Flags().StringP("pathGraph", "p", "graphs", "Path directory for metric's graph (default in current directory)")
 }

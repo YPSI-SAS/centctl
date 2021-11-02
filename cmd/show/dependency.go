@@ -103,4 +103,11 @@ func ShowDependency(name string, debugV bool, output string) error {
 func init() {
 	dependencyCmd.Flags().StringP("name", "n", "", "To define the name of the dependency")
 	dependencyCmd.MarkFlagRequired("name")
+	dependencyCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetDependencyNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

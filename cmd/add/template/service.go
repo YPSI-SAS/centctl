@@ -70,4 +70,11 @@ func init() {
 	serviceCmd.Flags().StringP("alias", "a", "", "The alias of the service template")
 	serviceCmd.MarkFlagRequired("alias")
 	serviceCmd.Flags().StringP("template", "t", "", "To define the template to wich the service template is attached")
+	serviceCmd.RegisterFlagCompletionFunc("template", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateServiceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

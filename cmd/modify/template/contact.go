@@ -62,6 +62,13 @@ func ModifyTemplateContact(name string, parameter string, value string, debugV b
 func init() {
 	contactCmd.Flags().StringP("name", "n", "", "To define the name of the contact template to be modified")
 	contactCmd.MarkFlagRequired("name")
+	contactCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateContactAlias()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	contactCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	contactCmd.MarkFlagRequired("parameter")
 	contactCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

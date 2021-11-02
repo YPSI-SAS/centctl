@@ -74,6 +74,13 @@ func ModifyLDAP(name string, parameter string, value string, debugV bool, isImpo
 func init() {
 	ldapCmd.Flags().StringP("name", "n", "", "To define the name of the LDAP to be modified")
 	ldapCmd.MarkFlagRequired("name")
+	ldapCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetLDAPNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	ldapCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: server")
 	ldapCmd.MarkFlagRequired("parameter")
 	ldapCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

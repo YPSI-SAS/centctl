@@ -113,4 +113,11 @@ func ShowGroupContact(name string, debugV bool, output string) error {
 func init() {
 	contactCmd.Flags().StringP("name", "n", "", "To define the contact group which will show")
 	contactCmd.MarkFlagRequired("name")
+	contactCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetGroupContactNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

@@ -114,4 +114,11 @@ func ShowTimePeriod(name string, debugV bool, output string) error {
 func init() {
 	timePeriodCmd.Flags().StringP("name", "n", "", "To define the name of the timePeriod")
 	timePeriodCmd.MarkFlagRequired("name")
+	timePeriodCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTimePeriodNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

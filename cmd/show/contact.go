@@ -104,4 +104,11 @@ func ShowContact(alias string, debugV bool, output string) error {
 func init() {
 	contactCmd.Flags().StringP("alias", "a", "", "Contact's alias")
 	contactCmd.MarkFlagRequired("alias")
+	contactCmd.RegisterFlagCompletionFunc("alias", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetContactAlias()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

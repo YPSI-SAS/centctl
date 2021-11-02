@@ -78,6 +78,13 @@ func ModifyACLAction(name string, parameter string, value string, debugV bool, a
 func init() {
 	actionCmd.Flags().StringP("name", "n", "", "To define the name of the ACL action to be modified")
 	actionCmd.MarkFlagRequired("name")
+	actionCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLActionNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	actionCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: grant,revoke")
 	actionCmd.MarkFlagRequired("parameter")
 	actionCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

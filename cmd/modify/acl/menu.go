@@ -81,6 +81,13 @@ func ModifyACLMenu(name string, parameter string, value string, debugV bool, app
 func init() {
 	menuCmd.Flags().StringP("name", "n", "", "To define the name of the ACL menu to be modified")
 	menuCmd.MarkFlagRequired("name")
+	menuCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLMenuNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	menuCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: grantrw, grantro,revoke")
 	menuCmd.MarkFlagRequired("parameter")
 	menuCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

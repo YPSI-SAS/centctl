@@ -104,4 +104,11 @@ func ShowACLAction(name string, debugV bool, output string) error {
 func init() {
 	actionCmd.Flags().StringP("name", "n", "", "To define the ACL action which will show")
 	actionCmd.MarkFlagRequired("name")
+	actionCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLActionNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

@@ -125,4 +125,11 @@ func ShowCategoryService(name string, debugV bool, output string) error {
 func init() {
 	serviceCmd.Flags().StringP("name", "n", "", "To define the service category which will show")
 	serviceCmd.MarkFlagRequired("name")
+	serviceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetCategoryServiceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

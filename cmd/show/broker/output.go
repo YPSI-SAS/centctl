@@ -91,6 +91,22 @@ func ShowBrokerOutput(name string, id int, debugV bool, output string) error {
 func init() {
 	outputCmd.Flags().StringP("name", "n", "", "To define the name of the broker output")
 	outputCmd.MarkFlagRequired("name")
+	outputCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	outputCmd.Flags().IntP("id", "i", -1, "To define the id of the broke output")
 	outputCmd.MarkFlagRequired("id")
+	outputCmd.RegisterFlagCompletionFunc("id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if outputCmd.Flag("name").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerOutputID(outputCmd.Flag("name").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

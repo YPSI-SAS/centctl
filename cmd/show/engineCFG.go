@@ -103,4 +103,11 @@ func ShowEngineCFG(name string, debugV bool, output string) error {
 func init() {
 	engineCFGCmd.Flags().StringP("name", "n", "", "To define the name of the engineCFG")
 	engineCFGCmd.MarkFlagRequired("name")
+	engineCFGCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetEngineCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

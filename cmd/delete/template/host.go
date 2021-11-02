@@ -58,5 +58,11 @@ func DeleteTemplateHost(name string, debugV bool) error {
 func init() {
 	hostCmd.Flags().StringP("name", "n", "", "To define the host template which will delete")
 	hostCmd.MarkFlagRequired("name")
-
+	hostCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

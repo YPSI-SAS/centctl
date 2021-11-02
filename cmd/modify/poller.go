@@ -63,6 +63,13 @@ func ModifyPoller(name string, parameter string, value string, debugV bool, appl
 func init() {
 	pollerCmd.Flags().StringP("name", "n", "", "To define the name of the poller to be modified")
 	pollerCmd.MarkFlagRequired("name")
+	pollerCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	pollerCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	pollerCmd.MarkFlagRequired("parameter")
 	pollerCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {

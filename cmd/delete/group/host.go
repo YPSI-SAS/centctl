@@ -59,4 +59,11 @@ func DeleteGroupHost(name string, debugV bool, isImport bool) error {
 func init() {
 	hostCmd.Flags().StringP("name", "n", "", "To define the host group which will delete")
 	hostCmd.MarkFlagRequired("name")
+	hostCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetGroupHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

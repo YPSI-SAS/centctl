@@ -105,6 +105,13 @@ func init() {
 	resourceCFGCmd.MarkFlagRequired("value")
 	resourceCFGCmd.Flags().StringP("instance", "i", "", "To define the instance of the resourceCFG")
 	resourceCFGCmd.MarkFlagRequired("instance")
+	resourceCFGCmd.RegisterFlagCompletionFunc("instance", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	resourceCFGCmd.Flags().StringP("comment", "c", "", "To define the comment of the resourceCFG")
 	resourceCFGCmd.MarkFlagRequired("comment")
 }

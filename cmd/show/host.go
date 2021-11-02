@@ -125,4 +125,11 @@ func ShowHost(name string, debugV bool, output string) error {
 func init() {
 	hostCmd.Flags().StringP("name", "n", "", "Host's name")
 	hostCmd.MarkFlagRequired("name")
+	hostCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

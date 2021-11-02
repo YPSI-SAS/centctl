@@ -62,6 +62,13 @@ func AddBrokerOutput(broker string, objectName string, objectNature string, debu
 func init() {
 	outputCmd.Flags().StringP("broker", "b", "", "To define the name of the broker CFG")
 	outputCmd.MarkFlagRequired("broker")
+	outputCmd.RegisterFlagCompletionFunc("broker", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	outputCmd.Flags().StringP("objectName", "o", "", "To define the broker of the I/O object")
 	outputCmd.MarkFlagRequired("objectName")
 	outputCmd.Flags().StringP("objectNature", "n", "", "To define the nature of the I/O object")

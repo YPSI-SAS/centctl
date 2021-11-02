@@ -104,4 +104,11 @@ func ShowTemplateContact(alias string, debugV bool, output string) error {
 func init() {
 	contactCmd.Flags().StringP("alias", "a", "", "To define the contact template which will show")
 	contactCmd.MarkFlagRequired("alias")
+	contactCmd.RegisterFlagCompletionFunc("alias", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateContactAlias()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

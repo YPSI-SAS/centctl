@@ -62,6 +62,22 @@ func DeleteBrokerLogger(broker string, id int, debugV bool) error {
 func init() {
 	loggerCmd.Flags().StringP("broker", "b", "", "To define the name of the broker CFG")
 	loggerCmd.MarkFlagRequired("broker")
+	loggerCmd.RegisterFlagCompletionFunc("broker", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	loggerCmd.Flags().IntP("ID", "i", -1, "To define the I/O ID of the object which will delete")
 	loggerCmd.MarkFlagRequired("ID")
+	loggerCmd.RegisterFlagCompletionFunc("ID", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if loggerCmd.Flag("broker").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerLoggerID(loggerCmd.Flag("broker").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

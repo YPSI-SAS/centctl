@@ -90,6 +90,13 @@ func ModifyGroupService(name string, parameter string, value string, debugV bool
 func init() {
 	serviceCmd.Flags().StringP("name", "n", "", "To define the name of the service group to be modified")
 	serviceCmd.MarkFlagRequired("name")
+	serviceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetGroupServiceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: service,hostgroupservice")
 	serviceCmd.MarkFlagRequired("parameter")
 	serviceCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
