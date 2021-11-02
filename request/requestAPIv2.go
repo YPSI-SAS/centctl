@@ -54,7 +54,7 @@ func (c *clientV2) Get() (int, []byte, error) {
 	return resp.StatusCode, body, nil
 }
 
-type poller struct {
+type Poller struct {
 	ID int `json:"poller_id"`
 }
 
@@ -111,7 +111,7 @@ func IDPollerHost(hostID int, debugV bool) (int, error) {
 		return -1, nil
 	}
 
-	var pollerHost poller
+	var pollerHost Poller
 	pollerHost.ID = -1
 	json.Unmarshal(body, &pollerHost)
 
