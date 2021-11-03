@@ -100,8 +100,18 @@ func ModifyTemplateService(name string, parameter string, value string, debugV b
 func init() {
 	serviceCmd.Flags().StringP("name", "n", "", "To define the name of the service template to be modified")
 	serviceCmd.MarkFlagRequired("name")
+	serviceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateServiceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: trap,category,contactgroup,contact,linkedhost,macro")
 	serviceCmd.MarkFlagRequired("parameter")
+	serviceCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"activate", "description", "alias", "template", "is_volatile", "check_period", "check_command", "check_command_arguments", "trap", "category", "contactgroup", "contact", "linkedhost", "macro", "max_check_attempts", "normal_check_interval", "retry_check_interval", "active_checks_enabled", "passive_checks_enabled", "contact_additive_inheritance", "cg_additive_inheritance", "notification_interval", "notification_period", "notification_options", "first_notification_delay", "recovery_notification_delay", "parallelize_check", "obsess_over_service", "check_freshness", "freshness_threshold", "event_handler_enabled", "flap_detection_enabled", "process_perf_data", "retain_status_information", "retain_nonstatus_information", "stalking_options", "event_handler", "event_handler_arguments", "notes", "notes_url", "action_url", "icon_image", "icon_image_alt", "graphtemplate", "comment", "service_notification_options"}, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
 	serviceCmd.MarkFlagRequired("value")
 }

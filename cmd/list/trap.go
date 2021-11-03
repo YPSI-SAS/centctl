@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -75,9 +74,7 @@ func ListTrap(output string, regex string, debugV bool) error {
 
 	//Sort traps based on their ID
 	sort.SliceStable(finalTraps, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalTraps[i].ID)
-		valJ, _ := strconv.Atoi(finalTraps[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalTraps[i].Name) < strings.ToLower(finalTraps[j].Name)
 	})
 
 	//Organization of data

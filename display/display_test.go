@@ -28,7 +28,6 @@ package display
 import (
 	"centctl/resources/contact"
 	"centctl/resources/host"
-	"centctl/resources/poller"
 	"centctl/resources/service"
 	"encoding/json"
 	"strconv"
@@ -154,13 +153,13 @@ func TestDisplayRealtimeServiceJSON(t *testing.T) {
 	service1 := service.RealtimeService{
 		ServiceID: 10,
 		Name:      "realtime service test",
-		Parent: service.RealtimeParent{
+		RealtimeParent: service.RealtimeParent{
 			ID:       12,
 			Name:     "host",
 			Address:  "127.0.0.1",
 			PollerID: 1,
 		},
-		Status: service.RealtimeStatus{
+		RealtimeStatus: service.RealtimeStatus{
 			Code:         0,
 			Name:         "OK",
 			SeverityCode: 1,
@@ -188,13 +187,13 @@ func TestDisplayRealtimeServiceYAML(t *testing.T) {
 	service1 := service.RealtimeService{
 		ServiceID: 10,
 		Name:      "realtime service test",
-		Parent: service.RealtimeParent{
+		RealtimeParent: service.RealtimeParent{
 			ID:       12,
 			Name:     "host",
 			Address:  "127.0.0.1",
 			PollerID: 1,
 		},
-		Status: service.RealtimeStatus{
+		RealtimeStatus: service.RealtimeStatus{
 			Code:         0,
 			Name:         "OK",
 			SeverityCode: 1,
@@ -222,13 +221,13 @@ func TestDisplayRealtimeServiceCSV(t *testing.T) {
 	service1 := service.RealtimeService{
 		ServiceID: 10,
 		Name:      "realtime service test",
-		Parent: service.RealtimeParent{
+		RealtimeParent: service.RealtimeParent{
 			ID:       12,
 			Name:     "host",
 			Address:  "127.0.0.1",
 			PollerID: 1,
 		},
-		Status: service.RealtimeStatus{
+		RealtimeStatus: service.RealtimeStatus{
 			Code:         0,
 			Name:         "OK",
 			SeverityCode: 1,
@@ -247,7 +246,7 @@ func TestDisplayRealtimeServiceCSV(t *testing.T) {
 	}
 	displayService, err := RealtimeService("csv", server)
 	expected := "Server,ID,Name,ParentID,ParentName,ParentPollerID,ParentAddress,StatusCode,StatusName,Information,Acknowledged,Activate\n"
-	expected += server.Server.Name + "," + strconv.Itoa(service1.ServiceID) + "," + service1.Name + "," + strconv.Itoa(service1.Parent.PollerID) + "," + strconv.Itoa(service1.Parent.ID) + "," + service1.Parent.Name + "," + service1.Parent.Address + "," + strconv.Itoa(service1.Status.Code) + "," + service1.Status.Name + "," + service1.Information + "," + strconv.FormatBool(service1.Acknowledged) + "," + strconv.FormatBool(service1.ActiveCheck) + "\n"
+	expected += server.Server.Name + "," + strconv.Itoa(service1.ServiceID) + "," + service1.Name + "," + strconv.Itoa(service1.RealtimeParent.PollerID) + "," + strconv.Itoa(service1.RealtimeParent.ID) + "," + service1.RealtimeParent.Name + "," + service1.RealtimeParent.Address + "," + strconv.Itoa(service1.RealtimeStatus.Code) + "," + service1.RealtimeStatus.Name + "," + service1.Information + "," + strconv.FormatBool(service1.Acknowledged) + "," + strconv.FormatBool(service1.ActiveCheck) + "\n"
 
 	assert.NoError(t, err)
 	assert.Equal(t, expected, displayService)
@@ -257,13 +256,13 @@ func TestDisplayRealtimeServiceText(t *testing.T) {
 	service1 := service.RealtimeService{
 		ServiceID: 10,
 		Name:      "realtime service test",
-		Parent: service.RealtimeParent{
+		RealtimeParent: service.RealtimeParent{
 			ID:       12,
 			Name:     "host",
 			Address:  "127.0.0.1",
 			PollerID: 1,
 		},
-		Status: service.RealtimeStatus{
+		RealtimeStatus: service.RealtimeStatus{
 			Code:         0,
 			Name:         "OK",
 			SeverityCode: 1,
@@ -284,12 +283,12 @@ func TestDisplayRealtimeServiceText(t *testing.T) {
 	expected := "Service list for server=" + server.Server.Name + ": \n"
 	expected += "ID: " + strconv.Itoa(service1.ServiceID) + "\t"
 	expected += "Name: " + service1.Name + "\t"
-	expected += "Parent ID: " + strconv.Itoa(service1.Parent.ID) + "\t"
-	expected += "Parent name: " + service1.Parent.Name + "\t"
-	expected += "Parent address: " + service1.Parent.Address + "\t"
-	expected += "Parent pollerID: " + strconv.Itoa(service1.Parent.PollerID) + "\t"
-	expected += "Status code: " + strconv.Itoa(service1.Status.Code) + "\t"
-	expected += "Status name: " + service1.Status.Name + "\t"
+	expected += "Parent ID: " + strconv.Itoa(service1.RealtimeParent.ID) + "\t"
+	expected += "Parent name: " + service1.RealtimeParent.Name + "\t"
+	expected += "Parent address: " + service1.RealtimeParent.Address + "\t"
+	expected += "Parent pollerID: " + strconv.Itoa(service1.RealtimeParent.PollerID) + "\t"
+	expected += "Status code: " + strconv.Itoa(service1.RealtimeStatus.Code) + "\t"
+	expected += "Status name: " + service1.RealtimeStatus.Name + "\t"
 	expected += "Information: " + service1.Information + "\t"
 	expected += "Acknowledged: " + strconv.FormatBool(service1.Acknowledged) + "\t"
 	expected += "ActiveCheck: " + strconv.FormatBool(service1.ActiveCheck) + "\n"
@@ -302,13 +301,13 @@ func TestDisplayRealtimeServiceIncorrectOutput(t *testing.T) {
 	service1 := service.RealtimeService{
 		ServiceID: 10,
 		Name:      "realtime service test",
-		Parent: service.RealtimeParent{
+		RealtimeParent: service.RealtimeParent{
 			ID:       12,
 			Name:     "host",
 			Address:  "127.0.0.1",
 			PollerID: 1,
 		},
-		Status: service.RealtimeStatus{
+		RealtimeStatus: service.RealtimeStatus{
 			Code:         0,
 			Name:         "OK",
 			SeverityCode: 1,
@@ -454,7 +453,7 @@ func TestDisplayDetailServiceJSON(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -471,7 +470,7 @@ func TestDisplayDetailServiceJSON(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -503,7 +502,7 @@ func TestDisplayDetailServiceYAML(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -520,7 +519,7 @@ func TestDisplayDetailServiceYAML(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -552,7 +551,7 @@ func TestDisplayDetailServiceCSV(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -569,7 +568,7 @@ func TestDisplayDetailServiceCSV(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -595,8 +594,8 @@ func TestDisplayDetailServiceCSV(t *testing.T) {
 	expected += strconv.Itoa(service1.ID) + ","
 	expected += service1.Description + ","
 	expected += strconv.Itoa(service1.State) + ","
-	expected += strconv.Itoa(service1.Status.Code) + ","
-	expected += service1.Status.Name + ","
+	expected += strconv.Itoa(service1.DetailRealtimeServiceStatus.Code) + ","
+	expected += service1.DetailRealtimeServiceStatus.Name + ","
 	expected += strconv.Itoa(service1.StateType) + ","
 	expected += service1.Output + ","
 	expected += strconv.Itoa(service1.MaxCheckAttempts) + ","
@@ -619,7 +618,7 @@ func TestDisplayDetailServiceText(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -636,7 +635,7 @@ func TestDisplayDetailServiceText(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -662,8 +661,8 @@ func TestDisplayDetailServiceText(t *testing.T) {
 	expected += "ID: " + strconv.Itoa(service1.ID) + "\t"
 	expected += "Description: " + service1.Description + "\t"
 	expected += "State: " + strconv.Itoa(service1.State) + "\t"
-	expected += "Status code: " + strconv.Itoa(service1.Status.Code) + "\t"
-	expected += "Status name: " + service1.Status.Name + "\t"
+	expected += "Status code: " + strconv.Itoa(service1.DetailRealtimeServiceStatus.Code) + "\t"
+	expected += "Status name: " + service1.DetailRealtimeServiceStatus.Name + "\t"
 	expected += "State type: " + strconv.Itoa(service1.StateType) + "\t"
 	expected += "Output: " + service1.Output + "\t"
 	expected += "Max check attempts: " + strconv.Itoa(service1.MaxCheckAttempts) + "\t"
@@ -686,7 +685,7 @@ func TestDisplayDetailServiceIncorrectOutput(t *testing.T) {
 		ID:          10,
 		Description: "detail service test",
 		State:       1,
-		Status: service.DetailRealtimeServiceStatus{
+		DetailRealtimeServiceStatus: service.DetailRealtimeServiceStatus{
 			Code:         1,
 			Name:         "critical",
 			SeverityCode: 1,
@@ -703,7 +702,7 @@ func TestDisplayDetailServiceIncorrectOutput(t *testing.T) {
 		Activate:               true,
 		Checked:                true,
 		ScheduledDowntimeDepth: 1,
-		Acknowledgement: &service.DetailRealtimeServiceAcknowledgement{
+		DetailRealtimeServiceAcknowledgement: &service.DetailRealtimeServiceAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -1004,7 +1003,7 @@ func TestDisplayDetailHostJSON(t *testing.T) {
 		PollerName:          "pollerTEST",
 		PassiveChecks:       true,
 		Notify:              true,
-		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+		DetailRealtimeHostAcknowledgement: &host.DetailRealtimeHostAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -1047,7 +1046,7 @@ func TestDisplayDetailHostYAML(t *testing.T) {
 		PollerName:          "pollerTEST",
 		PassiveChecks:       true,
 		Notify:              true,
-		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+		DetailRealtimeHostAcknowledgement: &host.DetailRealtimeHostAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -1090,7 +1089,7 @@ func TestDisplayDetailHostCSV(t *testing.T) {
 		PollerName:          "pollerTEST",
 		PassiveChecks:       true,
 		Notify:              true,
-		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+		DetailRealtimeHostAcknowledgement: &host.DetailRealtimeHostAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -1153,7 +1152,7 @@ func TestDisplayDetailHostText(t *testing.T) {
 		PollerName:          "pollerTEST",
 		PassiveChecks:       true,
 		Notify:              true,
-		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+		DetailRealtimeHostAcknowledgement: &host.DetailRealtimeHostAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -1215,7 +1214,7 @@ func TestDisplayDetailHostIncorrectOutput(t *testing.T) {
 		PollerName:          "pollerTEST",
 		PassiveChecks:       true,
 		Notify:              true,
-		Acknowledgement: &host.DetailRealtimeHostAcknowledgement{
+		DetailRealtimeHostAcknowledgement: &host.DetailRealtimeHostAcknowledgement{
 			AuthorID:          1,
 			AuthorName:        "admin",
 			Comment:           "ack by cli",
@@ -1235,136 +1234,6 @@ func TestDisplayDetailHostIncorrectOutput(t *testing.T) {
 
 	assert.EqualError(t, err, "The output is not correct, used : text, csv, json or yaml")
 }
-
-func TestDisplayPollerJSON(t *testing.T) {
-	poller1 := poller.Poller{
-		Type:  "poller",
-		Label: "PollerTEST",
-		Metadata: poller.Metadata{
-			CentreonID: "1",
-			HostName:   "host",
-			Address:    "127.0.0.1",
-		},
-	}
-	pollers := []poller.Poller{}
-	pollers = append(pollers, poller1)
-	server := poller.Server{
-		Server: poller.Informations{
-			Name:    "serverTEST",
-			Pollers: pollers,
-		},
-	}
-	displayPoller, err := Poller("json", server)
-	expected, _ := json.MarshalIndent(server, "", " ")
-
-	assert.NoError(t, err)
-	assert.Equal(t, string(expected), displayPoller)
-}
-
-func TestDisplayPollerYAML(t *testing.T) {
-	poller1 := poller.Poller{
-		Type:  "poller",
-		Label: "PollerTEST",
-		Metadata: poller.Metadata{
-			CentreonID: "1",
-			HostName:   "host",
-			Address:    "127.0.0.1",
-		},
-	}
-	pollers := []poller.Poller{}
-	pollers = append(pollers, poller1)
-	server := poller.Server{
-		Server: poller.Informations{
-			Name:    "serverTEST",
-			Pollers: pollers,
-		},
-	}
-	displayPoller, err := Poller("yaml", server)
-	expected, _ := yaml.Marshal(server)
-
-	assert.NoError(t, err)
-	assert.Equal(t, string(expected), displayPoller)
-}
-
-func TestDisplayPollerCSV(t *testing.T) {
-	poller1 := poller.Poller{
-		Type:  "poller",
-		Label: "PollerTEST",
-		Metadata: poller.Metadata{
-			CentreonID: "1",
-			HostName:   "host",
-			Address:    "127.0.0.1",
-		},
-	}
-	pollers := []poller.Poller{}
-	pollers = append(pollers, poller1)
-	server := poller.Server{
-		Server: poller.Informations{
-			Name:    "serverTEST",
-			Pollers: pollers,
-		},
-	}
-	displayPoller, err := Poller("csv", server)
-	expected := "Server,Type,Label,CentreonID,Hostname,Address\n"
-	expected += server.Server.Name + "," + poller1.Type + "," + poller1.Label + "," + poller1.Metadata.CentreonID + "," + poller1.Metadata.HostName + "," + poller1.Metadata.Address + "\n"
-
-	assert.NoError(t, err)
-	assert.Equal(t, expected, displayPoller)
-}
-
-func TestDisplayPollerText(t *testing.T) {
-	poller1 := poller.Poller{
-		Type:  "poller",
-		Label: "PollerTEST",
-		Metadata: poller.Metadata{
-			CentreonID: "1",
-			HostName:   "host",
-			Address:    "127.0.0.1",
-		},
-	}
-	pollers := []poller.Poller{}
-	pollers = append(pollers, poller1)
-	server := poller.Server{
-		Server: poller.Informations{
-			Name:    "serverTEST",
-			Pollers: pollers,
-		},
-	}
-	displayPoller, err := Poller("text", server)
-	expected := "Poller list for server" + server.Server.Name + ": \n"
-	expected += "Type: " + poller1.Type + "\t"
-	expected += "Label: " + poller1.Label + "\t"
-	expected += "CentreonID: " + poller1.Metadata.CentreonID + "\t"
-	expected += "Hosname: " + poller1.Metadata.HostName + "\t"
-	expected += "Address: " + poller1.Metadata.Address + "\n"
-
-	assert.NoError(t, err)
-	assert.Equal(t, expected, displayPoller)
-}
-
-func TestDisplayPollerIncorrectOutput(t *testing.T) {
-	poller1 := poller.Poller{
-		Type:  "poller",
-		Label: "PollerTEST",
-		Metadata: poller.Metadata{
-			CentreonID: "1",
-			HostName:   "host",
-			Address:    "127.0.0.1",
-		},
-	}
-	pollers := []poller.Poller{}
-	pollers = append(pollers, poller1)
-	server := poller.Server{
-		Server: poller.Informations{
-			Name:    "serverTEST",
-			Pollers: pollers,
-		},
-	}
-	_, err := Poller("incorrect", server)
-
-	assert.EqualError(t, err, "The output is not correct, used : text, csv, json or yaml")
-}
-
 func TestDisplayTemplateHostJSON(t *testing.T) {
 	template1 := host.Template{
 		ID:   "1",

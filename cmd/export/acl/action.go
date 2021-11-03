@@ -43,13 +43,12 @@ var actionCmd = &cobra.Command{
 	Short: "Export ACL action",
 	Long:  `Export ACL action of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		regex, _ := cmd.Flags().GetString("regex")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportACLAction(name, regex, file, appendFile, all, debugV)
+		err := ExportACLAction(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,30 +56,17 @@ var actionCmd = &cobra.Command{
 }
 
 //ExportACLAction permits to export a ACL action of the centreon server
-func ExportACLAction(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportACLAction(name []string, regex string, file string, all bool, debugV bool) error {
+	writeFile := false
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println("You must pass flag name or flag all or flag regex")
 		os.Exit(1)
 	}
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
 
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-
-	defer f.Close()
-	if err != nil {
-		return err
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -109,10 +95,9 @@ func ExportACLAction(name []string, regex string, file string, appendFile bool, 
 		if action.Name == "" {
 			continue
 		}
-
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,aclAction,\"" + action.Name + "\",\"" + action.Description + "\"\n")
-		_, _ = f.WriteString("modify,aclAction,\"" + action.Name + "\",activate,\"" + action.Activate + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,aclAction,\""+action.Name+"\",\""+action.Description+"\"\n", file, writeFile)
+		request.WriteValues("modify,aclAction,\""+action.Name+"\",activate,\""+action.Activate+"\"\n", file, writeFile)
 
 	}
 
@@ -166,7 +151,6 @@ func getAllAction(debugV bool) []ACL.ExportAction {
 
 func init() {
 	actionCmd.Flags().StringSliceP("name", "n", []string{}, "ACL action's name (separate by a comma the multiple values)")
-	actionCmd.Flags().StringP("file", "f", "ExportACLAction.csv", "To define the name of the csv file")
 	actionCmd.Flags().StringP("regex", "r", "", "The regex to apply on the ACL action's name")
 
 }

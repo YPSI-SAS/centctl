@@ -26,9 +26,11 @@ SOFTWARE.
 package contact
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -58,23 +60,19 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the contacts to text
 func (s Server) StringText() string {
-	var values string = "Contact list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "Email"})
 	for i := 0; i < len(s.Server.Contacts); i++ {
-		values += "ID: " + s.Server.Contacts[i].ID + "\t"
-		values += "Name: " + s.Server.Contacts[i].Name + "\t"
-		values += "Alias: " + s.Server.Contacts[i].Alias + "\t"
-		values += "Email: " + s.Server.Contacts[i].Email + "\n"
+		table = append(table, []string{s.Server.Contacts[i].ID, s.Server.Contacts[i].Name, s.Server.Contacts[i].Alias, s.Server.Contacts[i].Email})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the contacts to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Email\n"
-	for i := 0; i < len(s.Server.Contacts); i++ {
-		values += s.Server.Name + "," + s.Server.Contacts[i].ID + "," + s.Server.Contacts[i].Name + "," + s.Server.Contacts[i].Alias + "," + s.Server.Contacts[i].Email + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Contacts)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the contacts to json

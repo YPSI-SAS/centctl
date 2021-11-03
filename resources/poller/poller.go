@@ -26,23 +26,29 @@ SOFTWARE.
 package poller
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
+	"strconv"
+	"time"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
 //Poller represents the caracteristics of a poller
 type Poller struct {
-	Type     string   `json:"type" yaml:"type"`
-	Label    string   `json:"label" yaml:"label"`
-	Metadata Metadata `json:"metadata" yaml:"metadata"`
+	ID          int    `json:"id" yaml:"id"`
+	Name        string `json:"name" yaml:"name"`
+	Address     string `json:"address" yaml:"address"`
+	IsRunning   bool   `json:"is_running" yaml:"is_running"`
+	LastAlive   int64  `json:"last_alive" yaml:"last_alive"`
+	Version     string `json:"version" yaml:"version"`
+	Description string `json:"description" yaml:"description"`
 }
 
-type Metadata struct {
-	CentreonID string `json:"centreon-id" yaml:"centreon-id"`
-	HostName   string `json:"hostname" yaml:"hostname"`
-	Address    string `json:"address" yaml:"address"`
+type ResultPoller struct {
+	Pollers []Poller `json:"result" yaml:"result"`
 }
 
 //Server represents a server with informations
@@ -58,24 +64,19 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the pollers to text
 func (s Server) StringText() string {
-	var values string = "Poller list for server" + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Address", "IsRunning", "LastAlive", "Version", "Description"})
 	for i := 0; i < len(s.Server.Pollers); i++ {
-		values += "Type: " + s.Server.Pollers[i].Type + "\t"
-		values += "Label: " + s.Server.Pollers[i].Label + "\t"
-		values += "CentreonID: " + s.Server.Pollers[i].Metadata.CentreonID + "\t"
-		values += "Hosname: " + s.Server.Pollers[i].Metadata.HostName + "\t"
-		values += "Address: " + s.Server.Pollers[i].Metadata.Address + "\n"
+		table = append(table, []string{strconv.Itoa(s.Server.Pollers[i].ID), s.Server.Pollers[i].Name, s.Server.Pollers[i].Address, strconv.FormatBool(s.Server.Pollers[i].IsRunning), (time.Unix(s.Server.Pollers[i].LastAlive, 0).Format(time.UnixDate)), s.Server.Pollers[i].Version, s.Server.Pollers[i].Description})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the pollers to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,Type,Label,CentreonID,Hostname,Address\n"
-	for i := 0; i < len(s.Server.Pollers); i++ {
-		values += s.Server.Name + "," + s.Server.Pollers[i].Type + "," + s.Server.Pollers[i].Label + "," + s.Server.Pollers[i].Metadata.CentreonID + "," + s.Server.Pollers[i].Metadata.HostName + "," + s.Server.Pollers[i].Metadata.Address + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Pollers)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the pollers to json

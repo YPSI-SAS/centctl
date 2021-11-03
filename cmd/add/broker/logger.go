@@ -62,6 +62,13 @@ func AddBrokerLogger(broker string, objectName string, objectNature string, debu
 func init() {
 	loggerCmd.Flags().StringP("broker", "b", "", "To define the name of the broker CFG")
 	loggerCmd.MarkFlagRequired("broker")
+	loggerCmd.RegisterFlagCompletionFunc("broker", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	loggerCmd.Flags().StringP("objectName", "o", "", "To define the broker of the I/O object")
 	loggerCmd.MarkFlagRequired("objectName")
 	loggerCmd.Flags().StringP("objectNature", "n", "", "To define the nature of the I/O object")

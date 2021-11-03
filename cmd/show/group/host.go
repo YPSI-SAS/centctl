@@ -82,7 +82,7 @@ func ShowGroupHost(name string, debugV bool, output string) error {
 		}
 
 		//Permits to recover the member contain into the response body
-		members := host.DetailResultCategoryMember{}
+		members := host.DetailResultGroupMember{}
 		json.Unmarshal(body, &members)
 
 		GroupFind.Members = members.Members
@@ -116,4 +116,11 @@ func ShowGroupHost(name string, debugV bool, output string) error {
 func init() {
 	hostCmd.Flags().StringP("name", "n", "", "To define the host group which will show")
 	hostCmd.MarkFlagRequired("name")
+	hostCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetGroupHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

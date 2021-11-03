@@ -13,17 +13,48 @@ Create a file called `centctl.yaml` in your PC and put the complete path of this
 
 * `NAMESERVER` it's the name of the server that you will use in the flag --server. <span style="color: #FF0000"> WARNING </span> : The name of the server must be unique
 * `URL` it's the url at use for access to your centreon server. Its format is **https://monserveurcentreon.fr/centreon** and you replace **monserveurcentreon.fr** by the server. <span style="color: #FF0000"> WARNING </span> : remember to put **http** if your url is not a secure url
+* `insecure` key is use when the URL server is in https. It is same the flag (--insecure) to forced the connection.
 * `LOGIN` it's the login that you use for the connection at the server
 * `PASSWORD` it's the password that you use for the connection at the server
 * `VERSION` it's the version of the API that you want to use (possibles values : v1 or v2)
+* `default` define the default server to connected 
+</br>To define the proxy if your server use it, you have three ways:
+  - Define an environment variable named `http_proxy`. Its format is **http://IPAddress:Port** or **http://USERNAME:Password@IPAddress:Port** (In this case all servers use the same proxy) or an environment variable named `https_proxy. Its format is the same of http_proxy
+  - Define proxy in the top of the yaml file (In this case all servers use the same proxy)
+  ```yaml
+  proxy:
+    - httpURL: "URLProxy"
+    - httpsURL: "URLSProxy
+    - user: "USERNAME"
+    - password: "PASSWORD" 
+  servers:
+    - server: "NAMESERVER2"
+      url: "URL" 
+      login: "LOGIN"
+      password: "PASSWORD"
+      version: "VERSION"
+  ``` 
+  - Define differents proxies for each server which used it like below.
+</br>It is possible to have servers without a proxy like the NAMESERVER2 below. It is possible to have servers without httpProxy or without httpsProxy, for this case leave the field not use blank.
+* `URLProxy` it's the ipAddress and port at use for access to your http proxy. Its format is **IPAddress:Port**
+* `URLSProxy` it's the ipAddress and port at use for access to your https proxy. Its format is **IPAddress:Port**
+* `USERNAME` it's the user that you use for connection at the proxy (If you don't use it, leave the field blank )
+* `PASSWORD` it's the password that you use for connection at the proxy (If you don't use it, leave the field blank )
 
 ```yaml
 servers:
    - server: "NAMESERVER"
      url: "URL" 
+     insecure: true
      login: "LOGIN"
      password: "PASSWORD"
      version: "VERSION"
+     default: true
+     proxy:
+      - httpURL: "URLProxy"
+      - httpsURL: "URLSProxy"
+      - user: "USERNAME"
+      - password: "PASSWORD" 
    - server: "NAMESERVER2"
      url: "URL" 
      login: "LOGIN"
@@ -55,7 +86,7 @@ Reload your shell and verify that bash-completion is correctly installed by typi
 Add the completion script to the `/etc/bash_completion.d` directory:
 
 ```sh
-centctl completion >/etc/bash_completion.d/centctl
+centctl completion [bash|zsh|fish|powershell] >/etc/bash_completion.d/centctl
 ``` 
 
 After reloading your shell, centctl autocompletion should be working.

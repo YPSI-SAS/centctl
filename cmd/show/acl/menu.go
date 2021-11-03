@@ -104,4 +104,11 @@ func ShowACLMenu(name string, debugV bool, output string) error {
 func init() {
 	menuCmd.Flags().StringP("name", "n", "", "To define the ACL menu which will show")
 	menuCmd.MarkFlagRequired("name")
+	menuCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLMenuNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

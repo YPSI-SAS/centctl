@@ -26,9 +26,11 @@ SOFTWARE.
 package broker
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -57,13 +59,13 @@ type DetailInformationsCFG struct {
 
 //StringText permits to display the caracteristics of the BrokerCFGs to text
 func (s DetailServerCFG) StringText() string {
-	var values string = "BrokerCFG list for server " + s.Server.Name + ": \n"
+	var values string
 
 	brokerCFG := s.Server.BrokerCFG
 	if brokerCFG != nil {
-		values += "ID: " + (*brokerCFG).ID + "\t"
-		values += "Name: " + (*brokerCFG).Name + "\t"
-		values += "Instance: " + (*brokerCFG).Instance + "\n"
+		elements := [][]string{{"0", "Broker CFG:"}, {"1", "ID: " + (*brokerCFG).ID}, {"1", "Name: " + (*brokerCFG).Name}, {"1", "Instance: " + (*brokerCFG).Instance}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "brokerCFG: null\n"
 	}
@@ -72,15 +74,12 @@ func (s DetailServerCFG) StringText() string {
 
 //StringCSV permits to display the caracteristics of the BrokerCFGs to csv
 func (s DetailServerCFG) StringCSV() string {
-	var values string = "Server,ID,Name,Instance\n"
-	values += s.Server.Name + ","
-	brokerCFG := s.Server.BrokerCFG
-	if brokerCFG != nil {
-		values += (*brokerCFG).ID + "," + (*brokerCFG).Name + "," + (*brokerCFG).Instance + "\n"
-	} else {
-		values += ",,\n"
+	var p []DetailBrokerCFG
+	if s.Server.BrokerCFG != nil {
+		p = append(p, *s.Server.BrokerCFG)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the BrokerCFGs to json

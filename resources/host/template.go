@@ -26,9 +26,11 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -56,20 +58,19 @@ type TemplateInformations struct {
 
 //StringText permits to display the caracteristics of the host templates to text
 func (s TemplateServer) StringText() string {
-	var values string = "Host template list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.Templates); i++ {
-		values += s.Server.Templates[i].Name + "\n"
+		table = append(table, []string{s.Server.Templates[i].ID, s.Server.Templates[i].Name})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the host ResultTemplate to csv
 func (s TemplateServer) StringCSV() string {
-	var values string = "Server,Name\n"
-	for i := 0; i < len(s.Server.Templates); i++ {
-		values += s.Server.Name + "," + s.Server.Templates[i].Name + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Templates)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the host ResultTemplate to json

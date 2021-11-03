@@ -26,9 +26,11 @@ SOFTWARE.
 package command
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,28 +62,25 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the commands to text
 func (s Server) StringText() string {
-	var values string = "Command list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Type", "CmdLine"})
 	for i := 0; i < len(s.Server.Commands); i++ {
-		values += "ID: " + s.Server.Commands[i].ID + "\t"
-		values += "Name: " + s.Server.Commands[i].Name + "\t"
-		values += "Type: " + s.Server.Commands[i].Type + "\t"
-		values += "CmdLine: " + s.Server.Commands[i].CmdLine + "\n"
-
+		var cmdLine string
+		if len(s.Server.Commands[i].CmdLine) < 90 {
+			cmdLine = s.Server.Commands[i].CmdLine
+		} else {
+			cmdLine = s.Server.Commands[i].CmdLine[:90]
+		}
+		table = append(table, []string{s.Server.Commands[i].ID, s.Server.Commands[i].Name, s.Server.Commands[i].Type, cmdLine})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the commands to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Type,CmdLine\n"
-	for i := 0; i < len(s.Server.Commands); i++ {
-		values += s.Server.Name + ","
-		values += s.Server.Commands[i].ID + ","
-		values += s.Server.Commands[i].Name + ","
-		values += s.Server.Commands[i].Type + ","
-		values += s.Server.Commands[i].CmdLine + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Commands)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the commands to json

@@ -64,8 +64,24 @@ func ModifyBrokerOutput(name string, id int, parameter string, value string, deb
 func init() {
 	outputCmd.Flags().StringP("name", "n", "", "To define the name of the broker CFG")
 	outputCmd.MarkFlagRequired("name")
+	outputCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	outputCmd.Flags().IntP("id", "i", -1, "To define the I/O object to be modified")
 	outputCmd.MarkFlagRequired("id")
+	outputCmd.RegisterFlagCompletionFunc("id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if outputCmd.Flag("name").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerOutputID(outputCmd.Flag("name").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	outputCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	outputCmd.MarkFlagRequired("parameter")
 	outputCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. ")

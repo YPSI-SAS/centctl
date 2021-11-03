@@ -26,9 +26,11 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -59,24 +61,19 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the services to text
 func (s Server) StringText() string {
-	var values string = "Service list for server" + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Description", "Host ID", "Host name", "Activate"})
 	for i := 0; i < len(s.Server.Services); i++ {
-		values += "ID: " + s.Server.Services[i].ServiceID + "\t"
-		values += "Description: " + s.Server.Services[i].Description + "\t"
-		values += "Host ID: " + s.Server.Services[i].HostID + "\t"
-		values += "Host name: " + s.Server.Services[i].HostName + "\t"
-		values += "Activate: " + s.Server.Services[i].Activate + "\n"
+		table = append(table, []string{s.Server.Services[i].ServiceID, s.Server.Services[i].Description, s.Server.Services[i].HostID, s.Server.Services[i].HostName, s.Server.Services[i].Activate})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the services to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Description,HostID,HostName,Activate\n"
-	for i := 0; i < len(s.Server.Services); i++ {
-		values += s.Server.Name + "," + s.Server.Services[i].ServiceID + "," + s.Server.Services[i].Description + "," + s.Server.Services[i].HostID + "," + s.Server.Services[i].HostName + "," + s.Server.Services[i].Activate + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Services)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the services to json

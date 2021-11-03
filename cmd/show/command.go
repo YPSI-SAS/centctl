@@ -120,4 +120,11 @@ func ShowCommand(name string, debugV bool, output string) error {
 func init() {
 	commandCmd.Flags().StringP("name", "n", "", "To define the name of the command")
 	commandCmd.MarkFlagRequired("name")
+	commandCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetCommandNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

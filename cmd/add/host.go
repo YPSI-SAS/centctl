@@ -86,8 +86,29 @@ func init() {
 	hostCmd.MarkFlagRequired("IPaddress")
 	hostCmd.Flags().StringP("template", "t", "", "To define the template of the host")
 	hostCmd.MarkFlagRequired("template")
+	hostCmd.RegisterFlagCompletionFunc("template", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().StringP("poller", "p", "", "To define the poller of the host")
 	hostCmd.MarkFlagRequired("poller")
+	hostCmd.RegisterFlagCompletionFunc("poller", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().StringP("hostGroup", "g", "", "To define if the contact is in a host group")
+	hostCmd.RegisterFlagCompletionFunc("hostGroup", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetGroupHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().Bool("apply", false, "Export configuration of the poller")
 }

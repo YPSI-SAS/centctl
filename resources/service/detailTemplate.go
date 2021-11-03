@@ -26,9 +26,11 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -64,20 +66,22 @@ type DetailTemplateInformations struct {
 
 //StringText permits to display the caracteristics of the service templates to text
 func (s DetailTemplateServer) StringText() string {
-	var values string = "Service template list for server " + s.Server.Name + ": \n"
+	var values string
 	template := s.Server.Template
 	if template != nil {
-
-		values += (*template).ID + "\t"
-		values += (*template).Description + "\t"
-		values += (*template).Alias + "\t"
-		values += (*template).CheckCommand + "\t"
-		values += (*template).CheckCommandArg + "\t"
-		values += (*template).NormalCheckInterval + "\t"
-		values += (*template).RetryCheckInterval + "\t"
-		values += (*template).MaxCheckAttempts + "\t"
-		values += (*template).ActiveChecksEnabled + "\t"
-		values += (*template).PassiveChecksEnabled + "\n"
+		elements := [][]string{{"0", "Template service:"}}
+		elements = append(elements, []string{"1", "ID: " + (*template).ID})
+		elements = append(elements, []string{"1", "Description: " + (*template).Description})
+		elements = append(elements, []string{"1", "Alias: " + (*template).Alias})
+		elements = append(elements, []string{"1", "Check command: " + (*template).CheckCommand})
+		elements = append(elements, []string{"1", "Check command Arg: " + (*template).CheckCommandArg})
+		elements = append(elements, []string{"1", "Normal check interval: " + (*template).NormalCheckInterval})
+		elements = append(elements, []string{"1", "Retry check interval: " + (*template).RetryCheckInterval})
+		elements = append(elements, []string{"1", "Max check attempts: " + (*template).MaxCheckAttempts})
+		elements = append(elements, []string{"1", "Active checks enabled: " + (*template).ActiveChecksEnabled})
+		elements = append(elements, []string{"1", "Passive checks enabled: " + (*template).PassiveChecksEnabled})
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "template: null\n"
 	}
@@ -86,17 +90,12 @@ func (s DetailTemplateServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the service templates to csv
 func (s DetailTemplateServer) StringCSV() string {
-	var values string = "Server,ID,description,alias,checkcommand,checkcommandarg,normalcheckinterval,retrycheckinterval,maxcheckattempts,activechecksenabled,passivechecksenabled\n"
-	values += s.Server.Name + ","
-	template := s.Server.Template
-	if template != nil {
-		values += (*template).ID + "," + (*template).Description + "," + (*template).Alias + "," + (*template).CheckCommand + "," + (*template).CheckCommandArg + "," + (*template).NormalCheckInterval + "," + (*template).RetryCheckInterval + "," + (*template).MaxCheckAttempts + "," + (*template).ActiveChecksEnabled + "," + (*template).PassiveChecksEnabled + "\n"
-
-	} else {
-		values += ",,,,,,,,,\n"
+	var p []DetailTemplate
+	if s.Server.Template != nil {
+		p = append(p, *s.Server.Template)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the service templates to json

@@ -26,9 +26,11 @@ SOFTWARE.
 package broker
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -56,21 +58,19 @@ type InformationsOutput struct {
 
 //StringText permits to display the caracteristics of the BrokerOutputs to text
 func (s ServerOutput) StringText() string {
-	var values string = "BrokerOutput list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.BrokerOutputs); i++ {
-		values += "ID: " + s.Server.BrokerOutputs[i].ID + "\t"
-		values += "Name: " + s.Server.BrokerOutputs[i].Name + "\n"
+		table = append(table, []string{s.Server.BrokerOutputs[i].ID, s.Server.BrokerOutputs[i].Name})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the BrokerOutputs to csv
 func (s ServerOutput) StringCSV() string {
-	var values string = "Server,ID,Name\n"
-	for i := 0; i < len(s.Server.BrokerOutputs); i++ {
-		values += s.Server.Name + "," + s.Server.BrokerOutputs[i].ID + "," + s.Server.BrokerOutputs[i].Name + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.BrokerOutputs)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the BrokerOutputs to json

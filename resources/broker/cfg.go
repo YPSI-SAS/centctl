@@ -26,9 +26,11 @@ SOFTWARE.
 package broker
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -57,22 +59,19 @@ type InformationsCFG struct {
 
 //StringText permits to display the caracteristics of the BrokerCFGs to text
 func (s ServerCFG) StringText() string {
-	var values string = "BrokerCFG list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Instance"})
 	for i := 0; i < len(s.Server.BrokerCFGs); i++ {
-		values += "ID: " + s.Server.BrokerCFGs[i].ID + "\t"
-		values += "Name: " + s.Server.BrokerCFGs[i].Name + "\t"
-		values += "Instance: " + s.Server.BrokerCFGs[i].Instance + "\n"
+		table = append(table, []string{s.Server.BrokerCFGs[i].ID, s.Server.BrokerCFGs[i].Name, s.Server.BrokerCFGs[i].Instance})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the BrokerCFGs to csv
 func (s ServerCFG) StringCSV() string {
-	var values string = "Server,ID,Name,Instance\n"
-	for i := 0; i < len(s.Server.BrokerCFGs); i++ {
-		values += s.Server.Name + "," + s.Server.BrokerCFGs[i].ID + "," + s.Server.BrokerCFGs[i].Name + "," + s.Server.BrokerCFGs[i].Instance + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.BrokerCFGs)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the BrokerCFGs to json

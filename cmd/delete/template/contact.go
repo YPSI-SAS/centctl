@@ -36,9 +36,9 @@ var contactCmd = &cobra.Command{
 	Short: "Delete template contact",
 	Long:  `Delete template contact of the centreon server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		name, _ := cmd.Flags().GetString("name")
+		alias, _ := cmd.Flags().GetString("alias")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := DeleteTemplateContact(name, debugV)
+		err := DeleteTemplateContact(alias, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -46,8 +46,8 @@ var contactCmd = &cobra.Command{
 }
 
 //DeleteTemplateContact permits to delete a service template in the centreon server
-func DeleteTemplateContact(name string, debugV bool) error {
-	err := request.Delete("del", "CONTACTTPL", name, "delete template contact", name, debugV, false, "")
+func DeleteTemplateContact(alias string, debugV bool) error {
+	err := request.Delete("del", "CONTACTTPL", alias, "delete template contact", alias, debugV, false, "")
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,13 @@ func DeleteTemplateContact(name string, debugV bool) error {
 }
 
 func init() {
-	contactCmd.Flags().StringP("name", "n", "", "To define the contact template which will delete")
-	contactCmd.MarkFlagRequired("name")
-
+	contactCmd.Flags().StringP("alias", "a", "", "To define the contact template which will delete")
+	contactCmd.MarkFlagRequired("alias")
+	contactCmd.RegisterFlagCompletionFunc("alias", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateContactAlias()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

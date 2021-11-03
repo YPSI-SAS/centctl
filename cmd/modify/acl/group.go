@@ -87,8 +87,18 @@ func ModifyACLGroup(name string, parameter string, value string, debugV bool, ap
 func init() {
 	groupCmd.Flags().StringP("name", "n", "", "To define the name of the ACL group to be modified")
 	groupCmd.MarkFlagRequired("name")
+	groupCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLGroupNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	groupCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: action,menu,resource,contact,contactgroup")
 	groupCmd.MarkFlagRequired("parameter")
+	groupCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "alias", "activate", "action", "menu", "resource", "contact", "contactgroup"}, cobra.ShellCompDirectiveDefault
+	})
 	groupCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	groupCmd.MarkFlagRequired("value")
 	groupCmd.Flags().Bool("apply", false, "Export configuration of the poller")

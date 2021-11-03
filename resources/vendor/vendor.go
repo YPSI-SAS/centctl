@@ -26,9 +26,11 @@ SOFTWARE.
 package vendor
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -57,22 +59,19 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the Vendors to text
 func (s Server) StringText() string {
-	var values string = "Vendor list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias"})
 	for i := 0; i < len(s.Server.Vendors); i++ {
-		values += "ID: " + s.Server.Vendors[i].ID + "\t"
-		values += "Name: " + s.Server.Vendors[i].Name + "\t"
-		values += "Alias: " + s.Server.Vendors[i].Alias + "\n"
+		table = append(table, []string{s.Server.Vendors[i].ID, s.Server.Vendors[i].Name, s.Server.Vendors[i].Alias})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the Vendors to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Alias\n"
-	for i := 0; i < len(s.Server.Vendors); i++ {
-		values += s.Server.Name + "," + s.Server.Vendors[i].ID + "," + s.Server.Vendors[i].Name + "," + s.Server.Vendors[i].Alias + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Vendors)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Vendors to json

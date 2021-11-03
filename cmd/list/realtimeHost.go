@@ -138,7 +138,7 @@ func ListRealtimeHost(output string, state string, limit int, viewType string, p
 
 	//Sort hosts based on their ID
 	sort.SliceStable(finalHosts, func(i, j int) bool {
-		return finalHosts[i].ID < finalHosts[j].ID
+		return strings.ToLower(finalHosts[i].Name) < strings.ToLower(finalHosts[j].Name)
 	})
 
 	server := host.RealtimeServerV2{
@@ -188,8 +188,14 @@ func deleteRealtimeHost(hosts []host.RealtimeHostV2, regex string) []host.Realti
 
 func init() {
 	realtimeHostCmd.Flags().StringP("state", "s", "all", "The state of the hosts you want to list (all, up, down, pending, unrea)")
+	realtimeHostCmd.RegisterFlagCompletionFunc("state", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"unrea", "pending", "down", "up", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	realtimeHostCmd.Flags().IntP("limit", "l", 60, "The number of hosts you want to list")
 	realtimeHostCmd.Flags().StringP("viewType", "v", "all", "The type of hosts (all or unhandled")
+	realtimeHostCmd.RegisterFlagCompletionFunc("viewType", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"unhandled", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	realtimeHostCmd.Flags().IntP("poller", "p", -1, "The ID poller")
 	realtimeHostCmd.Flags().StringP("regex", "r", "", "The regex to apply on the host's name")
 

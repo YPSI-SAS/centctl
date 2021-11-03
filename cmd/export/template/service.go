@@ -43,13 +43,12 @@ var serviceCmd = &cobra.Command{
 	Short: "Export template service",
 	Long:  `Export template service of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportTemplateService(name, regex, file, appendFile, all, debugV)
+		err := ExportTemplateService(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var serviceCmd = &cobra.Command{
 }
 
 //ExportTemplateService permits to export a service template of the centreon server
-func ExportTemplateService(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportTemplateService(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportTemplateService(name []string, regex string, file string, appendFile 
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -111,40 +97,40 @@ func ExportTemplateService(name []string, regex string, file string, appendFile 
 		}
 
 		//Write templateService informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,templateService,\"" + templateService.Description + "\",\"" + templateService.Alias + "\",\"" + templateService.Template + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",check_command,\"" + templateService.CheckCommand + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",check_command_arguments,\"" + templateService.CheckCommandArguments + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",check_period,\"" + templateService.CheckPeriod + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",max_check_attempts,\"" + templateService.MaxCheckAttempts + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",normal_check_interval,\"" + templateService.NormalCheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",retry_check_interval,\"" + templateService.RetryCheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",active_checks_enabled,\"" + templateService.ActiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",passive_checks_enabled,\"" + templateService.PassiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",is_volatile,\"" + templateService.IsVolatile + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",notifications_enabled,\"" + templateService.NotificationsEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",contact_additive_inheritance,\"" + templateService.ContactAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",cg_additive_inheritance,\"" + templateService.CgAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",notification_options,\"" + templateService.NotificationOptions + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",notification_interval,\"" + templateService.NotificationInterval + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",notification_period,\"" + templateService.NotificationPeriod + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",first_notification_delay,\"" + templateService.FirstNotificationDelay + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",obsess_over_service,\"" + templateService.ObsessOverService + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",check_freshness,\"" + templateService.CheckFreshness + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",freshness_threshold,\"" + templateService.FreshnessThreshold + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",flap_detection_enabled,\"" + templateService.FlapDetectionEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",retain_status_information,\"" + templateService.RetainStatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",retain_nonstatus_information,\"" + templateService.RetainNonstatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",event_handler_enabled,\"" + templateService.EventHandlerEnabled + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",event_handler,\"" + templateService.EventHandler + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",event_handler_arguments,\"" + templateService.EventHandlerArguments + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",action_url,\"" + templateService.ActionURL + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",notes,\"" + templateService.Notes + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",notes_url,\"" + templateService.NotesURL + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",icon_image,\"" + templateService.IconImage + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",icon_image_alt,\"" + templateService.IconImageAlt + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",activate,\"" + templateService.Activate + "\"\n")
-		_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",comment,\"" + templateService.Comment + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,templateService,\""+templateService.Description+"\",\""+templateService.Alias+"\",\""+templateService.Template+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",check_command,\""+templateService.CheckCommand+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",check_command_arguments,\""+templateService.CheckCommandArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",check_period,\""+templateService.CheckPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",max_check_attempts,\""+templateService.MaxCheckAttempts+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",normal_check_interval,\""+templateService.NormalCheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",retry_check_interval,\""+templateService.RetryCheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",active_checks_enabled,\""+templateService.ActiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",passive_checks_enabled,\""+templateService.PassiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",is_volatile,\""+templateService.IsVolatile+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",notifications_enabled,\""+templateService.NotificationsEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",contact_additive_inheritance,\""+templateService.ContactAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",cg_additive_inheritance,\""+templateService.CgAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",notification_options,\""+templateService.NotificationOptions+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",notification_interval,\""+templateService.NotificationInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",notification_period,\""+templateService.NotificationPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",first_notification_delay,\""+templateService.FirstNotificationDelay+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",obsess_over_service,\""+templateService.ObsessOverService+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",check_freshness,\""+templateService.CheckFreshness+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",freshness_threshold,\""+templateService.FreshnessThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",flap_detection_enabled,\""+templateService.FlapDetectionEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",retain_status_information,\""+templateService.RetainStatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",retain_nonstatus_information,\""+templateService.RetainNonstatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",event_handler_enabled,\""+templateService.EventHandlerEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",event_handler,\""+templateService.EventHandler+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",event_handler_arguments,\""+templateService.EventHandlerArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",action_url,\""+templateService.ActionURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",notes,\""+templateService.Notes+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",notes_url,\""+templateService.NotesURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",icon_image,\""+templateService.IconImage+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",icon_image_alt,\""+templateService.IconImageAlt+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",activate,\""+templateService.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,templateService,\""+templateService.Description+"\",comment,\""+templateService.Comment+"\"\n", file, writeFile)
 
 		//Write macros information
 		if len(templateService.Macros) != 0 {
@@ -155,42 +141,42 @@ func ExportTemplateService(name []string, regex string, file string, appendFile 
 				if strings.Contains(m.Name, "$_SERVICE") {
 					m.Name = m.Name[9 : len(m.Name)-1]
 				}
-				_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",macro,\"" + m.Name + "|" + m.Value + "|" + m.IsPassword + "|" + m.Description + "\"\n")
+				request.WriteValues("modify,templateService,\""+templateService.Description+"\",macro,\""+m.Name+"|"+m.Value+"|"+m.IsPassword+"|"+m.Description+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write ContactGroups information
 		if len(templateService.ContactGroups) != 0 {
 			for _, c := range templateService.ContactGroups {
-				_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",contactgroup,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,templateService,\""+templateService.Description+"\",contactgroup,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Contacts information
 		if len(templateService.Contacts) != 0 {
 			for _, c := range templateService.Contacts {
-				_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",contact,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,templateService,\""+templateService.Description+"\",contact,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Traps information
 		if len(templateService.Traps) != 0 {
 			for _, t := range templateService.Traps {
-				_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",trap,\"" + t.Name + "\"\n")
+				request.WriteValues("modify,templateService,\""+templateService.Description+"\",trap,\""+t.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Categories information
 		if len(templateService.Categories) != 0 {
 			for _, c := range templateService.Categories {
-				_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",category,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,templateService,\""+templateService.Description+"\",category,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write HostTemplates information
 		if len(templateService.HostTemplates) != 0 {
 			for _, h := range templateService.HostTemplates {
-				_, _ = f.WriteString("modify,templateService,\"" + templateService.Description + "\",linkedhost,\"" + h.Name + "\"\n")
+				request.WriteValues("modify,templateService,\""+templateService.Description+"\",linkedhost,\""+h.Name+"\"\n", file, writeFile)
 			}
 		}
 	}
@@ -298,7 +284,6 @@ func getAllTemplateService(debugV bool) []service.ExportTemplateService {
 
 func init() {
 	serviceCmd.Flags().StringSliceP("name", "n", []string{}, "Service template's name (separate by a comma the multiple values)")
-	serviceCmd.Flags().StringP("file", "f", "ExportServiceTemplate.csv", "To define the name of the csv file")
 	serviceCmd.Flags().StringP("regex", "r", "", "The regex to apply on the service template's name")
 
 }

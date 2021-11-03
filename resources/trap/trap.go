@@ -26,9 +26,11 @@ SOFTWARE.
 package trap
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -58,23 +60,19 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the Traps to text
 func (s Server) StringText() string {
-	var values string = "Trap list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Oid", "Manufacturer"})
 	for i := 0; i < len(s.Server.Traps); i++ {
-		values += "ID: " + s.Server.Traps[i].ID + "\t"
-		values += "Name: " + s.Server.Traps[i].Name + "\t"
-		values += "Oid: " + s.Server.Traps[i].Oid + "\t"
-		values += "Manufacturer: " + s.Server.Traps[i].Manufacturer + "\n"
+		table = append(table, []string{s.Server.Traps[i].ID, s.Server.Traps[i].Name, s.Server.Traps[i].Oid, s.Server.Traps[i].Manufacturer})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the Traps to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Oid,Manufacturer\n"
-	for i := 0; i < len(s.Server.Traps); i++ {
-		values += s.Server.Name + "," + s.Server.Traps[i].ID + "," + s.Server.Traps[i].Name + "," + s.Server.Traps[i].Oid + "," + s.Server.Traps[i].Manufacturer + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Traps)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Traps to json

@@ -25,8 +25,13 @@ SOFTWARE.
 package add
 
 import (
+	"centctl/cmd/modify"
+	"centctl/colorMessage"
 	"centctl/request"
+	"centctl/resources/resourceCFG"
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -55,9 +60,42 @@ func AddResourceCFG(name string, value string, instance string, comment string, 
 	values := name + ";" + value + ";" + instance + ";" + comment
 	err := request.Add("add", "RESOURCECFG", values, "add resourceCFG", name, debugV, isImport, false, "", "")
 	if err != nil {
+		if strings.Contains(err.Error(), "already tied to instance") {
+			err, resource := getResourceID(name, debugV)
+			if err != nil {
+				return err
+			}
+			for _, inst := range resource.Instance {
+				instance += "|" + inst
+			}
+			err = modify.ModifyResourceCFG(resource.ID, "instance", instance, debugV, isImport, true)
+			if err != nil {
+				return err
+			}
+		}
 		return err
 	}
 	return nil
+}
+
+func getResourceID(name string, debugV bool) (error, resourceCFG.DetailResourceCFG) {
+	colorRed := colorMessage.GetColorRed()
+
+	err, body := request.GeneriqueCommandV1Post("show", "RESOURCECFG", name, "list resourceCFG", debugV, false, "")
+	if err != nil {
+		return err, resourceCFG.DetailResourceCFG{}
+	}
+
+	//Permits to recover the resourceCFG contain into the response body
+	resourceCFGs := resourceCFG.DetailResult{}
+	json.Unmarshal(body, &resourceCFGs)
+	//Check if the resourceCFG is found
+	if len(resourceCFGs.ResourceCFG) == 0 {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println("Object not found: " + name)
+		return nil, resourceCFG.DetailResourceCFG{}
+	}
+	return nil, resourceCFGs.ResourceCFG[0]
 }
 
 func init() {
@@ -67,6 +105,13 @@ func init() {
 	resourceCFGCmd.MarkFlagRequired("value")
 	resourceCFGCmd.Flags().StringP("instance", "i", "", "To define the instance of the resourceCFG")
 	resourceCFGCmd.MarkFlagRequired("instance")
+	resourceCFGCmd.RegisterFlagCompletionFunc("instance", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	resourceCFGCmd.Flags().StringP("comment", "c", "", "To define the comment of the resourceCFG")
 	resourceCFGCmd.MarkFlagRequired("comment")
 }

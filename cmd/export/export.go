@@ -57,8 +57,9 @@ func init() {
 	Cmd.AddCommand(timePeriodCmd)
 	Cmd.AddCommand(trapCmd)
 	Cmd.AddCommand(vendorCmd)
+	Cmd.AddCommand(allCmd)
 
-	Cmd.PersistentFlags().Bool("append", false, "Append the export in the csv file")
 	Cmd.PersistentFlags().Bool("all", false, "Export all objects of this type in the csv file")
+	Cmd.PersistentFlags().StringP("file", "f", "", "To define the name of the csv file")
 
 }

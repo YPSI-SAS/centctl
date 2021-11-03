@@ -59,4 +59,11 @@ func DeleteTrap(name string, debugV bool) error {
 func init() {
 	trapCmd.Flags().StringP("name", "n", "", "To define the name of the trap")
 	trapCmd.MarkFlagRequired("name")
+	trapCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTrapNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

@@ -43,13 +43,12 @@ var pollerCmd = &cobra.Command{
 	Short: "Export poller",
 	Long:  `Export poller of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportPoller(name, regex, file, appendFile, all, debugV)
+		err := ExportPoller(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var pollerCmd = &cobra.Command{
 }
 
 //ExportPoller permits to export a poller of the centreon server
-func ExportPoller(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportPoller(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportPoller(name []string, regex string, file string, appendFile bool, all
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -111,15 +97,15 @@ func ExportPoller(name []string, regex string, file string, appendFile bool, all
 		}
 
 		//Write poller informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,poller,\"" + poller.Name + "\",\"" + poller.IPAddress + "\"," + poller.SSHPort + "," + poller.GorgonePorotocol + "," + poller.GorgonePort + "\n")
-		_, _ = f.WriteString("modify,poller,\"" + poller.Name + "\",localhost,\"" + poller.Localhost + "\"\n")
-		_, _ = f.WriteString("modify,poller,\"" + poller.Name + "\",ns_activate,\"" + poller.Activate + "\"\n")
-		_, _ = f.WriteString("modify,poller,\"" + poller.Name + "\",engine_restart_command,\"" + poller.EngineRestartCmd + "\"\n")
-		_, _ = f.WriteString("modify,poller,\"" + poller.Name + "\",engine_reload_command,\"" + poller.EngineReloadCmd + "\"\n")
-		_, _ = f.WriteString("modify,poller,\"" + poller.Name + "\",broker_reload_command,\"" + poller.BorkerReloadCmd + "\"\n")
-		_, _ = f.WriteString("modify,poller,\"" + poller.Name + "\",nagios_bin,\"" + poller.Bin + "\"\n")
-		_, _ = f.WriteString("modify,poller,\"" + poller.Name + "\",nagiostats_bin,\"" + poller.StatsBin + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,poller,\""+poller.Name+"\",\""+poller.IPAddress+"\","+poller.SSHPort+","+poller.GorgonePorotocol+","+poller.GorgonePort+"\n", file, writeFile)
+		request.WriteValues("modify,poller,\""+poller.Name+"\",localhost,\""+poller.Localhost+"\"\n", file, writeFile)
+		request.WriteValues("modify,poller,\""+poller.Name+"\",ns_activate,\""+poller.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,poller,\""+poller.Name+"\",engine_restart_command,\""+poller.EngineRestartCmd+"\"\n", file, writeFile)
+		request.WriteValues("modify,poller,\""+poller.Name+"\",engine_reload_command,\""+poller.EngineReloadCmd+"\"\n", file, writeFile)
+		request.WriteValues("modify,poller,\""+poller.Name+"\",broker_reload_command,\""+poller.BorkerReloadCmd+"\"\n", file, writeFile)
+		request.WriteValues("modify,poller,\""+poller.Name+"\",nagios_bin,\""+poller.Bin+"\"\n", file, writeFile)
+		request.WriteValues("modify,poller,\""+poller.Name+"\",nagiostats_bin,\""+poller.StatsBin+"\"\n", file, writeFile)
 
 	}
 
@@ -172,7 +158,6 @@ func getAllPoller(debugV bool) []poller.ExportPoller {
 
 func init() {
 	pollerCmd.Flags().StringSliceP("name", "n", []string{}, "poller's name (separate by a comma the multiple values)")
-	pollerCmd.Flags().StringP("file", "f", "ExportPoller.csv", "To define the name of the csv file")
 	pollerCmd.Flags().StringP("regex", "r", "", "The regex to apply on the poller's name")
 
 }

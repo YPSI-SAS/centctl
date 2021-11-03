@@ -26,19 +26,34 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailCategory represents the caracteristics of a host Category
 type DetailCategory struct {
-	ID      string                 `json:"id" yaml:"id"`     //Category ID
-	Name    string                 `json:"name" yaml:"name"` //Category Name
-	Alias   string                 `json:"alias" yaml:"alias"`
-	Level   string                 `json:"level" yaml:"level"`
-	Members []DetailCategoryMember `json:"members" yaml:"members"`
+	ID      string                `json:"id" yaml:"id"`     //Category ID
+	Name    string                `json:"name" yaml:"name"` //Category Name
+	Alias   string                `json:"alias" yaml:"alias"`
+	Level   string                `json:"level" yaml:"level"`
+	Members DetailCategoryMembers `json:"members" yaml:"members"`
+}
+
+type DetailCategoryMembers []DetailCategoryMember
+
+func (t DetailCategoryMembers) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, parent := range t {
+		value += parent.ID + "|" + parent.Name
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailCategoryMember represents the caracteristics of a member
@@ -70,13 +85,20 @@ type DetailCategoryInformations struct {
 
 //StringText permits to display the caracteristics of the host categories to text
 func (s DetailCategoryServer) StringText() string {
-	var values string = "Host categories list for server " + s.Server.Name + ": \n"
+	var values string
 	category := s.Server.Category
 	if category != nil {
-		values += (*category).ID + "\t"
-		values += (*category).Name + "\t"
-		values += (*category).Alias + "\t"
-		values += (*category).Level + "\n"
+		elements := [][]string{{"0", "Category host:"}, {"1", "ID: " + (*category).ID}, {"1", "Name: " + (*category).Name + "\t" + "Alias: " + (*category).Alias}, {"1", "Level: " + (*category).Level}}
+		if len((*category).Members) == 0 {
+			elements = append(elements, []string{"1", "Members: []"})
+		} else {
+			elements = append(elements, []string{"1", "Members:"})
+			for _, member := range (*category).Members {
+				elements = append(elements, []string{"2", member.Name + " (ID=" + member.ID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "category: null\n"
 	}
@@ -85,16 +107,12 @@ func (s DetailCategoryServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the host ResultCategory to csv
 func (s DetailCategoryServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Level\n"
-	values += s.Server.Name + ","
-	category := s.Server.Category
-	if category != nil {
-		values += (*category).ID + "," + (*category).Name + "," + (*category).Alias + "," + (*category).Level + "\n"
-	} else {
-		values += ",,,\n"
+	var p []DetailCategory
+	if s.Server.Category != nil {
+		p = append(p, *s.Server.Category)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the host ResultCategory to json

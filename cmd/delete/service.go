@@ -76,8 +76,25 @@ func DeleteService(hostName string, description string, debugV bool, apply bool)
 func init() {
 	serviceCmd.Flags().StringP("hostName", "n", "", "To define the host to wich the service is attached")
 	serviceCmd.MarkFlagRequired("hostName")
+	serviceCmd.RegisterFlagCompletionFunc("hostName", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("description", "d", "", "The description of the service which will delete")
 	serviceCmd.MarkFlagRequired("description")
+	serviceCmd.RegisterFlagCompletionFunc("description", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if serviceCmd.Flag("hostName").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetServiceDescriptions(serviceCmd.Flag("hostName").Value.String())
+			}
+		}
+
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().Bool("apply", false, "Export configuration of the poller")
 
 }

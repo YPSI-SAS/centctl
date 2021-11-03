@@ -64,6 +64,13 @@ func init() {
 	engineCFGCmd.MarkFlagRequired("name")
 	engineCFGCmd.Flags().StringP("instance", "i", "", "To define the instance that is linked to engine configuration")
 	engineCFGCmd.MarkFlagRequired("instance")
+	engineCFGCmd.RegisterFlagCompletionFunc("instance", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	engineCFGCmd.Flags().StringP("comment", "c", "", "To define the comment regarding the engine configuration")
 	engineCFGCmd.MarkFlagRequired("comment")
 }

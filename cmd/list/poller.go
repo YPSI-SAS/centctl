@@ -35,7 +35,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -62,60 +61,28 @@ func ListPoller(output string, regex string, debugV bool) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/platform/topology"
+	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/servers"
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "list poller", debugV)
 	if err != nil {
 		return err
 	}
 
-	//Permits to recover the result
-	var f interface{}
-	err = json.Unmarshal(body, &f)
-	if err != nil {
-		return err
+	//Permits to recover the array result into the body
+	var pollerResult poller.ResultPoller
+	json.Unmarshal(body, &pollerResult)
+	finalPollers := pollerResult.Pollers
+	if regex != "" {
+		finalPollers = deletePoller(finalPollers, regex)
 	}
 
-	var pollers []poller.Poller
-	_, ok := (f.(map[string]interface{}))["graph"]
-	if ok {
-		//Permits to go down in the JSON response for find list of nodes (list of pollers)
-		nodes := ((f.(map[string]interface{}))["graph"].(map[string]interface{}))["nodes"].(map[string]interface{})
-
-		//For each node in nodes, get informations of the poller, create new poller and had this in the list
-		for _, v := range nodes {
-			var pollerVal poller.Poller
-			switch c := v.(type) {
-			case map[string]interface{}:
-				metadataVal := c["metadata"].(map[string]interface{})
-				var metadata poller.Metadata
-				pollerVal.Label = c["label"].(string)
-				pollerVal.Type = c["type"].(string)
-				metadata.Address = metadataVal["address"].(string)
-				metadata.CentreonID = metadataVal["centreon-id"].(string)
-				if metadataVal["hostname"] != nil {
-					metadata.HostName = metadataVal["hostname"].(string)
-				}
-				pollerVal.Metadata = metadata
-			}
-			pollers = append(pollers, pollerVal)
-		}
-
-		if regex != "" {
-			pollers = deletePoller(pollers, regex)
-		}
-
-		//Sort pollers based on their ID
-		sort.SliceStable(pollers, func(i, j int) bool {
-			valI, _ := strconv.Atoi(pollers[i].Metadata.CentreonID)
-			valJ, _ := strconv.Atoi(pollers[j].Metadata.CentreonID)
-			return valI < valJ
-		})
-	}
-
+	//Sort hosts based on their ID
+	sort.SliceStable(finalPollers, func(i, j int) bool {
+		return strings.ToLower(finalPollers[i].Name) < strings.ToLower(finalPollers[j].Name)
+	})
 	server := poller.Server{
 		Server: poller.Informations{
 			Name:    os.Getenv("SERVER"),
-			Pollers: pollers,
+			Pollers: finalPollers,
 		},
 	}
 
@@ -132,7 +99,7 @@ func deletePoller(pollers []poller.Poller, regex string) []poller.Poller {
 	colorRed := colorMessage.GetColorRed()
 	index := 0
 	for _, s := range pollers {
-		matched, err := regexp.MatchString(regex, s.Label)
+		matched, err := regexp.MatchString(regex, s.Name)
 		if err != nil {
 			fmt.Printf(colorRed, "ERROR:")
 			fmt.Println(err.Error())

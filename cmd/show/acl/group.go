@@ -104,4 +104,11 @@ func ShowACLGroup(name string, debugV bool, output string) error {
 func init() {
 	groupCmd.Flags().StringP("name", "n", "", "To define the ACL group which will show")
 	groupCmd.MarkFlagRequired("name")
+	groupCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLGroupNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

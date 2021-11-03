@@ -26,9 +26,11 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -56,21 +58,19 @@ type GroupInformations struct {
 
 //StringText permits to display the caracteristics of the host groups to text
 func (s GroupServer) StringText() string {
-	var values string = "Host group list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name"})
 	for i := 0; i < len(s.Server.Groups); i++ {
-		values += s.Server.Groups[i].ID + "\t"
-		values += s.Server.Groups[i].Name + "\n"
+		table = append(table, []string{s.Server.Groups[i].ID, s.Server.Groups[i].Name})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the host ResultGroup to csv
 func (s GroupServer) StringCSV() string {
-	var values string = "Server,ID,Name\n"
-	for i := 0; i < len(s.Server.Groups); i++ {
-		values += s.Server.Name + "," + s.Server.Groups[i].ID + "," + s.Server.Groups[i].Name + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Groups)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the host ResultGroup to json

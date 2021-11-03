@@ -33,15 +33,25 @@ import (
 
 // completionCmd represents the completion command
 var completionCmd = &cobra.Command{
-	Use:   "completion",
-	Short: "Generates bash completion scripts",
-	Long:  `Generates bash completion scripts`,
+	Use:       "completion [bash|zsh|fish|powershell]",
+	Short:     "Generates bash completion scripts",
+	Long:      `Generates bash completion scripts`,
+	ValidArgs: []string{"bash", "zsh", "fish", "powershell"},
+	Args:      cobra.ExactValidArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		rootCmd.GenBashCompletion(os.Stdout)
+		switch args[0] {
+		case "bash":
+			rootCmd.GenBashCompletion(os.Stdout)
+		case "zsh":
+			rootCmd.GenZshCompletion(os.Stdout)
+		case "fish":
+			rootCmd.GenFishCompletion(os.Stdout, true)
+		case "powershell":
+			rootCmd.GenPowerShellCompletionWithDesc(os.Stdout)
+		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(completionCmd)
 	completionCmd.ResetCommands()
 }

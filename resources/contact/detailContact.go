@@ -26,9 +26,11 @@ SOFTWARE.
 package contact
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -62,18 +64,12 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the contacts to text
 func (s DetailServer) StringText() string {
-	var values string = "Contact list for server " + s.Server.Name + ": \n"
+	var values string
 	contact := s.Server.Contact
 	if contact != nil {
-		values += "ID: " + (*contact).ID + "\t"
-		values += "Name: " + (*contact).Name + "\t"
-		values += "Alias: " + (*contact).Alias + "\t"
-		values += "Email: " + (*contact).Email + "\t"
-		values += "Pager: " + (*contact).Pager + "\t"
-		values += "GuiAccess: " + (*contact).GuiAccess + "\t"
-		values += "Admin: " + (*contact).Admin + "\t"
-		values += "Activate: " + (*contact).Activate + "\n"
-
+		elements := [][]string{{"0", "Contact:"}, {"1", "ID: " + (*contact).ID}, {"1", "Name: " + (*contact).Name}, {"1", "Alias: " + (*contact).Alias}, {"1", "Email: " + (*contact).Email}, {"1", "Pager: " + (*contact).Pager}, {"1", "GuiAcces: " + (*contact).GuiAccess}, {"1", "Admin: " + (*contact).Admin}, {"1", "Activate: " + (*contact).Activate}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "contact: null\n"
 	}
@@ -82,15 +78,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the contacts to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Email,Pager,GuiAccess,Admin,Activate\n"
-	values += s.Server.Name + ","
-	contact := s.Server.Contact
-	if contact != nil {
-		values += (*contact).ID + "," + (*contact).Name + "," + (*contact).Alias + "," + (*contact).Email + "," + (*contact).Pager + "," + (*contact).GuiAccess + "," + (*contact).Admin + "," + (*contact).Activate + "\n"
-	} else {
-		values += ",,,,,,,\n"
+	var p []DetailContact
+	if s.Server.Contact != nil {
+		p = append(p, *s.Server.Contact)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the contacts to json

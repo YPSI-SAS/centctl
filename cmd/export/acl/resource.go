@@ -43,13 +43,12 @@ var resourceCmd = &cobra.Command{
 	Short: "Export ACL resource",
 	Long:  `Export ACL resource of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportACLResource(name, regex, file, appendFile, all, debugV)
+		err := ExportACLResource(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var resourceCmd = &cobra.Command{
 }
 
 //ExportACLResource permits to export an ACL resource of the centreon server
-func ExportACLResource(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportACLResource(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,10 @@ func ExportACLResource(name []string, regex string, file string, appendFile bool
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
+	writeFile := false
 
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -110,10 +97,10 @@ func ExportACLResource(name []string, regex string, file string, appendFile bool
 			continue
 		}
 
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,aclResource,\"" + resource.Name + "\",\"" + resource.Alias + "\"\n")
-		_, _ = f.WriteString("modify,aclResource,\"" + resource.Name + "\",activate,\"" + resource.Activate + "\"\n")
-		_, _ = f.WriteString("modify,aclResource,\"" + resource.Name + "\",comment,\"" + resource.Comment + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,aclResource,\""+resource.Name+"\",\""+resource.Alias+"\"\n", file, writeFile)
+		request.WriteValues("modify,aclResource,\""+resource.Name+"\",activate,\""+resource.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,aclResource,\""+resource.Name+"\",comment,\""+resource.Comment+"\"\n", file, writeFile)
 	}
 	return nil
 }
@@ -165,7 +152,6 @@ func getAllResource(debugV bool) []ACL.ExportResource {
 
 func init() {
 	resourceCmd.Flags().StringSliceP("name", "n", []string{}, "ACL resource's name (separate by a comma the multiple values)")
-	resourceCmd.Flags().StringP("file", "f", "ExportACLResource.csv", "To define the name of the csv file")
 	resourceCmd.Flags().StringP("regex", "r", "", "The regex to apply on the ACL resource's name")
 
 }

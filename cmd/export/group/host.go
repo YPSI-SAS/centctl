@@ -43,13 +43,12 @@ var hostCmd = &cobra.Command{
 	Short: "Export group host",
 	Long:  `Export group host of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportGroupHost(name, regex, file, appendFile, all, debugV)
+		err := ExportGroupHost(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var hostCmd = &cobra.Command{
 }
 
 //ExportGroupHost permits to export a group host of the centreon server
-func ExportGroupHost(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportGroupHost(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportGroupHost(name []string, regex string, file string, appendFile bool, 
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -110,24 +96,24 @@ func ExportGroupHost(name []string, regex string, file string, appendFile bool, 
 			continue
 		}
 
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,groupHost,\"" + group.Name + "\",\"" + group.Alias + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",notes,\"" + group.Notes + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",notes_url,\"" + group.NotesURL + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",action_url,\"" + group.ActionURL + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",activate,\"" + group.Activate + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,groupHost,\""+group.Name+"\",\""+strings.ReplaceAll(group.Alias, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,groupHost,\""+group.Name+"\",notes,\""+strings.ReplaceAll(group.Notes, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,groupHost,\""+group.Name+"\",notes_url,\""+strings.ReplaceAll(group.NotesURL, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,groupHost,\""+group.Name+"\",action_url,\""+strings.ReplaceAll(group.ActionURL, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,groupHost,\""+group.Name+"\",activate,\""+group.Activate+"\"\n", file, writeFile)
 
 		//Problem SQL Syntax when the images are imported after
-		// _, _ = f.WriteString("modify,groupHost," + group.Name + ",icon_image," + group.IconImage + "\n")
-		// _, _ = f.WriteString("modify,groupHost," + group.Name + ",map_icon_image," + group.MapIconImage + "\n")
+		// request.WriteValues("modify,groupHost," + group.Name + ",icon_image," + group.IconImage + "\n")
+		// request.WriteValues("modify,groupHost," + group.Name + ",map_icon_image," + group.MapIconImage + "\n")
 
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",geo_coords,\"" + group.GeoCoords + "\"\n")
-		_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",comment,\"" + group.Comment + "\"\n")
+		request.WriteValues("modify,groupHost,\""+group.Name+"\",geo_coords,\""+group.GeoCoords+"\"\n", file, writeFile)
+		request.WriteValues("modify,groupHost,\""+group.Name+"\",comment,\""+strings.ReplaceAll(group.Comment, "\"", "\"\"")+"\"\n", file, writeFile)
 
 		//Write in the file the members
 		if len(group.Member) != 0 {
 			for _, m := range group.Member {
-				_, _ = f.WriteString("modify,groupHost,\"" + group.Name + "\",member,\"" + m.Name + "\"\n")
+				request.WriteValues("modify,groupHost,\""+group.Name+"\",member,\""+m.Name+"\"\n", file, writeFile)
 			}
 		}
 	}
@@ -186,7 +172,6 @@ func getAllGroupHost(debugV bool) []host.ExportGroup {
 
 func init() {
 	hostCmd.Flags().StringSliceP("name", "n", []string{}, "Hostgroup's name (separate by a comma the multiple values)")
-	hostCmd.Flags().StringP("file", "f", "ExportHostGroup.csv", "To define the name of the csv file")
 	hostCmd.Flags().StringP("regex", "r", "", "The regex to apply on the host group's name")
 
 }

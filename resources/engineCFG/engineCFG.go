@@ -26,9 +26,11 @@ SOFTWARE.
 package engineCFG
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -58,24 +60,19 @@ type InformationsEngineCFG struct {
 
 //StringText permits to display the caracteristics of the EngineCFG to text
 func (s ServerEngineCFG) StringText() string {
-	var values string = "EngineCFG list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Instance", "Comment"})
 	for i := 0; i < len(s.Server.EngineCFG); i++ {
-		values += "ID: " + s.Server.EngineCFG[i].ID + "\t"
-		values += "Name: " + s.Server.EngineCFG[i].Name + "\t"
-		values += "Instance: " + s.Server.EngineCFG[i].Instance + "\t"
-		values += "Comment: " + s.Server.EngineCFG[i].Comment + "\n"
-
+		table = append(table, []string{s.Server.EngineCFG[i].ID, s.Server.EngineCFG[i].Name, s.Server.EngineCFG[i].Instance, s.Server.EngineCFG[i].Comment})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the EngineCFG to csv
 func (s ServerEngineCFG) StringCSV() string {
-	var values string = "Server,ID,Name,Instance,Comment\n"
-	for i := 0; i < len(s.Server.EngineCFG); i++ {
-		values += s.Server.Name + "," + s.Server.EngineCFG[i].ID + "," + s.Server.EngineCFG[i].Name + "," + s.Server.EngineCFG[i].Instance + "," + s.Server.EngineCFG[i].Comment + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.EngineCFG)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the EngineCFG to json

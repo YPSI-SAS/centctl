@@ -63,8 +63,18 @@ func ModifyVendor(name string, parameter string, value string, debugV bool, isIm
 func init() {
 	vendorCmd.Flags().StringP("name", "n", "", "To define the name of the vendor to be modified")
 	vendorCmd.MarkFlagRequired("name")
+	vendorCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetVendorNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	vendorCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation")
 	vendorCmd.MarkFlagRequired("parameter")
+	vendorCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"alias", "name", "description"}, cobra.ShellCompDirectiveDefault
+	})
 	vendorCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	vendorCmd.MarkFlagRequired("value")
 }

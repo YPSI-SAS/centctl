@@ -59,4 +59,11 @@ func DeletePoller(name string, debugV bool) error {
 func init() {
 	pollerCmd.Flags().StringP("name", "n", "", "To define the name of the poller")
 	pollerCmd.MarkFlagRequired("name")
+	pollerCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

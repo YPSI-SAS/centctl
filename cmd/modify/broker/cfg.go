@@ -62,8 +62,18 @@ func ModifyBrokerCFG(name string, parameter string, value string, debugV bool, i
 func init() {
 	cfgCmd.Flags().StringP("name", "n", "", "To define the name of the broker CFG to be modified")
 	cfgCmd.MarkFlagRequired("name")
+	cfgCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	cfgCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	cfgCmd.MarkFlagRequired("parameter")
+	cfgCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "filename", "instance", "event_queue_max_size", "cache_directory", "daemon", "pool_size"}, cobra.ShellCompDirectiveDefault
+	})
 	cfgCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. ")
 	cfgCmd.MarkFlagRequired("value")
 

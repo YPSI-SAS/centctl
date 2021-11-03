@@ -26,19 +26,34 @@ SOFTWARE.
 package LDAP
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailLDAP represents the caracteristics of a LDAP
 type DetailLDAP struct {
-	ID          string             `json:"id" yaml:"id"`                   //LDAP ID
-	Name        string             `json:"name" yaml:"name"`               //LDAP name
-	Description string             `json:"description" yaml:"description"` //LDAP Description
-	Status      string             `json:"status" yaml:"status"`           //LDAP Status
-	Servers     []DetailLDAPServer `json:"servers" yaml:"servers"`
+	ID          string            `json:"id" yaml:"id"`                   //LDAP ID
+	Name        string            `json:"name" yaml:"name"`               //LDAP name
+	Description string            `json:"description" yaml:"description"` //LDAP Description
+	Status      string            `json:"status" yaml:"status"`           //LDAP Status
+	Servers     DetailLDAPServers `json:"servers" yaml:"servers"`
+}
+
+type DetailLDAPServers []DetailLDAPServer
+
+func (t DetailLDAPServers) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, server := range t {
+		value += server.ID + "|" + server.Address + "|" + server.Port + "|" + server.SSL + "|" + server.TLS + "|" + server.Order
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailLDAPServer represents the caracteristics of a member
@@ -74,13 +89,30 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the LDAP to text
 func (s DetailServer) StringText() string {
-	var values string = "LDAP list for server " + s.Server.Name + ": \n"
+	var values string
 	ldap := s.Server.LDAP
 	if ldap != nil {
-		values += "ID: " + (*ldap).ID + "\t"
-		values += "Name: " + (*ldap).Name + "\t"
-		values += "Status: " + (*ldap).Status + "\t"
-		values += "Description: " + (*ldap).Description + "\n"
+		elements := [][]string{{"0", "LDAP:"}}
+		elements = append(elements, []string{"1", "ID: " + (*ldap).ID})
+		elements = append(elements, []string{"1", "Name: " + (*ldap).Name})
+		elements = append(elements, []string{"1", "Status: " + (*ldap).Status})
+		elements = append(elements, []string{"1", "Description: " + (*ldap).Description})
+		if len((*ldap).Servers) == 0 {
+			elements = append(elements, []string{"1", "Servers: []"})
+		} else {
+			elements = append(elements, []string{"1", "Servers:"})
+			for _, server := range (*ldap).Servers {
+				elements = append(elements, []string{"2", "ID: " + server.ID})
+				elements = append(elements, []string{"3", "Address: " + server.Address})
+				elements = append(elements, []string{"3", "Port: " + server.Port})
+				elements = append(elements, []string{"3", "SSL: " + server.SSL})
+				elements = append(elements, []string{"3", "TLS: " + server.TLS})
+				elements = append(elements, []string{"3", "Order: " + server.Order})
+			}
+		}
+
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "LDAP: null\n"
 	}
@@ -89,15 +121,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the LDAP to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Status,Description\n"
-	values += s.Server.Name + ","
-	ldap := s.Server.LDAP
-	if ldap != nil {
-		values += (*ldap).ID + "," + (*ldap).Name + "," + (*ldap).Status + "," + (*ldap).Description + "\n"
-	} else {
-		values += ",,,\n"
+	var p []DetailLDAP
+	if s.Server.LDAP != nil {
+		p = append(p, *s.Server.LDAP)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the LDAP to json

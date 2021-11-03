@@ -26,29 +26,31 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
 //RealtimeHostV2 represents the caracteristics of a host
 type RealtimeHostV2 struct {
-	ID           int              `json:"id" yaml:"hosts"`                    //Host ID
-	Name         string           `json:"name" yaml:"name"`                   //Host name
-	Alias        string           `json:"alias" yaml:"alias"`                 //Host alias
-	Address      string           `json:"fqdn" yaml:"fqdn"`                   //Host address
-	Status       RealtimeStatusV2 `json:"status" yaml:"status"`               //State of the host
-	Acknowledged bool             `json:"acknowledged" yaml:"acknowledged"`   //If the host is acknowledge or not
-	ActiveCheck  bool             `json:"active_checks" yaml:"active_checks"` //If the host is active or not
-	PollerID     int              `json:"poller_id" yaml:"poller_id"`         //Poller ID
+	ID           int                           `json:"id" yaml:"hosts"`    //Host ID
+	Name         string                        `json:"name" yaml:"name"`   //Host name
+	Alias        string                        `json:"alias" yaml:"alias"` //Host alias
+	Address      string                        `json:"fqdn" yaml:"fqdn"`   //Host address
+	Status       `json:"status" yaml:"status"` //State of the host
+	Acknowledged bool                          `json:"acknowledged" yaml:"acknowledged"`   //If the host is acknowledge or not
+	ActiveCheck  bool                          `json:"active_checks" yaml:"active_checks"` //If the host is active or not
+	PollerID     int                           `json:"poller_id" yaml:"poller_id"`         //Poller ID
 }
 
-type RealtimeStatusV2 struct {
-	Code         int    `json:"code" yaml:"code"`
-	Name         string `json:"name" yaml:"name"`
-	SeverityCode int    `json:"severity_code" yaml:"severity_code"`
+type Status struct {
+	Code         int    `json:"code" yaml:"code" csv:"StatusCode"`
+	Name         string `json:"name" yaml:"name" csv:"StatusName"`
+	SeverityCode int    `json:"severity_code" yaml:"severity_code" csv:"StatusSeverityCode"`
 }
 
 //RealtimeServer represents a server with informations
@@ -68,28 +70,19 @@ type RealtimeResultBodyV2 struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s RealtimeServerV2) StringText() string {
-	var values string = "Host list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "IP address", "Status code", "Status name", "Acknowledged", "Activate check", "Poller ID"})
 	for i := 0; i < len(s.Server.Hosts); i++ {
-		values += "ID: " + strconv.Itoa(s.Server.Hosts[i].ID) + "\t"
-		values += "Name: " + s.Server.Hosts[i].Name + "\t"
-		values += "Alias: " + s.Server.Hosts[i].Alias + "\t"
-		values += "IP address: " + s.Server.Hosts[i].Address + "\t"
-		values += "Status code: " + strconv.Itoa(s.Server.Hosts[i].Status.Code) + "\t"
-		values += "Status name: " + s.Server.Hosts[i].Status.Name + "\t"
-		values += "Acknowledged: " + strconv.FormatBool(s.Server.Hosts[i].Acknowledged) + "\t"
-		values += "ActiveCheck: " + strconv.FormatBool(s.Server.Hosts[i].ActiveCheck) + "\t"
-		values += "Poller ID: " + strconv.Itoa(s.Server.Hosts[i].PollerID) + "\n"
+		table = append(table, []string{strconv.Itoa(s.Server.Hosts[i].ID), s.Server.Hosts[i].Name, s.Server.Hosts[i].Alias, s.Server.Hosts[i].Address, strconv.Itoa(s.Server.Hosts[i].Status.Code), s.Server.Hosts[i].Status.Name, strconv.FormatBool(s.Server.Hosts[i].Acknowledged), strconv.FormatBool(s.Server.Hosts[i].ActiveCheck), strconv.Itoa(s.Server.Hosts[i].PollerID)})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the hosts to csv
 func (s RealtimeServerV2) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,IPAddress,StatusCode,StatusName,Acknowledged,ActiveCheck,PollerID	\n"
-	for i := 0; i < len(s.Server.Hosts); i++ {
-		values += s.Server.Name + "," + strconv.Itoa(s.Server.Hosts[i].ID) + "," + s.Server.Hosts[i].Name + "," + s.Server.Hosts[i].Alias + "," + s.Server.Hosts[i].Address + "," + strconv.Itoa(s.Server.Hosts[i].Status.Code) + "," + s.Server.Hosts[i].Status.Name + "," + strconv.FormatBool(s.Server.Hosts[i].Acknowledged) + "," + strconv.FormatBool(s.Server.Hosts[i].ActiveCheck) + "," + strconv.Itoa(s.Server.Hosts[i].PollerID) + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Hosts)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the hosts to json

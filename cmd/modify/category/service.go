@@ -86,8 +86,18 @@ func ModifyCategoryService(name string, parameter string, value string, debugV b
 func init() {
 	serviceCmd.Flags().StringP("name", "n", "", "To define the name of the service category to be modified")
 	serviceCmd.MarkFlagRequired("name")
+	serviceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetCategoryServiceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: service, servicetemplate")
 	serviceCmd.MarkFlagRequired("parameter")
+	serviceCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "description", "service", "servicetemplate"}, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is service the value must be of the form : hostName|serviceDecription")
 	serviceCmd.MarkFlagRequired("value")
 }

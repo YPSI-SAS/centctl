@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -102,12 +101,8 @@ func ListCommand(output string, regex string, typeCmd string, debugV bool) error
 		}
 		cmd.Line = json.RawMessage{}
 	}
-
-	//Sort commands based on their ID
 	sort.SliceStable(finalCommands, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalCommands[i].ID)
-		valJ, _ := strconv.Atoi(finalCommands[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalCommands[i].Name) < strings.ToLower(finalCommands[j].Name)
 	})
 
 	//Organization of data
@@ -149,5 +144,8 @@ func deleteCommand(commands []command.Command, regex string) []command.Command {
 func init() {
 	commandCmd.Flags().StringP("regex", "r", "", "The regex to apply on the command's name")
 	commandCmd.Flags().StringP("type", "t", "all", "To define the type of command (all, notif, check, misc, discovery)")
+	commandCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"check", "notif", "misc", "discovery", "all"}, cobra.ShellCompDirectiveDefault
+	})
 
 }

@@ -59,4 +59,12 @@ func DeleteGroupService(name string, debugV bool, isImport bool) error {
 func init() {
 	serviceCmd.Flags().StringP("name", "n", "", "To define the service group which will delete")
 	serviceCmd.MarkFlagRequired("name")
+	serviceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetGroupServiceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
+
 }

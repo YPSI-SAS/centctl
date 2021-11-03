@@ -34,7 +34,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -75,9 +74,7 @@ func ListEngineCFG(output string, regex string, debugV bool) error {
 
 	//Sort enginesCFG based on their ID
 	sort.SliceStable(finalEngineCFGs, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalEngineCFGs[i].ID)
-		valJ, _ := strconv.Atoi(finalEngineCFGs[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalEngineCFGs[i].Name) < strings.ToLower(finalEngineCFGs[j].Name)
 	})
 
 	//Organization of data

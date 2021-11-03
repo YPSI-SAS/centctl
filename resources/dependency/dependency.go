@@ -26,9 +26,11 @@ SOFTWARE.
 package dependency
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,25 +62,19 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the Dependencies to text
 func (s Server) StringText() string {
-	var values string = "Dependency list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Description", "Inherits parent", "Execution Failure Criteria", "Notification Failure Criteria"})
 	for i := 0; i < len(s.Server.Dependencies); i++ {
-		values += "ID: " + s.Server.Dependencies[i].ID + "\t"
-		values += "Name: " + s.Server.Dependencies[i].Name + "\t"
-		values += "Description: " + s.Server.Dependencies[i].Description + "\t"
-		values += "Inherits parent: " + s.Server.Dependencies[i].InheritsParent + "\t"
-		values += "Execution Failure Criteria: " + s.Server.Dependencies[i].ExecutionFailureCriteria + "\t"
-		values += "Notification Failure Criteria: " + s.Server.Dependencies[i].NotificationFailureCriteria + "\n"
+		table = append(table, []string{s.Server.Dependencies[i].ID, s.Server.Dependencies[i].Name, s.Server.Dependencies[i].Description, s.Server.Dependencies[i].InheritsParent, s.Server.Dependencies[i].ExecutionFailureCriteria, s.Server.Dependencies[i].NotificationFailureCriteria})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the Dependencies to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,ID,Name,Description,InheritsParent,ExecutionFailureCriteria,NotificationFailureCriteria\n"
-	for i := 0; i < len(s.Server.Dependencies); i++ {
-		values += s.Server.Name + "," + s.Server.Dependencies[i].ID + "," + s.Server.Dependencies[i].Name + "," + s.Server.Dependencies[i].Description + "," + s.Server.Dependencies[i].InheritsParent + "," + s.Server.Dependencies[i].ExecutionFailureCriteria + "," + s.Server.Dependencies[i].NotificationFailureCriteria + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Dependencies)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Dependencies to json

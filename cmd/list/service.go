@@ -35,7 +35,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -75,9 +74,7 @@ func ListService(output string, regex string, debugV bool) error {
 	}
 	//Sort services based on their ID
 	sort.SliceStable(finalServices, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalServices[i].ServiceID)
-		valJ, _ := strconv.Atoi(finalServices[j].ServiceID)
-		return valI < valJ
+		return strings.ToLower(finalServices[i].Description) < strings.ToLower(finalServices[j].Description)
 	})
 
 	//Organization of data

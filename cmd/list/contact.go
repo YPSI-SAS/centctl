@@ -35,7 +35,6 @@ import (
 	"os"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -74,11 +73,9 @@ func ListContact(output string, regex string, debugV bool) error {
 		finalContacts = deleteContact(finalContacts, regex)
 	}
 
-	//Sort contacts based on their ID
+	//Sort contacts based on their Name
 	sort.SliceStable(finalContacts, func(i, j int) bool {
-		valI, _ := strconv.Atoi(finalContacts[i].ID)
-		valJ, _ := strconv.Atoi(finalContacts[j].ID)
-		return valI < valJ
+		return strings.ToLower(finalContacts[i].Name) < strings.ToLower(finalContacts[j].Name)
 	})
 
 	//Organization of data

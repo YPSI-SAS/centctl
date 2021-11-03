@@ -120,8 +120,18 @@ func ModifyACLResource(name string, parameter string, value string, debugV bool,
 func init() {
 	resourceCmd.Flags().StringP("name", "n", "", "To define the name of the ACL resource to be modified")
 	resourceCmd.MarkFlagRequired("name")
+	resourceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLResourceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	resourceCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or command in \"grant and revoke\" section")
 	resourceCmd.MarkFlagRequired("parameter")
+	resourceCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "alias", "activate", "grant_host", "grant_hostgroup", "grant_servicegroup", "grant_metaservice", "addhostexclusion", "revoke_host", "revoke_hostgroup", "revoke_servicegroup", "revoke_metaservice", "delhostexclusion", "addfilter_instance", "addfilter_hostcategory", "addfilter_servicecategory", "delfilter_instance", "delfilter_hostcategory", "delfilter_servicecategory"}, cobra.ShellCompDirectiveDefault
+	})
 	resourceCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. Use | for defining multiple resources.")
 	resourceCmd.MarkFlagRequired("value")
 	resourceCmd.Flags().Bool("apply", false, "Export configuration of the poller")

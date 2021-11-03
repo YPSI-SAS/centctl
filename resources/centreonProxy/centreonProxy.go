@@ -26,10 +26,12 @@ SOFTWARE.
 package centreonProxy
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 	"strconv"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -55,15 +57,13 @@ type Informations struct {
 
 //StringText permits to display the caracteristics of the commands to text
 func (s Server) StringText() string {
-	var values string = "CentreonProxy list for server " + s.Server.Name + ": \n"
+	var values string
 
 	centreonProxy := s.Server.CentreonProxy
 	if centreonProxy != nil {
-		values += "URL: " + (*centreonProxy).URL + "\t"
-		values += "Port: " + strconv.Itoa((*centreonProxy).Port) + "\t"
-		values += "User: " + (*centreonProxy).User + "\t"
-		values += "Password: " + (*centreonProxy).Password + "\t"
-		values += "Protocol: " + (*centreonProxy).Protocol + "\n"
+		elements := [][]string{{"0", "centreonProxy:"}, {"1", "URL: " + (*centreonProxy).URL}, {"1", "Port: " + strconv.Itoa((*centreonProxy).Port)}, {"1", "User: " + (*centreonProxy).User}, {"1", "Password: " + (*centreonProxy).Password}, {"1", "Protocol: " + (*centreonProxy).Protocol}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "centreonProxy: null\n"
 	}
@@ -72,19 +72,12 @@ func (s Server) StringText() string {
 
 //StringCSV permits to display the caracteristics of the commands to csv
 func (s Server) StringCSV() string {
-	var values string = "Server,URL,Port,User,Password,Protocol\n"
-	values += s.Server.Name + ","
-	centreonProxy := s.Server.CentreonProxy
-	if centreonProxy != nil {
-		values += (*centreonProxy).URL + ","
-		values += strconv.Itoa((*centreonProxy).Port) + ","
-		values += (*centreonProxy).User + ","
-		values += (*centreonProxy).Password + ","
-		values += (*centreonProxy).Protocol + "\n"
-	} else {
-		values += ",,,,\n"
+	var p []CentreonProxy
+	if s.Server.CentreonProxy != nil {
+		p = append(p, *s.Server.CentreonProxy)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the commands to json

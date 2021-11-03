@@ -26,35 +26,37 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 	"strconv"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailTimelineService represents the caracteristics of a service
 type DetailTimelineService struct {
-	ID        int                           `json:"id" yaml:"id"`                 //service ID
-	Type      string                        `json:"type" yaml:"type"`             //service name
-	Date      string                        `json:"date" yaml:"date" `            //service alias
-	StartDate string                        `json:"start_date" yaml:"start_date"` //service address
-	EndDate   string                        `json:"end_date" yaml:"end_date"`     //service output
-	Content   string                        `json:"content" yaml:"content"`
-	Tries     int                           `json:"tries" yaml:"tries"`   //Maximum check attempts of the service
-	Status    *DetailTimelineServiceStatus  `json:"status" yaml:"status"` //State of the service
-	Contact   *DetailTimelineServiceContact `json:"contact" yaml:"contact"`
+	ID                            int                           `json:"id" yaml:"id"`                 //service ID
+	Type                          string                        `json:"type" yaml:"type"`             //service name
+	Date                          string                        `json:"date" yaml:"date" `            //service alias
+	StartDate                     string                        `json:"start_date" yaml:"start_date"` //service address
+	EndDate                       string                        `json:"end_date" yaml:"end_date"`     //service output
+	Content                       string                        `json:"content" yaml:"content"`
+	Tries                         int                           `json:"tries" yaml:"tries"` //Maximum check attempts of the service
+	*DetailTimelineServiceStatus  `json:"status" yaml:"status"` //State of the service
+	*DetailTimelineServiceContact `json:"contact" yaml:"contact"`
 }
 
 type DetailTimelineServiceContact struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID   int    `json:"id"  yaml:"id" csv:"ContactID"`
+	Name string `json:"name" yaml:"name" csv:"ContactName"`
 }
 
 type DetailTimelineServiceStatus struct {
-	Code         int    `json:"code" yaml:"code"`
-	Name         string `json:"name" yaml:"name"`
-	SeverityCode int    `json:"severity_code" yaml:"severity_code"`
+	Code         int    `json:"code" yaml:"code" csv:"StatusCode"`
+	Name         string `json:"name" yaml:"name" csv:"StatusName"`
+	SeverityCode int    `json:"severity_code" yaml:"severity_code" csv:"StatusSeverityCode"`
 }
 
 //TimelineServiceResult represents a service Group array
@@ -75,18 +77,30 @@ type DetailTimelineInformations struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s DetailTimelineServer) StringText() string {
-	var values string = "service detail for server " + s.Server.Name + ": \n"
+	var values string
+	elements := [][]string{{"0", "Timeline service:"}}
 	for i := 0; i < len(s.Server.TimelineService); i++ {
-		values += "ID: " + strconv.Itoa(s.Server.TimelineService[i].ID) + "\t"
-		values += "Type: " + s.Server.TimelineService[i].Type + "\t"
-		values += "Date: " + s.Server.TimelineService[i].Date + "\t"
-		values += "Start date: " + s.Server.TimelineService[i].StartDate + "\t"
-		values += "End date: " + s.Server.TimelineService[i].EndDate + "\t"
-		values += "Content: " + s.Server.TimelineService[i].Content + "\t"
-		values += "Tries: " + strconv.Itoa(s.Server.TimelineService[i].Tries) + "\t"
-		values += "Contact: " + s.Server.TimelineService[i].Contact.Name + "\t"
-		values += "Status: " + s.Server.TimelineService[i].Status.Name + "\n"
-
+		elements = append(elements, []string{"1", "ID: " + strconv.Itoa(s.Server.TimelineService[i].ID)})
+		elements = append(elements, []string{"2", "Type: " + s.Server.TimelineService[i].Type})
+		elements = append(elements, []string{"2", "Date: " + s.Server.TimelineService[i].Date})
+		elements = append(elements, []string{"2", "Start date: " + s.Server.TimelineService[i].StartDate})
+		elements = append(elements, []string{"2", "End date: " + s.Server.TimelineService[i].EndDate})
+		elements = append(elements, []string{"2", "Content: " + s.Server.TimelineService[i].Content})
+		elements = append(elements, []string{"2", "Tries: " + strconv.Itoa(s.Server.TimelineService[i].Tries)})
+		if s.Server.TimelineService[i].DetailTimelineServiceContact != nil {
+			elements = append(elements, []string{"2", "Contact:"})
+			elements = append(elements, []string{"3", s.Server.TimelineService[i].DetailTimelineServiceContact.Name + " (ID: " + strconv.Itoa(s.Server.TimelineService[i].DetailTimelineServiceContact.ID) + ")"})
+		} else {
+			elements = append(elements, []string{"2", "Contact:[]"})
+		}
+		if s.Server.TimelineService[i].DetailTimelineServiceStatus != nil {
+			elements = append(elements, []string{"2", "Status:"})
+			elements = append(elements, []string{"3", s.Server.TimelineService[i].DetailTimelineServiceStatus.Name + " (ID: " + strconv.Itoa(s.Server.TimelineService[i].DetailTimelineServiceStatus.Code) + ")"})
+		} else {
+			elements = append(elements, []string{"2", "Status:[]"})
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	}
 
 	return fmt.Sprintf(values)
@@ -94,20 +108,8 @@ func (s DetailTimelineServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the TimelineService to csv
 func (s DetailTimelineServer) StringCSV() string {
-	var values string = "Server,ID,Type,Date,StartDate,EndDate,Content,Tries,Contact,Status\n"
-	for i := 0; i < len(s.Server.TimelineService); i++ {
-		values += s.Server.Name + ","
-		values += strconv.Itoa(s.Server.TimelineService[i].ID) + ","
-		values += s.Server.TimelineService[i].Type + ","
-		values += s.Server.TimelineService[i].Date + ","
-		values += s.Server.TimelineService[i].StartDate + ","
-		values += s.Server.TimelineService[i].EndDate + ","
-		values += s.Server.TimelineService[i].Content + ","
-		values += strconv.Itoa(s.Server.TimelineService[i].Tries) + ","
-		values += s.Server.TimelineService[i].Contact.Name + ","
-		values += s.Server.TimelineService[i].Status.Name + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.TimelineService)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the TimelineService to json

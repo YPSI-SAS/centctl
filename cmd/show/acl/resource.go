@@ -104,4 +104,11 @@ func ShowACLResource(name string, debugV bool, output string) error {
 func init() {
 	resourceCmd.Flags().StringP("name", "n", "", "To define the ACL resource which will show")
 	resourceCmd.MarkFlagRequired("name")
+	resourceCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetACLResourceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

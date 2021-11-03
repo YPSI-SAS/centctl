@@ -74,8 +74,18 @@ func ModifyLDAP(name string, parameter string, value string, debugV bool, isImpo
 func init() {
 	ldapCmd.Flags().StringP("name", "n", "", "To define the name of the LDAP to be modified")
 	ldapCmd.MarkFlagRequired("name")
+	ldapCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetLDAPNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	ldapCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: server")
 	ldapCmd.MarkFlagRequired("parameter")
+	ldapCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"server", "name", "description", "enable", "alias", "bind_dn", "bind_pass", "group_base_search", "group_filter", "group_member", "group_name", "ldap_auto_import", "ldap_contact_tmpl", "ldap_dns_use_domain", "ldap_search_limit", "ldap_search_timeout", "ldap_srv_dns", "ldap_store_password", "ldap_template", "protocol_version", "user_base_search", "user_email", "user_filter", "user_firstname", "user_lastname", "user_name", "user_pager", "user_group"}, cobra.ShellCompDirectiveDefault
+	})
 	ldapCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified (If parameter is SERVER the values must be of the form: address;port;useSSl;useTLS)")
 	ldapCmd.MarkFlagRequired("value")
 

@@ -70,8 +70,12 @@ func ShowBrokerInput(name string, id int, debugV bool, output string) error {
 
 	server := broker.DetailServerInput{
 		Server: broker.DetailInformationsInput{
-			Name:        os.Getenv("SERVER"),
-			BrokerInput: brokerInputs.BrokerInputs,
+			Name: os.Getenv("SERVER"),
+			BrokerInput: broker.DetailBrokerInput{
+				ID:         strconv.Itoa(id),
+				BrokerName: name,
+				Parameters: brokerInputs.BrokerInputs,
+			},
 		},
 	}
 
@@ -85,8 +89,24 @@ func ShowBrokerInput(name string, id int, debugV bool, output string) error {
 }
 
 func init() {
-	inputCmd.Flags().StringP("name", "n", "", "To define the name of the broker input")
+	inputCmd.Flags().StringP("name", "n", "", "To define the name of the broker")
 	inputCmd.MarkFlagRequired("name")
+	inputCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	inputCmd.Flags().IntP("id", "i", -1, "To define the id of the broke input")
 	inputCmd.MarkFlagRequired("id")
+	inputCmd.RegisterFlagCompletionFunc("id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if inputCmd.Flag("name").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerInputID(inputCmd.Flag("name").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

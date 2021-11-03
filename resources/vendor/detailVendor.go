@@ -26,9 +26,11 @@ SOFTWARE.
 package vendor
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -57,12 +59,15 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the Vendors to text
 func (s DetailServer) StringText() string {
-	var values string = "Vendor list for server " + s.Server.Name + ": \n"
+	var values string
 	vendor := s.Server.Vendor
 	if vendor != nil {
-		values += "ID: " + (*vendor).ID + "\t"
-		values += "Name: " + (*vendor).Name + "\t"
-		values += "Alias: " + (*vendor).Alias + "\n"
+		elements := [][]string{{"0", "Vendor:"}}
+		elements = append(elements, []string{"1", "ID: " + (*vendor).ID})
+		elements = append(elements, []string{"1", "Name: " + (*vendor).Name})
+		elements = append(elements, []string{"1", "Alias: " + (*vendor).Alias})
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "vendor: null\n"
 	}
@@ -71,16 +76,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the Vendors to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias\n"
-	values += s.Server.Name + ","
-	vendor := s.Server.Vendor
-	if vendor != nil {
-		values += (*vendor).ID + "," + (*vendor).Name + "," + (*vendor).Alias + "\n"
-
-	} else {
-		values += ",,\n"
+	var p []DetailVendor
+	if s.Server.Vendor != nil {
+		p = append(p, *s.Server.Vendor)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Vendors to json

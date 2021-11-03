@@ -77,8 +77,18 @@ func ModifyDependency(name string, parameter string, value string, debugV bool, 
 func init() {
 	dependencyCmd.Flags().StringP("name", "n", "", "To define the name of the dependency to be modified")
 	dependencyCmd.MarkFlagRequired("name")
+	dependencyCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetDependencyNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	dependencyCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: parent,child")
 	dependencyCmd.MarkFlagRequired("parameter")
+	dependencyCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"name", "description", "inherits_parent", "execution_failure_criteria", "notification_failure_criteria", "comment", "parent", "child"}, cobra.ShellCompDirectiveDefault
+	})
 	dependencyCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	dependencyCmd.MarkFlagRequired("value")
 

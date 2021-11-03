@@ -80,9 +80,23 @@ func AddService(hostName string, description string, template string, debugV boo
 func init() {
 	serviceCmd.Flags().StringP("hostName", "n", "", "To define the host to wich the service is attached")
 	serviceCmd.MarkFlagRequired("hostName")
+	serviceCmd.RegisterFlagCompletionFunc("hostName", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().StringP("description", "d", "", "The description of the service")
 	serviceCmd.MarkFlagRequired("description")
 	serviceCmd.Flags().StringP("template", "t", "", "To define the template to wich the service is attached")
 	serviceCmd.MarkFlagRequired("template")
+	serviceCmd.RegisterFlagCompletionFunc("template", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTemplateServiceNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().Bool("apply", false, "Export configuration of the poller")
 }

@@ -58,61 +58,29 @@ func ShowPoller(name string, output string, debugV bool) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/platform/topology"
+	urlCentreon := os.Getenv("URL") + "/api/beta/configuration/monitoring-servers?search={\"name\":\"" + name + "\"}"
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "show poller", debugV)
 	if err != nil {
 		return err
 	}
 
-	//Permits to recover the result
-	var f interface{}
-	err = json.Unmarshal(body, &f)
-	if err != nil {
-		return err
-	}
-
-	var pollerFind poller.DetailPoller
-	_, ok := (f.(map[string]interface{}))["graph"]
-	if ok {
-		//Permits to go down in the JSON response for find list of nodes (list of pollers)
-		nodes := ((f.(map[string]interface{}))["graph"].(map[string]interface{}))["nodes"].(map[string]interface{})
-
-		//For each node in nodes, get informations of the poller, create new poller and had this in the list
-		for _, v := range nodes {
-			var pollerVal poller.DetailPoller
-			switch c := v.(type) {
-			case map[string]interface{}:
-				metadataVal := c["metadata"].(map[string]interface{})
-				var metadata poller.DetailMetadata
-				pollerVal.Label = c["label"].(string)
-				pollerVal.Type = c["type"].(string)
-				metadata.Address = metadataVal["address"].(string)
-				metadata.CentreonID = metadataVal["centreon-id"].(string)
-				if metadataVal["hostname"] != nil {
-					metadata.HostName = metadataVal["hostname"].(string)
-				}
-				pollerVal.Metadata = metadata
-			}
-			if name == pollerVal.Label {
-				pollerFind = pollerVal
-			}
-
-		}
-	}
-
 	var server poller.DetailServer
-	if pollerFind.Label != "" {
-		server = poller.DetailServer{
-			Server: poller.DetailInformations{
-				Name:   os.Getenv("SERVER"),
-				Poller: &pollerFind,
-			},
-		}
-	} else {
+	if len(body) == 0 {
 		server = poller.DetailServer{
 			Server: poller.DetailInformations{
 				Name:   os.Getenv("SERVER"),
 				Poller: nil,
+			},
+		}
+	} else {
+		//Permits to recover the poller contains into the response body
+		var pollerResult poller.ResultDetailPoller
+		json.Unmarshal(body, &pollerResult)
+
+		server = poller.DetailServer{
+			Server: poller.DetailInformations{
+				Name:   os.Getenv("SERVER"),
+				Poller: &pollerResult.Pollers[0],
 			},
 		}
 	}
@@ -129,4 +97,11 @@ func ShowPoller(name string, output string, debugV bool) error {
 func init() {
 	pollerCmd.Flags().StringP("name", "n", "", "Poller's name")
 	pollerCmd.MarkFlagRequired("name")
+	pollerCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

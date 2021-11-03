@@ -137,8 +137,18 @@ func ModifyHost(name string, parameter string, value string, debugV bool, apply 
 func init() {
 	hostCmd.Flags().StringP("name", "n", "", "To define the name of the host to be modified")
 	hostCmd.MarkFlagRequired("name")
+	hostCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: instance,template,parent,child,contactgroup,contact,hostgroup,hostcategorie,macro")
 	hostCmd.MarkFlagRequired("parameter")
+	hostCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"instance", "template", "parent", "child", "contactgroup", "contact", "hostgroup", "hostcategorie", "macro", "geo_coords", "2d_coords", "3d_coords", "action_url", "activate", "active_checks_enabled", "acknowledgement_timeout", "address", "alias", "check_command", "check_command_arguments", "check_interval", "check_freshness", "check_period", "contact_additive_inheritance", "cg_additive_inheritance", "event_handler", "event_handler_arguments", "event_handler_enabled", "first_notification_delay", "flap_detection_enabled", "flap_detection_options", "host_high_flap_threshold", "host_low_flap_threshold", "icon_image", "icon_image_alt", "max_check_attempts", "name", "notes", "notes_url", "notifications_enabled", "notification_interval", "notification_options", "notification_period", "recovery_notification_delay", "obsess_over_host", "passive_checks_enabled", "retain_nonstatus_information", "retain_status_information", "retry_check_interval", "snmp_community", "snmp_version", "stalking_options", "statusmap_image", "host_notification_options", "timezone", "comment"}, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
 	hostCmd.MarkFlagRequired("value")
 	hostCmd.Flags().Bool("apply", false, "Export configuration of the poller")

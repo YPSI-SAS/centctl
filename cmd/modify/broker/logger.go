@@ -64,11 +64,26 @@ func ModifyBrokerLogger(name string, id int, parameter string, value string, deb
 func init() {
 	loggerCmd.Flags().StringP("name", "n", "", "To define the name of the broker CFG")
 	loggerCmd.MarkFlagRequired("name")
+	loggerCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	loggerCmd.Flags().IntP("id", "i", -1, "To define the I/O object to be modified")
 	loggerCmd.MarkFlagRequired("id")
 	loggerCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	loggerCmd.MarkFlagRequired("parameter")
 	loggerCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. ")
 	loggerCmd.MarkFlagRequired("value")
-
+	loggerCmd.RegisterFlagCompletionFunc("id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if loggerCmd.Flag("name").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerLoggerID(loggerCmd.Flag("name").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

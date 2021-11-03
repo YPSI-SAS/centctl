@@ -105,4 +105,11 @@ func ShowResourceCFG(name string, debugV bool, output string) error {
 func init() {
 	resourceCFGCmd.Flags().StringP("name", "n", "", "To define the name of the resourceCFG")
 	resourceCFGCmd.MarkFlagRequired("name")
+	resourceCFGCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetResourceCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

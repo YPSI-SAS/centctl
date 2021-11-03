@@ -26,9 +26,11 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,25 +62,19 @@ type ResourceInformations struct {
 
 //StringText permits to display the caracteristics of the ACL Resources to text
 func (s ResourceServer) StringText() string {
-	var values string = "ACL Resource list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "Comment", "Activate"})
 	for i := 0; i < len(s.Server.Resources); i++ {
-		values += s.Server.Resources[i].ID + "\t"
-		values += s.Server.Resources[i].Name + "\t"
-		values += s.Server.Resources[i].Alias + "\t"
-		values += s.Server.Resources[i].Comment + "\t"
-		values += s.Server.Resources[i].Activate + "\n"
-
+		table = append(table, []string{s.Server.Resources[i].ID, s.Server.Resources[i].Name, s.Server.Resources[i].Alias, s.Server.Resources[i].Comment, s.Server.Resources[i].Activate})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the ACL resource to csv
 func (s ResourceServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	for i := 0; i < len(s.Server.Resources); i++ {
-		values += s.Server.Name + "," + s.Server.Resources[i].ID + "," + s.Server.Resources[i].Name + "," + s.Server.Resources[i].Alias + "," + s.Server.Resources[i].Comment + "," + s.Server.Resources[i].Activate + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Resources)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL resource to json

@@ -26,9 +26,11 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -58,23 +60,19 @@ type CategoryInformations struct {
 
 //StringText permits to display the caracteristics of the service categories to text
 func (s CategoryServer) StringText() string {
-	var values string = "Service categories list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "Level"})
 	for i := 0; i < len(s.Server.Categories); i++ {
-		values += s.Server.Categories[i].ID + "\t"
-		values += s.Server.Categories[i].Name + "\t"
-		values += s.Server.Categories[i].Alias + "\t"
-		values += s.Server.Categories[i].Level + "\n"
+		table = append(table, []string{s.Server.Categories[i].ID, s.Server.Categories[i].Name, s.Server.Categories[i].Alias, s.Server.Categories[i].Level})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the service categories to csv
 func (s CategoryServer) StringCSV() string {
-	var values string = "Server,ID,Name\n"
-	for i := 0; i < len(s.Server.Categories); i++ {
-		values += s.Server.Name + "," + s.Server.Categories[i].ID + "," + s.Server.Categories[i].Name + "," + s.Server.Categories[i].Alias + "," + s.Server.Categories[i].Level + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Categories)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the service categories to json

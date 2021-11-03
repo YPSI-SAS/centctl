@@ -42,13 +42,12 @@ var serviceCmd = &cobra.Command{
 	Short: "Export service",
 	Long:  `Export service of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		hostFilter, _ := cmd.Flags().GetStringSlice("hostFilter")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportService(name, file, hostFilter, appendFile, all, debugV)
+		err := ExportService(name, file, hostFilter, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -56,7 +55,7 @@ var serviceCmd = &cobra.Command{
 }
 
 //ExportService permits to export a service of the centreon server
-func ExportService(name []string, file string, hostFilter []string, appendFile bool, all bool, debugV bool) error {
+func ExportService(name []string, file string, hostFilter []string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -64,22 +63,9 @@ func ExportService(name []string, file string, hostFilter []string, appendFile b
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all {
@@ -119,40 +105,43 @@ func ExportService(name []string, file string, hostFilter []string, appendFile b
 		}
 
 		//Write service informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,service,\"" + service.HostName + "\",\"" + service.Description + "\",\"" + service.Template + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",check_command,\"" + service.CheckCommand + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",check_command_arguments,\"" + service.CheckCommandArguments + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",check_period,\"" + service.CheckPeriod + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",max_check_attempts,\"" + service.MaxCheckAttempts + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",normal_check_interval,\"" + service.NormalCheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",retry_check_interval,\"" + service.RetryCheckInterval + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",active_checks_enabled,\"" + service.ActiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",passive_checks_enabled,\"" + service.PassiveChecksEnabled + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",is_volatile,\"" + service.IsVolatile + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",notifications_enabled,\"" + service.NotificationsEnabled + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",contact_additive_inheritance,\"" + service.ContactAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",cg_additive_inheritance,\"" + service.CgAdditiveInheritance + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",notification_options,\"" + service.NotificationOptions + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",notification_interval,\"" + service.NotificationInterval + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",notification_period,\"" + service.NotificationPeriod + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",first_notification_delay,\"" + service.FirstNotificationDelay + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",obsess_over_service,\"" + service.ObsessOverService + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",check_freshness,\"" + service.CheckFreshness + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",freshness_threshold,\"" + service.FreshnessThreshold + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",flap_detection_enabled,\"" + service.FlapDetectionEnabled + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",retain_status_information,\"" + service.RetainStatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",retain_nonstatus_information,\"" + service.RetainNonstatusInformation + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",event_handler_enabled,\"" + service.EventHandlerEnabled + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",event_handler,\"" + service.EventHandler + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",event_handler_arguments,\"" + service.EventHandlerArguments + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",action_url,\"" + service.ActionURL + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",notes,\"" + service.Notes + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",notes_url,\"" + service.NotesURL + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",icon_image,\"" + service.IconImage + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",icon_image_alt,\"" + service.IconImageAlt + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",activate,\"" + service.Activate + "\"\n")
-		_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",comment,\"" + service.Comment + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		if service.Template == "" {
+			service.Template = "generic-active-service"
+		}
+		request.WriteValues("add,service,\""+service.HostName+"\",\""+service.Description+"\",\""+service.Template+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",check_command,\""+service.CheckCommand+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",check_command_arguments,\""+service.CheckCommandArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",check_period,\""+service.CheckPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",max_check_attempts,\""+service.MaxCheckAttempts+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",normal_check_interval,\""+service.NormalCheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",retry_check_interval,\""+service.RetryCheckInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",active_checks_enabled,\""+service.ActiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",passive_checks_enabled,\""+service.PassiveChecksEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",is_volatile,\""+service.IsVolatile+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",notifications_enabled,\""+service.NotificationsEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",contact_additive_inheritance,\""+service.ContactAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",cg_additive_inheritance,\""+service.CgAdditiveInheritance+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",notification_options,\""+service.NotificationOptions+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",notification_interval,\""+service.NotificationInterval+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",notification_period,\""+service.NotificationPeriod+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",first_notification_delay,\""+service.FirstNotificationDelay+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",obsess_over_service,\""+service.ObsessOverService+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",check_freshness,\""+service.CheckFreshness+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",freshness_threshold,\""+service.FreshnessThreshold+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",flap_detection_enabled,\""+service.FlapDetectionEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",retain_status_information,\""+service.RetainStatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",retain_nonstatus_information,\""+service.RetainNonstatusInformation+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",event_handler_enabled,\""+service.EventHandlerEnabled+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",event_handler,\""+service.EventHandler+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",event_handler_arguments,\""+service.EventHandlerArguments+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",action_url,\""+service.ActionURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",notes,\""+service.Notes+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",notes_url,\""+service.NotesURL+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",icon_image,\""+service.IconImage+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",icon_image_alt,\""+service.IconImageAlt+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",activate,\""+service.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",comment,\""+service.Comment+"\"\n", file, writeFile)
 
 		//Write macros information
 		if len(service.Macros) != 0 {
@@ -160,49 +149,49 @@ func ExportService(name []string, file string, hostFilter []string, appendFile b
 				if strings.Contains(m.Value, "\"") {
 					m.Value = strings.ReplaceAll(m.Value, "\"", "'")
 				}
-				_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",macro,\"" + m.Name + "|" + m.Value + "|" + m.IsPassword + "|" + m.Description + "\"\n")
+				request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",macro,\""+m.Name+"|"+m.Value+"|"+m.IsPassword+"|"+m.Description+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Hosts information
 		if len(service.Hosts) != 0 {
 			for _, h := range service.Hosts {
-				_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",host,\"" + h.Name + "\"\n")
+				request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",host,\""+h.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write ContactGroups information
 		if len(service.ContactGroups) != 0 {
 			for _, c := range service.ContactGroups {
-				_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",contactgroup,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",contactgroup,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Contacts information
 		if len(service.Contacts) != 0 {
 			for _, c := range service.Contacts {
-				_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",contact,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",contact,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write ServiceGroups information
 		if len(service.ServiceGroups) != 0 {
 			for _, s := range service.ServiceGroups {
-				_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",servicegroup,\"" + s.Name + "\"\n")
+				request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",servicegroup,\""+s.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Traps information
 		if len(service.Traps) != 0 {
 			for _, t := range service.Traps {
-				_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",trap,\"" + t.Name + "\"\n")
+				request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",trap,\""+t.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write Categories information
 		if len(service.Categories) != 0 {
 			for _, c := range service.Categories {
-				_, _ = f.WriteString("modify,service,\"" + service.HostName + "\",\"" + service.Description + "\",category,\"" + c.Name + "\"\n")
+				request.WriteValues("modify,service,\""+service.HostName+"\",\""+service.Description+"\",category,\""+c.Name+"\"\n", file, writeFile)
 			}
 		}
 	}
@@ -321,5 +310,4 @@ func getAllService(debugV bool) []service.ExportService {
 func init() {
 	serviceCmd.Flags().StringSliceP("name", "n", []string{}, "Host's name|Service's name (example: rtr-Paris|CPU)(separate by a comma the multiple values)")
 	serviceCmd.Flags().StringSliceP("hostFilter", "o", []string{}, "To define the name of the hosts to which the services belong (separate by a comma the multiple values)")
-	serviceCmd.Flags().StringP("file", "f", "ExportService.csv", "To define the name of the csv file")
 }

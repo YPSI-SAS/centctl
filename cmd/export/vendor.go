@@ -43,13 +43,12 @@ var vendorCmd = &cobra.Command{
 	Short: "Export vendor",
 	Long:  `Export vendor of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportVendor(name, regex, file, appendFile, all, debugV)
+		err := ExportVendor(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var vendorCmd = &cobra.Command{
 }
 
 //ExportVendor permits to export a vendor of the centreon server
-func ExportVendor(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportVendor(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportVendor(name []string, regex string, file string, appendFile bool, all
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -111,8 +97,8 @@ func ExportVendor(name []string, regex string, file string, appendFile bool, all
 		}
 
 		//Write vendor informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,vendor,\"" + vendor.Name + "\",\"" + vendor.Alias + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,vendor,\""+vendor.Name+"\",\""+vendor.Alias+"\"\n", file, writeFile)
 
 	}
 	return nil
@@ -164,7 +150,6 @@ func getAllVendor(debugV bool) []vendor.ExportVendor {
 
 func init() {
 	vendorCmd.Flags().StringSliceP("name", "n", []string{}, "vendor's name (separate by a comma the multiple values)")
-	vendorCmd.Flags().StringP("file", "f", "ExportVendor.csv", "To define the name of the csv file")
 	vendorCmd.Flags().StringP("regex", "r", "", "The regex to apply on the vendor's name")
 
 }

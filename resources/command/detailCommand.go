@@ -26,9 +26,11 @@ SOFTWARE.
 package command
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,14 +62,13 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the commands to text
 func (s DetailServer) StringText() string {
-	var values string = "Command list for server " + s.Server.Name + ": \n"
+	var values string
 
 	cmd := s.Server.Command
 	if cmd != nil {
-		values += "ID: " + (*cmd).ID + "\t"
-		values += "Name: " + (*cmd).Name + "\t"
-		values += "Type: " + (*cmd).Type + "\t"
-		values += "CmdLine: " + (*cmd).CmdLine + "\n"
+		elements := [][]string{{"0", "Command:"}, {"1", "ID: " + (*cmd).ID}, {"1", "Name: " + (*cmd).Name}, {"1", "Type: " + (*cmd).Type}, {"1", "CmdLine: " + (*cmd).CmdLine}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "command: null\n"
 
@@ -77,19 +78,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the commands to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Type,CmdLine\n"
-	values += s.Server.Name + ","
-	cmd := s.Server.Command
-	if cmd != nil {
-		values += (*cmd).ID + ","
-		values += (*cmd).Name + ","
-		values += (*cmd).Type + ","
-		values += (*cmd).CmdLine + "\n"
-	} else {
-		values += ",,,\n"
-
+	var p []DetailCommand
+	if s.Server.Command != nil {
+		p = append(p, *s.Server.Command)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the commands to json

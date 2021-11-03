@@ -64,6 +64,9 @@ func init() {
 	commandCmd.MarkFlagRequired("name")
 	commandCmd.Flags().StringP("type", "t", "", "To define the type of the command (check, notif, misc or discovery)")
 	commandCmd.MarkFlagRequired("type")
+	commandCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"check", "notif", "misc", "discovery"}, cobra.ShellCompDirectiveDefault
+	})
 	commandCmd.Flags().StringP("line", "l", "", "To define the line of the command")
 	commandCmd.MarkFlagRequired("line")
 }

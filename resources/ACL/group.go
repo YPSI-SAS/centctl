@@ -26,9 +26,11 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -59,24 +61,19 @@ type GroupInformations struct {
 
 //StringText permits to display the caracteristics of the ACL groups to text
 func (s GroupServer) StringText() string {
-	var values string = "ACL group list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "Activate"})
 	for i := 0; i < len(s.Server.Groups); i++ {
-		values += s.Server.Groups[i].ID + "\t"
-		values += s.Server.Groups[i].Name + "\t"
-		values += s.Server.Groups[i].Alias + "\t"
-		values += s.Server.Groups[i].Activate + "\n"
-
+		table = append(table, []string{s.Server.Groups[i].ID, s.Server.Groups[i].Name, s.Server.Groups[i].Alias, s.Server.Groups[i].Activate})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the ACL ResultGroup to csv
 func (s GroupServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	for i := 0; i < len(s.Server.Groups); i++ {
-		values += s.Server.Name + "," + s.Server.Groups[i].ID + "," + s.Server.Groups[i].Name + "," + s.Server.Groups[i].Alias + "," + s.Server.Groups[i].Activate + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Groups)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL ResultGroup to json

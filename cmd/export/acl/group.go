@@ -43,13 +43,12 @@ var groupCmd = &cobra.Command{
 	Short: "Export ACL group",
 	Long:  `Export ACL group of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportACLGroup(name, regex, file, appendFile, all, debugV)
+		err := ExportACLGroup(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var groupCmd = &cobra.Command{
 }
 
 //ExportACLGroup permits to export an ACL group of the centreon server
-func ExportACLGroup(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportACLGroup(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,10 @@ func ExportACLGroup(name []string, regex string, file string, appendFile bool, a
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
+	writeFile := false
 
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -110,42 +97,42 @@ func ExportACLGroup(name []string, regex string, file string, appendFile bool, a
 			continue
 		}
 
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,aclGroup,\"" + group.Name + "\",\"" + group.Alias + "\"\n")
-		_, _ = f.WriteString("modify,aclGroup,\"" + group.Name + "\",activate,\"" + group.Activate + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,aclGroup,\""+group.Name+"\",\""+strings.ReplaceAll(group.Alias, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,aclGroup,\""+group.Name+"\",activate,\""+group.Activate+"\"\n", file, writeFile)
 
 		//Write in the file the contacts
 		if len(group.Contact) != 0 {
 			for _, m := range group.Contact {
-				_, _ = f.WriteString("modify,aclGroup,\"" + group.Name + "\",contact,\"" + m.Name + "\"\n")
+				request.WriteValues("modify,aclGroup,\""+group.Name+"\",contact,\""+m.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write in the file the contacts group
 		if len(group.ContactGroup) != 0 {
 			for _, m := range group.ContactGroup {
-				_, _ = f.WriteString("modify,aclGroup,\"" + group.Name + "\",contactgroup,\"" + m.Name + "\"\n")
+				request.WriteValues("modify,aclGroup,\""+group.Name+"\",contactgroup,\""+m.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write in the file the menu
 		if len(group.Menu) != 0 {
 			for _, m := range group.Menu {
-				_, _ = f.WriteString("modify,aclGroup,\"" + group.Name + "\",menu,\"" + m.Name + "\"\n")
+				request.WriteValues("modify,aclGroup,\""+group.Name+"\",menu,\""+m.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write in the file the action
 		if len(group.Action) != 0 {
 			for _, m := range group.Action {
-				_, _ = f.WriteString("modify,aclGroup,\"" + group.Name + "\",action,\"" + m.Name + "\"\n")
+				request.WriteValues("modify,aclGroup,\""+group.Name+"\",action,\""+m.Name+"\"\n", file, writeFile)
 			}
 		}
 
 		//Write in the file the resource
 		if len(group.Resource) != 0 {
 			for _, m := range group.Resource {
-				_, _ = f.WriteString("modify,aclGroup,\"" + group.Name + "\",resource,\"" + m.Name + "\"\n")
+				request.WriteValues("modify,aclGroup,\""+group.Name+"\",resource,\""+m.Name+"\"\n", file, writeFile)
 			}
 		}
 	}
@@ -245,7 +232,6 @@ func getAllGroup(debugV bool) []ACL.ExportGroup {
 
 func init() {
 	groupCmd.Flags().StringSliceP("name", "n", []string{}, "ACL group's name (separate by a comma the multiple values)")
-	groupCmd.Flags().StringP("file", "f", "ExportACLGroup.csv", "To define the name of the csv file")
 	groupCmd.Flags().StringP("regex", "r", "", "The regex to apply on the ACL group's name")
 
 }

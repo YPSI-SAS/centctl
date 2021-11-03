@@ -62,6 +62,22 @@ func DeleteBrokerInput(broker string, id int, debugV bool) error {
 func init() {
 	inputCmd.Flags().StringP("broker", "b", "", "To define the name of the broker CFG")
 	inputCmd.MarkFlagRequired("broker")
+	inputCmd.RegisterFlagCompletionFunc("broker", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	inputCmd.Flags().IntP("ID", "i", -1, "To define the I/O ID of the object which will delete")
 	inputCmd.MarkFlagRequired("ID")
+	inputCmd.RegisterFlagCompletionFunc("ID", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if inputCmd.Flag("broker").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerInputID(inputCmd.Flag("broker").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

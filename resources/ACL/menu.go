@@ -26,9 +26,11 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
-	"fmt"
 
+	"github.com/jszwec/csvutil"
+	"github.com/pterm/pterm"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,25 +62,19 @@ type MenuInformations struct {
 
 //StringText permits to display the caracteristics of the ACL Menus to text
 func (s MenuServer) StringText() string {
-	var values string = "ACL Menu list for server " + s.Server.Name + ": \n"
+	var table pterm.TableData
+	table = append(table, []string{"ID", "Name", "Alias", "Comment", "Activate"})
 	for i := 0; i < len(s.Server.Menus); i++ {
-		values += s.Server.Menus[i].ID + "\t"
-		values += s.Server.Menus[i].Name + "\t"
-		values += s.Server.Menus[i].Alias + "\t"
-		values += s.Server.Menus[i].Comment + "\t"
-		values += s.Server.Menus[i].Activate + "\n"
-
+		table = append(table, []string{s.Server.Menus[i].ID, s.Server.Menus[i].Name, s.Server.Menus[i].Alias, s.Server.Menus[i].Comment, s.Server.Menus[i].Activate})
 	}
-	return fmt.Sprintf(values)
+	values := resources.TableListWithHeader(table)
+	return values
 }
 
 //StringCSV permits to display the caracteristics of the ACL ResultMenu to csv
 func (s MenuServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	for i := 0; i < len(s.Server.Menus); i++ {
-		values += s.Server.Name + "," + s.Server.Menus[i].ID + "," + s.Server.Menus[i].Name + "," + s.Server.Menus[i].Alias + "," + s.Server.Menus[i].Comment + "," + s.Server.Menus[i].Activate + "\n"
-	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(s.Server.Menus)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL ResultMenu to json

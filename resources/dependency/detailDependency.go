@@ -26,9 +26,11 @@ SOFTWARE.
 package dependency
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,15 +62,12 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the Dependencies to text
 func (s DetailServer) StringText() string {
-	var values string = "Dependency list for server " + s.Server.Name + ": \n"
+	var values string
 	dependency := s.Server.Dependency
 	if dependency != nil {
-		values += "ID: " + (*dependency).ID + "\t"
-		values += "Name: " + (*dependency).Name + "\t"
-		values += "Description: " + (*dependency).Description + "\t"
-		values += "Inherits parent: " + (*dependency).InheritsParent + "\t"
-		values += "Execution Failure Criteria: " + (*dependency).ExecutionFailureCriteria + "\t"
-		values += "Notification Failure Criteria: " + (*dependency).NotificationFailureCriteria + "\n"
+		elements := [][]string{{"0", "Dependency:"}, {"1", "ID: " + (*dependency).ID}, {"1", "Name: " + (*dependency).Name}, {"1", "Description: " + (*dependency).Description}, {"1", "Inherits parent: " + (*dependency).InheritsParent}, {"1", "Execution Failure Criteria: " + (*dependency).ExecutionFailureCriteria}, {"1", "Notification Failure Criteria: " + (*dependency).NotificationFailureCriteria}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "dependency: null\n"
 	}
@@ -77,15 +76,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the Dependencies to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Name,Description,InheritsParent,ExecutionFailureCriteria,NotificationFailureCriteria\n"
-	dependency := s.Server.Dependency
-	values += s.Server.Name + ","
-	if dependency != nil {
-		values += (*dependency).ID + "," + (*dependency).Name + "," + (*dependency).Description + "," + (*dependency).InheritsParent + "," + (*dependency).ExecutionFailureCriteria + "," + (*dependency).NotificationFailureCriteria + "\n"
-	} else {
-		values += ",,,,,\n"
+	var p []DetailDependency
+	if s.Server.Dependency != nil {
+		p = append(p, *s.Server.Dependency)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the Dependencies to json

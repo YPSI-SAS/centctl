@@ -72,8 +72,18 @@ func ModifyTrap(name string, parameter string, value string, debugV bool, isImpo
 func init() {
 	trapCmd.Flags().StringP("name", "n", "", "To define the name of the trap to be modified")
 	trapCmd.MarkFlagRequired("name")
+	trapCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTrapNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	trapCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in the list: matching")
 	trapCmd.MarkFlagRequired("parameter")
+	trapCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"matching", "name", "comment", "output", "oid", "status", "vendor", "matching_mode", "reschedule_svc_enable", "execution_command", "execution_command", "submit_result_enable"}, cobra.ShellCompDirectiveDefault
+	})
 	trapCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MATCHING the value must be of the form: stringMarch;regularExpression;status")
 	trapCmd.MarkFlagRequired("value")
 }

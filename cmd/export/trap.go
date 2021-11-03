@@ -43,13 +43,12 @@ var trapCmd = &cobra.Command{
 	Short: "Export trap",
 	Long:  `Export trap of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportTrap(name, regex, file, appendFile, all, debugV)
+		err := ExportTrap(name, regex, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +56,7 @@ var trapCmd = &cobra.Command{
 }
 
 //ExportTrap permits to export a trap of the centreon server
-func ExportTrap(name []string, regex string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportTrap(name []string, regex string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -65,22 +64,9 @@ func ExportTrap(name []string, regex string, file string, appendFile bool, all b
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all || regex != "" {
@@ -111,14 +97,14 @@ func ExportTrap(name []string, regex string, file string, appendFile bool, all b
 		}
 
 		//Write trap informations
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,trap,\"" + trap.Name + "\",\"" + trap.Oid + "\"\n")
-		_, _ = f.WriteString("modify,trap,\"" + trap.Name + "\",vendor,\"" + trap.Manufacturer + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,trap,\""+trap.Name+"\",\""+trap.Oid+"\"\n", file, writeFile)
+		request.WriteValues("modify,trap,\""+trap.Name+"\",vendor,\""+trap.Manufacturer+"\"\n", file, writeFile)
 
 		//Write Matchings information
 		if len(trap.Matchings) != 0 {
 			for _, b := range trap.Matchings {
-				_, _ = f.WriteString("modify,trap,\"" + trap.Name + "\",matching,\"" + b.String + ";" + b.Regexp + ";" + b.Status + "\"\n")
+				request.WriteValues("modify,trap,\""+trap.Name+"\",matching,\""+b.String+";"+b.Regexp+";"+b.Status+"\"\n", file, writeFile)
 			}
 		}
 	}
@@ -181,7 +167,6 @@ func getAllTrap(debugV bool) []trap.ExportTrap {
 
 func init() {
 	trapCmd.Flags().StringSliceP("name", "n", []string{}, "trap's name (separate by a comma the multiple values)")
-	trapCmd.Flags().StringP("file", "f", "ExportTrap.csv", "To define the name of the csv file")
 	trapCmd.Flags().StringP("regex", "r", "", "The regex to apply on the trap's name")
 
 }

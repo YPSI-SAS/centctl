@@ -38,9 +38,9 @@ var contactCmd = &cobra.Command{
 	Short: "Delete a contact",
 	Long:  `Delete a contact into the Centreon server specifified by the flag --server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		name, _ := cmd.Flags().GetString("name")
+		alias, _ := cmd.Flags().GetString("alias")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := DeleteContact(name, debugV)
+		err := DeleteContact(alias, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -48,8 +48,8 @@ var contactCmd = &cobra.Command{
 }
 
 //DeleteContact permits to delete a contact in the centreon server
-func DeleteContact(name string, debugV bool) error {
-	err := request.Delete("del", "contact", name, "delete contact", name, debugV, false, "")
+func DeleteContact(alias string, debugV bool) error {
+	err := request.Delete("del", "contact", alias, "delete contact", alias, debugV, false, "")
 	if err != nil {
 		return err
 	}
@@ -57,6 +57,13 @@ func DeleteContact(name string, debugV bool) error {
 }
 
 func init() {
-	contactCmd.Flags().StringP("name", "n", "", "To define the contact which will delete")
-	contactCmd.MarkFlagRequired("name")
+	contactCmd.Flags().StringP("alias", "a", "", "To define the contact which will delete")
+	contactCmd.MarkFlagRequired("alias")
+	contactCmd.RegisterFlagCompletionFunc("alias", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetContactAlias()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

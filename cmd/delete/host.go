@@ -55,14 +55,12 @@ func DeleteHost(name string, debugV bool, apply bool) error {
 	var err error
 	//Find the name of the host poller
 	client := request.NewClientV1(os.Getenv("URL") + "/api/index.php?object=centreon_realtime_hosts&action=list&search=" + name)
-	for poller == "" {
-		poller, err = client.NamePollerHost(name, debugV)
-		if err != nil {
-			return err
-		}
+	poller, err = client.NamePollerHost(name, debugV)
+	if poller == "" {
+		err = request.Delete("del", "host", name, "delete host", name, debugV, false, "")
+	} else {
+		err = request.Delete("del", "host", name, "delete host", name, debugV, apply, poller)
 	}
-
-	err = request.Delete("del", "host", name, "delete host", name, debugV, apply, poller)
 	if err != nil {
 		return err
 	}
@@ -73,6 +71,13 @@ func DeleteHost(name string, debugV bool, apply bool) error {
 func init() {
 	hostCmd.Flags().StringP("name", "n", "", "To define the host which will delete")
 	hostCmd.MarkFlagRequired("name")
+	hostCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetHostNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().Bool("apply", false, "Export configuration of the poller")
 
 }

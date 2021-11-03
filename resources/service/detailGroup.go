@@ -26,19 +26,47 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailGroup represents the caracteristics of a service Group
 type DetailGroup struct {
-	ID                string                        `json:"id" yaml:"id"`
-	Name              string                        `json:"name" yaml:"name"` //Group name
-	Alias             string                        `json:"alias" yaml:"alias"`
-	Services          []DetailGroupService          `json:"services" yaml:"services"`
-	HostGroupServices []DetailGroupHostGroupService `json:"hostgroup_services" yaml:"hostgroup_services"`
+	ID                string                       `json:"id" yaml:"id"`
+	Name              string                       `json:"name" yaml:"name"` //Group name
+	Alias             string                       `json:"alias" yaml:"alias"`
+	Services          DetailGroupServices          `json:"services" yaml:"services"`
+	HostGroupServices DetailGroupHostGroupServices `json:"hostgroup_services" yaml:"hostgroup_services"`
+}
+
+type DetailGroupServices []DetailGroupService
+
+func (t DetailGroupServices) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, service := range t {
+		value += service.HostID + "|" + service.HostName + "|" + service.ServiceID + "|" + service.ServiceDescription
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
+}
+
+type DetailGroupHostGroupServices []DetailGroupHostGroupService
+
+func (t DetailGroupHostGroupServices) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, service := range t {
+		value += service.HostGroupID + "|" + service.HostGroupName + "|" + service.ServiceID + "|" + service.ServiceDescription
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailResultGroup represents a service Group array
@@ -85,12 +113,30 @@ type DetailGroupInformations struct {
 
 //StringText permits to display the caracteristics of the service groups to text
 func (s DetailGroupServer) StringText() string {
-	var values string = "Service Group list for server " + s.Server.Name + ": \n"
+	var values string
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "\t"
-		values += (*group).Name + "\t"
-		values += (*group).Alias + "\n"
+		elements := [][]string{{"0", "Group service:"}, {"1", "ID: " + (*group).ID}, {"1", "Name: " + (*group).Name + "\t" + "Alias: " + (*group).Alias}}
+		if len((*group).Services) == 0 {
+			elements = append(elements, []string{"1", "Services: []"})
+		} else {
+			elements = append(elements, []string{"1", "Services:"})
+			for _, service := range (*group).Services {
+				elements = append(elements, []string{"2", "Host: " + service.HostName + " (ID=" + service.HostID + ")"})
+				elements = append(elements, []string{"2", "Service: " + service.ServiceDescription + " (ID=" + service.ServiceID + ")"})
+			}
+		}
+		if len((*group).HostGroupServices) == 0 {
+			elements = append(elements, []string{"1", "Host group services: []"})
+		} else {
+			elements = append(elements, []string{"1", "Host group services:"})
+			for _, service := range (*group).HostGroupServices {
+				elements = append(elements, []string{"2", "Host group: " + service.HostGroupName + " (ID=" + service.HostGroupID + ")"})
+				elements = append(elements, []string{"2", "Host group service: " + service.ServiceDescription + " (ID=" + service.ServiceID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "group: null\n"
 	}
@@ -100,16 +146,12 @@ func (s DetailGroupServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the service groups to csv
 func (s DetailGroupServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias\n"
-	values += s.Server.Name + ","
-	group := s.Server.Group
-	if group != nil {
-		values += (*group).ID + "," + (*group).Name + "," + (*group).Alias + "\n"
-	} else {
-		values += ",,\n"
+	var p []DetailGroup
+	if s.Server.Group != nil {
+		p = append(p, *s.Server.Group)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the service groups to json

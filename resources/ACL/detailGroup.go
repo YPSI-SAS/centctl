@@ -26,9 +26,11 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -59,16 +61,14 @@ type DetailGroupInformations struct {
 
 //StringText permits to display the caracteristics of the ACL groups to text
 func (s DetailGroupServer) StringText() string {
-	var values string = "ACL group list for server " + s.Server.Name + ": \n"
-
+	var values string
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "\t"
-		values += (*group).Name + "\t"
-		values += (*group).Alias + "\t"
-		values += (*group).Activate + "\n"
+		elements := [][]string{{"0", "ACL group:"}, {"1", "ID: " + (*group).ID}, {"1", "Name: " + (*group).Name}, {"1", "Alias: " + (*group).Alias}, {"1", "Activate: " + (*group).Activate}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
-		values += "group: null\n"
+		values = "group: null\n"
 	}
 
 	return fmt.Sprintf(values)
@@ -76,17 +76,12 @@ func (s DetailGroupServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL ResultGroup to csv
 func (s DetailGroupServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	values += s.Server.Name + ","
-	group := s.Server.Group
-	if group != nil {
-		values += (*group).ID + "," + (*group).Name + "," + (*group).Alias + "," + (*group).Activate + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailGroup
+	if s.Server.Group != nil {
+		p = append(p, *s.Server.Group)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL ResultGroup to json

@@ -26,9 +26,11 @@ SOFTWARE.
 package ACL
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -60,15 +62,13 @@ type DetailResourceInformations struct {
 
 //StringText permits to display the caracteristics of the ACL Resources to text
 func (s DetailResourceServer) StringText() string {
-	var values string = "ACL Resource list for server " + s.Server.Name + ": \n"
+	var values string
 
 	resource := s.Server.Resource
 	if resource != nil {
-		values += (*resource).ID + "\t"
-		values += (*resource).Name + "\t"
-		values += (*resource).Alias + "\t"
-		values += (*resource).Comment + "\t"
-		values += (*resource).Activate + "\n"
+		elements := [][]string{{"0", "ACL resource:"}, {"1", "ID: " + (*resource).ID}, {"1", "Name: " + (*resource).Name}, {"1", "Alias: " + (*resource).Alias}, {"1", "Comment: " + (*resource).Comment}, {"1", "Activate: " + (*resource).Activate}}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "resource: null \n"
 	}
@@ -78,16 +78,12 @@ func (s DetailResourceServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the ACL resource to csv
 func (s DetailResourceServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias,Activate\n"
-	values += s.Server.Name + ","
-	resource := s.Server.Resource
-	if resource != nil {
-		values += (*resource).ID + "," + (*resource).Name + "," + (*resource).Alias + "," + (*resource).Comment + "," + (*resource).Activate + "\n"
-
-	} else {
-		values += ",,,\n"
+	var p []DetailResource
+	if s.Server.Resource != nil {
+		p = append(p, *s.Server.Resource)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the ACL resource to json

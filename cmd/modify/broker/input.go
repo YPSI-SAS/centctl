@@ -64,8 +64,24 @@ func ModifyBrokerInput(name string, id int, parameter string, value string, debu
 func init() {
 	inputCmd.Flags().StringP("name", "n", "", "To define the name of the broker CFG")
 	inputCmd.MarkFlagRequired("name")
+	inputCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	inputCmd.Flags().IntP("id", "i", -1, "To define the I/O object to be modified")
 	inputCmd.MarkFlagRequired("id")
+	inputCmd.RegisterFlagCompletionFunc("id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if inputCmd.Flag("name").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerInputID(inputCmd.Flag("name").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	inputCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation.")
 	inputCmd.MarkFlagRequired("parameter")
 	inputCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. ")

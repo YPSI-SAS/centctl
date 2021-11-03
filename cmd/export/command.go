@@ -43,14 +43,13 @@ var commandCmd = &cobra.Command{
 	Short: "Export a command",
 	Long:  `Export in a csv file a command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		appendFile, _ := cmd.Flags().GetBool("append")
 		all, _ := cmd.Flags().GetBool("all")
 		regex, _ := cmd.Flags().GetString("regex")
 		typeCmd, _ := cmd.Flags().GetString("type")
 		name, _ := cmd.Flags().GetStringSlice("name")
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ExportCommand(name, regex, typeCmd, file, appendFile, all, debugV)
+		err := ExportCommand(name, regex, typeCmd, file, all, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -58,7 +57,7 @@ var commandCmd = &cobra.Command{
 }
 
 //ExportCommand permits to export a command of the centreon server
-func ExportCommand(name []string, regex string, typeCmd string, file string, appendFile bool, all bool, debugV bool) error {
+func ExportCommand(name []string, regex string, typeCmd string, file string, all bool, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -66,22 +65,9 @@ func ExportCommand(name []string, regex string, typeCmd string, file string, app
 		os.Exit(1)
 	}
 
-	//Check if the name of file contains the extension
-	if !strings.Contains(file, ".csv") {
-		file = file + ".csv"
-	}
-
-	//Create the file
-	var f *os.File
-	var err error
-	if appendFile {
-		f, err = os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	} else {
-		f, err = os.OpenFile(file, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-	}
-	defer f.Close()
-	if err != nil {
-		return err
+	writeFile := false
+	if file != "" {
+		writeFile = true
 	}
 
 	if all {
@@ -119,13 +105,13 @@ func ExportCommand(name []string, regex string, typeCmd string, file string, app
 			continue
 		}
 
-		_, _ = f.WriteString("\n")
-		_, _ = f.WriteString("add,command,\"" + command.Name + "\",\"" + command.Type + "\",\"" + strings.ReplaceAll(command.Line, "\"", "\"\"") + "\"\n")
-		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",graph," + command.Graph + "\n")
-		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",example," + command.Example + "\n")
-		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",comment,\"" + command.Comment + "\"\n")
-		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",activate,\"" + command.Activate + "\"\n")
-		_, _ = f.WriteString("modify,command,\"" + command.Name + "\",enable_shell,\"" + command.EnableShell + "\"\n")
+		request.WriteValues("\n", file, writeFile)
+		request.WriteValues("add,command,\""+command.Name+"\",\""+command.Type+"\",\""+strings.ReplaceAll(command.Line, "\"", "\"\"")+"\"\n", file, writeFile)
+		request.WriteValues("modify,command,\""+command.Name+"\",graph,"+command.Graph+"\n", file, writeFile)
+		request.WriteValues("modify,command,\""+command.Name+"\",example,"+command.Example+"\n", file, writeFile)
+		request.WriteValues("modify,command,\""+command.Name+"\",comment,\""+command.Comment+"\"\n", file, writeFile)
+		request.WriteValues("modify,command,\""+command.Name+"\",activate,\""+command.Activate+"\"\n", file, writeFile)
+		request.WriteValues("modify,command,\""+command.Name+"\",enable_shell,\""+command.EnableShell+"\"\n", file, writeFile)
 	}
 	return nil
 }
@@ -149,6 +135,9 @@ func getCommandInfo(name string, debugV bool) (error, command.ExportCommand) {
 		fmt.Println("Object not found: " + name)
 		return nil, command.ExportCommand{}
 	}
+	if result.Commands[0].Type != "2" && result.Commands[0].Type != "4" && result.Commands[0].Type != "3" && result.Commands[0].Type != "1" {
+		result.Commands[0].Type = "1"
+	}
 
 	return nil, result.Commands[0]
 }
@@ -169,7 +158,9 @@ func getAllCommand(debugV bool) []command.ExportCommand {
 func init() {
 	commandCmd.Flags().StringSliceP("name", "n", []string{}, "Command's name (separate by a comma the multiple values)")
 	commandCmd.Flags().StringP("type", "t", "all", "To define the type of command (all, notif, check, misc, discovery)")
-	commandCmd.Flags().StringP("file", "f", "ExportCommand.csv", "To define the name of the csv file")
+	commandCmd.RegisterFlagCompletionFunc("type", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"check", "notif", "misc", "discovery", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	commandCmd.Flags().StringP("regex", "r", "", "The regex to apply on the command's name")
 
 }

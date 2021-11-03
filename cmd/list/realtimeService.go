@@ -129,8 +129,8 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 
 	//Recovery the parent's pollerID
 	for i, s := range services {
-		pollerID, _ := request.IDPollerHost(s.Parent.ID, debugV)
-		services[i].Parent.PollerID = pollerID
+		pollerID, _ := request.IDPollerHost(s.RealtimeParent.ID, debugV)
+		services[i].RealtimeParent.PollerID = pollerID
 	}
 
 	//Get final service based on pollerID
@@ -141,7 +141,7 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 
 	//Sort services based on their ID
 	sort.SliceStable(finalServices, func(i, j int) bool {
-		return finalServices[i].ServiceID < finalServices[j].ServiceID
+		return strings.ToLower(finalServices[i].Name) < strings.ToLower(finalServices[j].Name)
 	})
 
 	server := service.RealtimeServer{
@@ -163,7 +163,7 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 func findAndDeleteService(services []service.RealtimeService, poller int) []service.RealtimeService {
 	index := 0
 	for _, s := range services {
-		if s.Parent.PollerID == poller {
+		if s.RealtimeParent.PollerID == poller {
 			services[index] = s
 			index++
 		}
@@ -191,8 +191,14 @@ func deleteRealtimeService(services []service.RealtimeService, regex string) []s
 
 func init() {
 	realtimeServiceCmd.Flags().StringP("state", "s", "all", "The state of the hosts you want to list (all, warning, critical, ok, unknown, pending)")
+	realtimeServiceCmd.RegisterFlagCompletionFunc("state", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"unknown", "ok", "pending", "critical", "warning", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	realtimeServiceCmd.Flags().IntP("limit", "l", 60, "The number of hosts you want to list")
 	realtimeServiceCmd.Flags().StringP("viewType", "v", "all", "The type of services (all or unhandled")
+	realtimeServiceCmd.RegisterFlagCompletionFunc("viewType", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"unhandled", "all"}, cobra.ShellCompDirectiveDefault
+	})
 	realtimeServiceCmd.Flags().IntP("poller", "p", -1, "The ID poller")
 	realtimeServiceCmd.Flags().StringP("regex", "r", "", "The regex to apply on the service's name")
 

@@ -26,18 +26,33 @@ SOFTWARE.
 package host
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
 //DetailGroup represents the caracteristics of a host Group
 type DetailGroup struct {
-	Name    string                 `json:"name" yaml:"name"` //Group Name
-	ID      string                 `json:"id" yaml:"id"`     //Group ID
-	Alias   string                 `json:"alias" yaml:"alias"`
-	Members []DetailCategoryMember `json:"members" yaml:"members"`
+	Name    string             `json:"name" yaml:"name"` //Group Name
+	ID      string             `json:"id" yaml:"id"`     //Group ID
+	Alias   string             `json:"alias" yaml:"alias"`
+	Members DetailGroupMembers `json:"members" yaml:"members"`
+}
+
+type DetailGroupMembers []DetailGroupMember
+
+func (t DetailGroupMembers) MarshalCSV() ([]byte, error) {
+	var value string
+	for i, parent := range t {
+		value += parent.ID + "|" + parent.Name
+		if i < len(t)-1 {
+			value += ","
+		}
+	}
+	return []byte(value), nil
 }
 
 //DetailGroupMember represents the caracteristics of a member
@@ -69,12 +84,20 @@ type DetailGroupInformations struct {
 
 //StringText permits to display the caracteristics of the host group to text
 func (s DetailGroupServer) StringText() string {
-	var values string = "Host group list for server " + s.Server.Name + ": \n"
+	var values string
 	group := s.Server.Group
 	if group != nil {
-		values += (*group).ID + "\t"
-		values += (*group).Name + "\t"
-		values += (*group).Alias + "\n"
+		elements := [][]string{{"0", "Group host:"}, {"1", "ID: " + (*group).ID}, {"1", "Name: " + (*group).Name + "\t" + "Alias: " + (*group).Alias}}
+		if len((*group).Members) == 0 {
+			elements = append(elements, []string{"1", "Members: []"})
+		} else {
+			elements = append(elements, []string{"1", "Members:"})
+			for _, member := range (*group).Members {
+				elements = append(elements, []string{"2", member.Name + " (ID=" + member.ID + ")"})
+			}
+		}
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "group: null\n"
 	}
@@ -84,16 +107,12 @@ func (s DetailGroupServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the host group to csv
 func (s DetailGroupServer) StringCSV() string {
-	var values string = "Server,ID,Name,Alias\n"
-	values += s.Server.Name + ","
-	group := s.Server.Group
-	if group != nil {
-		values += (*group).ID + "," + (*group).Name + "," + (*group).Alias + "\n"
-	} else {
-		values += ",,\n"
+	var p []DetailGroup
+	if s.Server.Group != nil {
+		p = append(p, *s.Server.Group)
 	}
-
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the host group to json

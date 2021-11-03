@@ -26,9 +26,11 @@ SOFTWARE.
 package service
 
 import (
+	"centctl/resources"
 	"encoding/json"
 	"fmt"
 
+	"github.com/jszwec/csvutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -66,21 +68,23 @@ type DetailInformations struct {
 
 //StringText permits to display the caracteristics of the hosts to text
 func (s DetailServer) StringText() string {
-	var values string = "service detail for server " + s.Server.Name + ": \n"
+	var values string
 	service := s.Server.Service
 	if service != nil {
-		values += "ID: " + (*service).ID + "\t"
-		values += "Description: " + (*service).Description + "\t"
-		values += "HostID: " + (*service).HostID + "\t"
-		values += "HostName: " + (*service).HostName + "\t"
-		values += "CheckCommand: " + (*service).CheckCommand + "\t"
-		values += "CheckCommandArg: " + (*service).CheckCommandArg + "\t"
-		values += "NormalCheckInterval: " + (*service).NormalCheckInterval + "\t"
-		values += "RetryCheckInterval: " + (*service).RetryCheckInterval + "\t"
-		values += "MaxCheckAttempts: " + (*service).MaxCheckAttempts + "\t"
-		values += "ActiveChecksEnabled: " + (*service).ActiveChecksEnabled + "\t"
-		values += "PassiveChecksEnabled: " + (*service).PassiveChecksEnabled + "\t"
-		values += "Activate: " + (*service).Activate + "\n"
+		elements := [][]string{{"0", "Service:"}}
+		elements = append(elements, []string{"1", "ID: " + (*service).ID})
+		elements = append(elements, []string{"1", "Description: " + (*service).Description})
+		elements = append(elements, []string{"1", "Host: " + (*service).HostName + " (ID: " + (*service).HostID + ")"})
+		elements = append(elements, []string{"1", "Check command: " + (*service).CheckCommand})
+		elements = append(elements, []string{"1", "Check command Arg: " + (*service).CheckCommandArg})
+		elements = append(elements, []string{"1", "Normal check interval: " + (*service).NormalCheckInterval})
+		elements = append(elements, []string{"1", "Retry check interval: " + (*service).RetryCheckInterval})
+		elements = append(elements, []string{"1", "Max check attempts: " + (*service).MaxCheckAttempts})
+		elements = append(elements, []string{"1", "Active checks enabled: " + (*service).ActiveChecksEnabled})
+		elements = append(elements, []string{"1", "Passive checks enabled: " + (*service).PassiveChecksEnabled})
+		elements = append(elements, []string{"1", "Activate: " + (*service).Activate})
+		items := resources.GenerateListItems(elements, "")
+		values = resources.BulletList(items)
 	} else {
 		values += "service: null\n"
 	}
@@ -90,27 +94,12 @@ func (s DetailServer) StringText() string {
 
 //StringCSV permits to display the caracteristics of the hosts to csv
 func (s DetailServer) StringCSV() string {
-	var values string = "Server,ID,Description,HostID,HostName,CheckCommand,CheckCommandArg,NormalCheckInterval,RetryCheckInterval,MaxCheckAttempts,ActiveChecksEnabled,PassiveChecksEnabled,Activate\n"
-	values += s.Server.Name + ","
-	service := s.Server.Service
-	if service != nil {
-		values += (*service).ID + ","
-		values += (*service).Description + ","
-		values += (*service).HostID + ","
-		values += (*service).HostName + ","
-		values += (*service).CheckCommand + ","
-		values += (*service).CheckCommandArg + ","
-		values += (*service).NormalCheckInterval + ","
-		values += (*service).RetryCheckInterval + ","
-		values += (*service).MaxCheckAttempts + ","
-		values += (*service).ActiveChecksEnabled + ","
-		values += (*service).PassiveChecksEnabled + ","
-		values += (*service).Activate + "\n"
-
-	} else {
-		values += ",,,,,,,,,,,\n"
+	var p []DetailService
+	if s.Server.Service != nil {
+		p = append(p, *s.Server.Service)
 	}
-	return fmt.Sprintf(values)
+	b, _ := csvutil.Marshal(p)
+	return string(b)
 }
 
 //StringJSON permits to display the caracteristics of the hosts to json

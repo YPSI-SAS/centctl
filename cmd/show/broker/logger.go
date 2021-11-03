@@ -65,13 +65,17 @@ func ShowBrokerLogger(name string, id int, debugV bool, output string) error {
 	}
 
 	//Permits to recover the broker logger contain into the response body
-	brokerOutputs := broker.DetailResultLogger{}
-	json.Unmarshal(body, &brokerOutputs)
+	brokerLoggers := broker.DetailResultLogger{}
+	json.Unmarshal(body, &brokerLoggers)
 
 	server := broker.DetailServerLogger{
 		Server: broker.DetailInformationsLogger{
-			Name:         os.Getenv("SERVER"),
-			BrokerLogger: brokerOutputs.BrokerLoggers,
+			Name: os.Getenv("SERVER"),
+			BrokerLogger: broker.DetailBrokerLogger{
+				ID:         strconv.Itoa(id),
+				BrokerName: name,
+				Parameters: brokerLoggers.BrokerLoggers,
+			},
 		},
 	}
 
@@ -87,6 +91,22 @@ func ShowBrokerLogger(name string, id int, debugV bool, output string) error {
 func init() {
 	loggerCmd.Flags().StringP("name", "n", "", "To define the name of the broker logger")
 	loggerCmd.MarkFlagRequired("name")
+	loggerCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetBrokerCFGNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	loggerCmd.Flags().IntP("id", "i", -1, "To define the id of the broke logger")
 	loggerCmd.MarkFlagRequired("id")
+	loggerCmd.RegisterFlagCompletionFunc("id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if loggerCmd.Flag("name").Value.String() != "" {
+			if request.InitAuthentification(cmd) {
+				values = request.GetBrokerLoggerID(loggerCmd.Flag("name").Value.String())
+			}
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

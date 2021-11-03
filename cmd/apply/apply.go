@@ -62,4 +62,11 @@ func Apply(name string, debugV bool) error {
 func init() {
 	Cmd.Flags().StringP("name", "n", "", "Name of the poller")
 	Cmd.MarkFlagRequired("name")
+	Cmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetPollerNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 }

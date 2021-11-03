@@ -72,8 +72,18 @@ func ModifyTimePeriod(name string, parameter string, value string, debugV bool, 
 func init() {
 	timePeriodCmd.Flags().StringP("name", "n", "", "To define the name of the timePeriod to be modified")
 	timePeriodCmd.MarkFlagRequired("name")
+	timePeriodCmd.RegisterFlagCompletionFunc("name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		var values []string
+		if request.InitAuthentification(cmd) {
+			values = request.GetTimePeriodNames()
+		}
+		return values, cobra.ShellCompDirectiveDefault
+	})
 	timePeriodCmd.Flags().StringP("parameter", "p", "", "To define the parameter set in setparam section of centreon documentation or in this list: exception")
 	timePeriodCmd.MarkFlagRequired("parameter")
+	timePeriodCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"include", "exclude", "exception", "name", "alias", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"}, cobra.ShellCompDirectiveDefault
+	})
 	timePeriodCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is exception the value must be of the form : day;timeRange")
 	timePeriodCmd.MarkFlagRequired("value")
 }
