@@ -38,6 +38,7 @@ import (
 	"centctl/cmd/submit"
 	"centctl/request"
 	"io/ioutil"
+	"strings"
 
 	"centctl/colorMessage"
 	"errors"
@@ -70,15 +71,24 @@ type ServerList struct {
 		Login    string `yaml:"login"`
 		Password string `yaml:"password"`
 		Version  string `yaml:"version"`
-		Default  string `yaml:"default,omitempty"`
-		Insecure string `yaml:"insecure,omitempty"`
+		Default  bool   `yaml:"default,omitempty"`
+		Insecure bool   `yaml:"insecure,omitempty"`
 		Proxy    []struct {
-			HttpURL  string `yaml:"httpURL"`
-			HttpsURL string `yaml:"httpsURL"`
-			User     string `yaml:"user"`
-			Password string `yaml:"password"`
+			HttpURL  string `yaml:"httpURL,omitempty"`
+			HttpsURL string `yaml:"httpsURL,omitempty"`
+			User     string `yaml:"user,omitempty"`
+			Password string `yaml:"password,omitempty"`
 		} `yaml:"proxy,omitempty"`
 	} `yaml:"servers"`
+}
+
+type ProxyStruct struct {
+	Proxy []struct {
+		HttpURL  string `yaml:"httpURL,omitempty"`
+		HttpsURL string `yaml:"httpsURL,omitempty"`
+		User     string `yaml:"user,omitempty"`
+		Password string `yaml:"password,omitempty"`
+	} `yaml:"proxy,omitempty"`
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -128,6 +138,7 @@ func init() {
 	})
 
 	rootCmd.AddCommand(completionCmd)
+	rootCmd.AddCommand(encryptCmd)
 	rootCmd.AddCommand(export.Cmd)
 	rootCmd.AddCommand(downtime.Cmd)
 	rootCmd.AddCommand(list.Cmd)
@@ -143,7 +154,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if os.Args[1] != "version" && os.Args[1] != "completion" {
+	if os.Args[1] != "version" && os.Args[1] != "completion" && os.Args[1] != "encrypt" {
 		// colorRed := colorMessage.GetColorRed()
 		cfgFile := os.Getenv("CENTCTL_CONF")
 		// Use config file from the flag.
@@ -182,6 +193,9 @@ func initConfig() {
 		} else {
 			name, login, password, url, version = getValueInFile()
 		}
+		if password == "" && url != "" && name != "" {
+			password = getPasswordStdin(name)
+		}
 		var token string
 		var err error
 		if version == "v1" {
@@ -203,15 +217,23 @@ func initConfig() {
 	}
 
 }
+
+func getPasswordStdin(name string) string {
+	fmt.Print("Enter the password for the server \"" + name + "\": ")
+	var input string
+	fmt.Scanln(&input)
+	return input
+}
+
 func getValueInFile() (string, string, string, string, string) {
 	//Recover the servers from the config file
 	servers := &ServerList{}
-	proxy := make(map[string]string, 0)
+	proxy := &ProxyStruct{}
 	err := viper.Unmarshal(servers)
 	if err != nil {
 		fmt.Printf("unable to decode into struct, %v", err)
 	}
-	_ = viper.UnmarshalKey("proxy", &proxy)
+	_ = viper.Unmarshal(proxy)
 
 	//Search if the server(s) exist(s) in the list of servers
 	index := -1
@@ -222,15 +244,15 @@ func getValueInFile() (string, string, string, string, string) {
 	}
 	if index == -1 && serverName == "" {
 		for i, v := range servers.Servers {
-			if "1" == v.Default {
+			if true == v.Default {
 				index = i
 			}
 		}
-		// if index == -1 {
-		// 	fmt.Printf(colorRed, "ERROR: ")
-		// 	fmt.Println(errors.New("No default server in yaml file"))
-		// 	os.Exit(1)
-		// }
+		if index == -1 {
+			fmt.Printf(colorRed, "ERROR: ")
+			fmt.Println(errors.New("No default server"))
+			os.Exit(1)
+		}
 	}
 
 	//If it exists => made authentification and create token and url as environments variables
@@ -238,14 +260,27 @@ func getValueInFile() (string, string, string, string, string) {
 		name := servers.Servers[index].Server
 		url := servers.Servers[index].Url
 		login := servers.Servers[index].Login
-		password := servers.Servers[index].Password
+		var password string
+		if strings.HasPrefix(servers.Servers[index].Password, "CENTCRYPT_") {
+			ciphertext := strings.TrimPrefix(servers.Servers[index].Password, "CENTCRYPT_")
+			keyString := os.Getenv("CENTCTL_DECRYPT_KEY")
+			if keyString == "" {
+				fmt.Printf(colorRed, "ERROR: ")
+				fmt.Println(errors.New("The env variable CENTCTL_DECRYPT_KEY is not set but your passwords are crypted"))
+				os.Exit(1)
+			}
+			password = request.Decrypt(ciphertext, keyString)
+		} else {
+			password = servers.Servers[index].Password
+		}
+
 		version := servers.Servers[index].Version
 		if os.Getenv("http_proxy") == "" {
-			if proxy["httpURL"] != "" {
-				if proxy["password"] != "" {
-					os.Setenv("http_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpURL"])
+			if len(proxy.Proxy) != 0 && proxy.Proxy[0].HttpURL != "" {
+				if proxy.Proxy[3].Password != "" {
+					os.Setenv("http_proxy", "http://"+proxy.Proxy[2].User+":"+proxy.Proxy[3].Password+"@"+proxy.Proxy[0].HttpURL)
 				} else {
-					os.Setenv("http_proxy", "http://"+proxy["httpURL"])
+					os.Setenv("http_proxy", "http://"+proxy.Proxy[0].HttpURL)
 				}
 			} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[0].HttpURL != "" {
 				if servers.Servers[index].Proxy[3].Password != "" {
@@ -255,12 +290,13 @@ func getValueInFile() (string, string, string, string, string) {
 				}
 			}
 		}
+
 		if os.Getenv("https_proxy") == "" {
-			if proxy["httpsURL"] != "" {
-				if proxy["password"] != "" {
-					os.Setenv("https_proxy", "http://"+proxy["user"]+":"+proxy["password"]+"@"+proxy["httpsURL"])
+			if len(proxy.Proxy) != 0 && proxy.Proxy[1].HttpsURL != "" {
+				if proxy.Proxy[3].Password != "" {
+					os.Setenv("https_proxy", "http://"+proxy.Proxy[2].User+":"+proxy.Proxy[3].Password+"@"+proxy.Proxy[1].HttpsURL)
 				} else {
-					os.Setenv("https_proxy", "http://"+proxy["httpsURL"])
+					os.Setenv("https_proxy", "http://"+proxy.Proxy[1].HttpsURL)
 				}
 			} else if len(servers.Servers[index].Proxy) != 0 && servers.Servers[index].Proxy[1].HttpsURL != "" {
 				if servers.Servers[index].Proxy[3].Password != "" {
@@ -270,14 +306,12 @@ func getValueInFile() (string, string, string, string, string) {
 				}
 			}
 		}
-		if servers.Servers[index].Insecure != "" {
-			if servers.Servers[index].Insecure == "1" {
-				insecure = true
-			} else {
-				insecure = false
-			}
-
+		if servers.Servers[index].Insecure == true {
+			insecure = true
+		} else if servers.Servers[index].Insecure == false {
+			insecure = false
 		}
+
 		return name, login, password, url, version
 	} else if serverName != "" {
 		fmt.Printf(colorRed, "ERROR: ")
