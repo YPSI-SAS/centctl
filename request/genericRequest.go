@@ -80,7 +80,7 @@ func GeneriqueCommandV1Get(urlCentreon string, command string, debugV bool) (err
 func GeneriqueCommandV2Get(urlCentreon string, command string, debugV bool) (error, []byte) {
 	colorRed := colorMessage.GetColorRed()
 
-	client := NewClientV2(urlCentreon)
+	client := NewClientV2(os.Getenv("URL") + "/api" + os.Getenv("VERSIONAPI") + urlCentreon)
 	statusCode, body, err := client.Get()
 
 	//If flag debug, print informations about the request API
@@ -112,7 +112,7 @@ func GeneriqueCommandV2Get(urlCentreon string, command string, debugV bool) (err
 func GeneriqueCommandV2Post(urlCentreon string, requestBody []byte, command string, debugV bool) (error, []byte) {
 	colorRed := colorMessage.GetColorRed()
 
-	client := NewClientV2(urlCentreon)
+	client := NewClientV2(os.Getenv("URL") + "/api" + os.Getenv("VERSIONAPI") + urlCentreon)
 	statusCode, body, err := client.Post(requestBody)
 
 	//If flag debug, print informations about the request API
@@ -144,7 +144,7 @@ func GeneriqueCommandV2Post(urlCentreon string, requestBody []byte, command stri
 func GeneriqueCommandV2Put(urlCentreon string, requestBody []byte, command string, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 
-	client := NewClientV2(urlCentreon)
+	client := NewClientV2(os.Getenv("URL") + "/api" + os.Getenv("VERSIONAPI") + urlCentreon)
 	statusCode, body, err := client.Put(requestBody)
 
 	//If flag debug, print informations about the request API

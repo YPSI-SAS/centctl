@@ -59,7 +59,7 @@ func ShowRealtimeHost(id int, debugV bool, output string) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(id)
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(id)
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "show host", debugV)
 	if err != nil {
 		return err

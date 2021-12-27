@@ -111,7 +111,7 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 	}
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/resources?limit=" + strconv.Itoa(limit) + "&types=[\"service\"]&statuses=" + stateSearch + "&states=" + viewTypeSearch
+	urlCentreon := "/monitoring/resources?limit=" + strconv.Itoa(limit) + "&types=[\"service\"]&statuses=" + stateSearch + "&states=" + viewTypeSearch
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "list realtimeService", debugV)
 	if err != nil {
 		return err

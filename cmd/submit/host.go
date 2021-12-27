@@ -72,7 +72,7 @@ func SubmitStatusHost(id int, output string, perfdata string, status string, deb
 		"performance_data": perfdata,
 	})
 
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(id) + "/submit"
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(id) + "/submit"
 	err, _ := request.GeneriqueCommandV2Post(urlCentreon, requestBody, "submit host", debugV)
 	if err != nil {
 		return err

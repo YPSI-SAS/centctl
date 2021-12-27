@@ -47,6 +47,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/withmandala/go-log"
+	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/viper"
@@ -198,10 +199,12 @@ func initConfig() {
 		}
 		var token string
 		var err error
+		versionAPI := "/beta"
 		if version == "v1" {
 			token, err = request.AuthentificationV1(url, login, password, insecure)
 		} else if version == "v2" {
-			token, err = request.AuthentificationV2(url, login, password, insecure)
+			token, versionAPI, err = request.AuthentificationV2(url, login, password, insecure, versionAPI)
+			os.Setenv("VERSIONAPI", versionAPI)
 		}
 		logger := log.New(os.Stdout).WithColor()
 		if err != nil {
@@ -220,9 +223,8 @@ func initConfig() {
 
 func getPasswordStdin(name string) string {
 	fmt.Print("Enter the password for the server \"" + name + "\": ")
-	var input string
-	fmt.Scanln(&input)
-	return input
+	password, _ := terminal.ReadPassword(0)
+	return string(password)
 }
 
 func getValueInFile() (string, string, string, string, string) {

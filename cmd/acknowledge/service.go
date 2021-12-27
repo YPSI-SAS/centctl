@@ -30,7 +30,6 @@ import (
 	"centctl/request"
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -66,7 +65,7 @@ func AcknowledgeService(comment string, notify bool, hostID int, serviceID int, 
 	})
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(hostID) + "/services/" + strconv.Itoa(serviceID) + "/acknowledgements"
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(hostID) + "/services/" + strconv.Itoa(serviceID) + "/acknowledgements"
 	err, _ := request.GeneriqueCommandV2Post(urlCentreon, requestBody, "acknowledge service", debugV)
 	if err != nil {
 		return err

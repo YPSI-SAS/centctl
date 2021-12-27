@@ -58,7 +58,7 @@ func ShowPoller(name string, output string, debugV bool) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/configuration/monitoring-servers?search={\"name\":\"" + name + "\"}"
+	urlCentreon := "/configuration/monitoring-servers?search={\"name\":\"" + name + "\"}"
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "show poller", debugV)
 	if err != nil {
 		return err

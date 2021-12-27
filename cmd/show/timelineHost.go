@@ -60,7 +60,7 @@ func ListTimelineHost(output string, id int, debugV bool) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(id) + "/timeline"
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(id) + "/timeline"
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "show timelineHost", debugV)
 	if err != nil {
 		return err

@@ -125,7 +125,7 @@ func (c *clientV2) Put(requestBody []byte) (int, []byte, error) {
 
 //IDPollerHost permits to retrieve the ID of the poller of this host
 func IDPollerHost(hostID int, debugV bool) (int, error) {
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(hostID)
+	urlCentreon := os.Getenv("URL") + "/api" + os.Getenv("VERSIONAPI") + "/monitoring/hosts/" + strconv.Itoa(hostID)
 	client := NewClientV2(urlCentreon)
 	statusCode, body, err := client.Get()
 	//If flag debug, print informations about the request API

@@ -56,7 +56,7 @@ var centreonProxyCmd = &cobra.Command{
 func ShowCentreonProxy(name string, debugV bool, output string) error {
 	output = strings.ToLower(output)
 
-	urlCentreon := os.Getenv("URL") + "/api/beta/configuration/proxy"
+	urlCentreon := "/configuration/proxy"
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "show centreonProxy", debugV)
 	if err != nil {
 		return err

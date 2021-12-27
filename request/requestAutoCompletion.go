@@ -103,6 +103,7 @@ func getDefaultServer() string {
 func authentificationToServer(name string) {
 	servers := &ServerList{}
 	var token string
+	var versionAPI string
 	yamlFile, _ := ioutil.ReadFile(os.Getenv("CENTCTL_CONF"))
 	_ = yaml.Unmarshal(yamlFile, servers)
 	for _, serv := range servers.Servers {
@@ -121,7 +122,8 @@ func authentificationToServer(name string) {
 					insecure = true
 				}
 				os.Setenv("URL", serv.Url)
-				token, _ = AuthentificationV2(serv.Url, serv.Login, serv.Password, insecure)
+				token, versionAPI, _ = AuthentificationV2(serv.Url, serv.Login, serv.Password, insecure, "/beta")
+				os.Setenv("VERSIONAPI", versionAPI)
 			}
 		}
 	}
@@ -506,7 +508,7 @@ func GetLDAPNames() []string {
 func GetPollerNames() []string {
 	var values []string
 
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/servers"
+	urlCentreon := "/monitoring/servers"
 	_, body := GeneriqueCommandV2Get(urlCentreon, "list poller", false)
 
 	var pollerResult poller.ResultPoller
