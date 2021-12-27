@@ -37,7 +37,7 @@ var versionCmd = &cobra.Command{
 	Short: "Show the version",
 	Long:  `Show the version of centctl`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("centctl v2.0")
+		fmt.Println("centctl v2.5.2")
 		fmt.Println(" ___________________________________________________________________________________________")
 		fmt.Println("/                                                                                            \\ ")
 		fmt.Println("|     _______    _______    ____     ___    _________    _______    _________    __          |")
