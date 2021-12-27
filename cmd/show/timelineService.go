@@ -61,7 +61,7 @@ func ListTimelineService(output string, idH int, idS int, debugV bool) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(idH) + "/services/" + strconv.Itoa(idS) + "/timeline"
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(idH) + "/services/" + strconv.Itoa(idS) + "/timeline"
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "show timelineService", debugV)
 	if err != nil {
 		return err

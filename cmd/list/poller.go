@@ -61,7 +61,7 @@ func ListPoller(output string, regex string, debugV bool) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/servers"
+	urlCentreon := "/monitoring/servers"
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "list poller", debugV)
 	if err != nil {
 		return err

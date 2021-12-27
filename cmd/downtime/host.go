@@ -87,7 +87,7 @@ func DowntimeHost(id int, startDay string, startHour string, fixed bool, duratio
 		"with_services": withServices,
 	})
 
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(id) + "/downtimes"
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(id) + "/downtimes"
 	err, _ = request.GeneriqueCommandV2Post(urlCentreon, requestBody, "downtime host", debugV)
 	if err != nil {
 		return err

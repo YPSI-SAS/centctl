@@ -43,7 +43,7 @@ type timezoneHost struct {
 
 func getTimezoneHost(hostId int, debugV bool) string {
 	//Recovery the  output of a service
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(hostId)
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(hostId)
 	_, body := request.GeneriqueCommandV2Get(urlCentreon, "downtime get timezone", debugV)
 
 	//Permits to recover the array result

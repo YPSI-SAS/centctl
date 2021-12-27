@@ -198,10 +198,12 @@ func initConfig() {
 		}
 		var token string
 		var err error
+		versionAPI := "/beta"
 		if version == "v1" {
 			token, err = request.AuthentificationV1(url, login, password, insecure)
 		} else if version == "v2" {
-			token, err = request.AuthentificationV2(url, login, password, insecure)
+			token, versionAPI, err = request.AuthentificationV2(url, login, password, insecure, versionAPI)
+			os.Setenv("VERSIONAPI", versionAPI)
 		}
 		logger := log.New(os.Stdout).WithColor()
 		if err != nil {

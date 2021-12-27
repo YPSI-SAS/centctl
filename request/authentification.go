@@ -35,6 +35,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 //Token represents the generate token by the authentification
@@ -84,7 +85,7 @@ func AuthentificationV1(urlServer string, login string, password string, insecur
 }
 
 //AuthentificationV2 allow the authentification at the server specified with API v2
-func AuthentificationV2(urlServer string, login string, password string, insecure bool) (string, error) {
+func AuthentificationV2(urlServer string, login string, password string, insecure bool, versionAPI string) (string, string, error) {
 	colorRed := colorMessage.GetColorRed()
 	request := make(map[string]interface{})
 	request["security"] = map[string]interface{}{
@@ -97,10 +98,11 @@ func AuthentificationV2(urlServer string, login string, password string, insecur
 	// Marshal the map into a JSON string.
 	requestBody, err := json.Marshal(request)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	urlCentreon := urlServer + "/api/beta/login"
+REQUEST:
+	urlCentreon := urlServer + "/api" + versionAPI + "/login"
 
 	if insecure {
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -110,7 +112,7 @@ func AuthentificationV2(urlServer string, login string, password string, insecur
 		bytes.NewBuffer(requestBody))
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	if resp.StatusCode == 401 {
@@ -127,11 +129,15 @@ func AuthentificationV2(urlServer string, login string, password string, insecur
 	var raw map[string]interface{}
 	err = json.Unmarshal(body, &raw)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	_, ok := raw["code"]
 	if ok {
 		message, _ := raw["message"]
+		if strings.Contains(message.(string), "No route found for") {
+			versionAPI = "/latest"
+			goto REQUEST
+		}
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println(message)
 		os.Exit(1)
@@ -140,5 +146,5 @@ func AuthentificationV2(urlServer string, login string, password string, insecur
 	token = token.(interface{}).(map[string]interface{})["token"]
 	tokenVal := fmt.Sprintf("%v", token)
 
-	return tokenVal, err
+	return tokenVal, versionAPI, err
 }

@@ -168,7 +168,7 @@ func getMinMaxValue(data []float64) (float64, float64) {
 }
 
 func displayMetrics(hostID int, serviceID int, debugV bool, description string, pathGraph string) {
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(hostID) + "/services/" + strconv.Itoa(serviceID) + "/metrics/performance"
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(hostID) + "/services/" + strconv.Itoa(serviceID) + "/metrics/performance"
 	_, body := request.GeneriqueCommandV2Get(urlCentreon, "show service", debugV)
 
 	graphe := Graph{}

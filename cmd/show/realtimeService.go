@@ -60,7 +60,7 @@ func ShowRealtimeService(hostID int, serviceID int, debugV bool, output string) 
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := os.Getenv("URL") + "/api/beta/monitoring/hosts/" + strconv.Itoa(hostID) + "/services/" + strconv.Itoa(serviceID)
+	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(hostID) + "/services/" + strconv.Itoa(serviceID)
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "show service", debugV)
 	if err != nil {
 		return err

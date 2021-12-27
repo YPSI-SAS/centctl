@@ -30,7 +30,6 @@ import (
 	"centctl/request"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -62,7 +61,7 @@ func DeleteCentreonProxy(debugV bool) error {
 	if err != nil {
 		return err
 	}
-	urlCentreon := os.Getenv("URL") + "/api/beta/configuration/proxy"
+	urlCentreon := "/configuration/proxy"
 	err = request.GeneriqueCommandV2Put(urlCentreon, requestBody, "add centreonProxy", debugV)
 	if err != nil {
 		return err
