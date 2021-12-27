@@ -47,6 +47,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/withmandala/go-log"
+	"golang.org/x/crypto/ssh/terminal"
 	"gopkg.in/yaml.v2"
 
 	"github.com/spf13/viper"
@@ -222,9 +223,8 @@ func initConfig() {
 
 func getPasswordStdin(name string) string {
 	fmt.Print("Enter the password for the server \"" + name + "\": ")
-	var input string
-	fmt.Scanln(&input)
-	return input
+	password, _ := terminal.ReadPassword(0)
+	return string(password)
 }
 
 func getValueInFile() (string, string, string, string, string) {
