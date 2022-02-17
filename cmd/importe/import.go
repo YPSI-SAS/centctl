@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package cmd
+package importe
 
 import (
 	"centctl/cmd/add"
@@ -54,8 +54,8 @@ import (
 	mTemplate "centctl/cmd/modify/template"
 )
 
-// importCmd represents the import command
-var importCmd = &cobra.Command{
+// Cmd represents the import command
+var Cmd = &cobra.Command{
 	Use:   "import",
 	Short: "Import the objects contained in the csv file",
 	Long:  `Import the objects contained in the csv file`,
@@ -67,6 +67,8 @@ var importCmd = &cobra.Command{
 		ImportCSV(file, debugV, apply, detail)
 	},
 }
+
+var colorRed string = colorMessage.GetColorRed()
 
 //ImportCSV permits to import objects
 func ImportCSV(file string, debugV bool, apply bool, detail bool) {
@@ -981,9 +983,8 @@ func getPollers(debugV bool) []string {
 }
 
 func init() {
-	rootCmd.AddCommand(importCmd)
-	importCmd.Flags().StringP("file", "f", "", "To define the file which contains the objects to be imported")
-	importCmd.MarkFlagFilename("file", "csv")
-	importCmd.Flags().Bool("apply", false, "Export configuration of the poller")
-	importCmd.Flags().Bool("DETAIL", false, "Details information for all addition or modification")
+	Cmd.Flags().StringP("file", "f", "", "To define the file which contains the objects to be imported")
+	Cmd.MarkFlagFilename("file", "csv")
+	Cmd.Flags().Bool("apply", false, "Export configuration of the poller")
+	Cmd.Flags().Bool("DETAIL", false, "Details information for all addition or modification")
 }

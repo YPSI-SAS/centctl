@@ -32,6 +32,7 @@ import (
 	"centctl/cmd/delete"
 	"centctl/cmd/downtime"
 	"centctl/cmd/export"
+	"centctl/cmd/importe"
 	"centctl/cmd/list"
 	"centctl/cmd/modify"
 	"centctl/cmd/show"
@@ -150,6 +151,7 @@ func init() {
 	rootCmd.AddCommand(add.Cmd)
 	rootCmd.AddCommand(modify.Cmd)
 	rootCmd.AddCommand(submit.Cmd)
+	rootCmd.AddCommand(importe.Cmd)
 
 }
 
