@@ -155,7 +155,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if os.Args[1] != "version" && os.Args[1] != "completion" && os.Args[1] != "encrypt" {
+	if os.Args[1] != "version" && os.Args[1] != "completion" && os.Args[1] != "encrypt" && os.Args[1] != "config" {
 		// colorRed := colorMessage.GetColorRed()
 		cfgFile := os.Getenv("CENTCTL_CONF")
 		// Use config file from the flag.
