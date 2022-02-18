@@ -32,6 +32,7 @@ import (
 	"centctl/cmd/delete"
 	"centctl/cmd/downtime"
 	"centctl/cmd/export"
+	"centctl/cmd/importe"
 	"centctl/cmd/list"
 	"centctl/cmd/modify"
 	"centctl/cmd/show"
@@ -150,12 +151,13 @@ func init() {
 	rootCmd.AddCommand(add.Cmd)
 	rootCmd.AddCommand(modify.Cmd)
 	rootCmd.AddCommand(submit.Cmd)
+	rootCmd.AddCommand(importe.Cmd)
 
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if os.Args[1] != "version" && os.Args[1] != "completion" && os.Args[1] != "encrypt" {
+	if os.Args[1] != "version" && os.Args[1] != "completion" && os.Args[1] != "encrypt" && os.Args[1] != "config" {
 		// colorRed := colorMessage.GetColorRed()
 		cfgFile := os.Getenv("CENTCTL_CONF")
 		// Use config file from the flag.
