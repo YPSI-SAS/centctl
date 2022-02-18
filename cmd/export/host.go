@@ -25,6 +25,8 @@ SOFTWARE.
 package export
 
 import (
+	"centctl/cmd/export/group"
+	"centctl/cmd/export/template"
 	"centctl/colorMessage"
 	"centctl/request"
 	"centctl/resources/host"
@@ -49,7 +51,11 @@ var hostCmd = &cobra.Command{
 		file, _ := cmd.Flags().GetString("file")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
 		services, _ := cmd.Flags().GetBool("services")
-		err := ExportHost(name, regex, file, all, debugV, services)
+		groups, _ := cmd.Flags().GetBool("groups")
+		hostTpl, _ := cmd.Flags().GetBool("hostTpl")
+		serviceTpl, _ := cmd.Flags().GetBool("serviceTpl")
+		commands, _ := cmd.Flags().GetBool("commands")
+		err := ExportHost(name, regex, file, all, debugV, services, groups, hostTpl, serviceTpl, commands)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -57,7 +63,7 @@ var hostCmd = &cobra.Command{
 }
 
 //ExportHost permits to export a host of the centreon server
-func ExportHost(name []string, regex string, file string, all bool, debugV bool, services bool) error {
+func ExportHost(name []string, regex string, file string, all bool, debugV bool, services bool, groups bool, hostTpl bool, serviceTpl bool, commands bool) error {
 	colorRed := colorMessage.GetColorRed()
 	if !all && len(name) == 0 && regex == "" {
 		fmt.Printf(colorRed, "ERROR: ")
@@ -95,6 +101,40 @@ func ExportHost(name []string, regex string, file string, all bool, debugV bool,
 		}
 		if host.Name == "" {
 			continue
+		}
+
+		if groups {
+			if len(host.HostGroups) != 0 {
+				for _, h := range host.HostGroups {
+					err := group.ExportGroupHost([]string{h.Name}, "", file, false, debugV)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+		}
+
+		if hostTpl {
+			if len(host.Templates) != 0 {
+				for _, h := range host.Templates {
+					err := template.ExportTemplateHost([]string{h.Name}, "", file, false, serviceTpl, debugV)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
+		}
+
+		if commands {
+			if host.CheckCommand != "" {
+				err := ExportCommand([]string{host.CheckCommand}, "", "", file, false, debugV)
+				if err != nil {
+					return err
+				}
+			}
+
 		}
 
 		//Write host informations
@@ -333,4 +373,9 @@ func init() {
 	hostCmd.Flags().StringSliceP("name", "n", []string{}, "Host's name (separate by a comma the multiple values)")
 	hostCmd.Flags().StringP("regex", "r", "", "The regex to apply on the host's name")
 	hostCmd.Flags().Bool("services", false, "Export all services related to this host")
+	hostCmd.Flags().Bool("groups", false, "Export all hostgroups related to this host")
+	hostCmd.Flags().Bool("hostTpl", false, "Export all host templates related to this host")
+	hostCmd.Flags().Bool("serviceTpl", false, "Export all services templates related to the host template")
+	hostCmd.Flags().Bool("commands", false, "Export all commands related to the host")
+
 }

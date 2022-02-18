@@ -128,7 +128,7 @@ func ExportAll(file string, debugV bool) error {
 	if err != nil {
 		return err
 	}
-	err = ExportHost([]string{}, "", file, true, debugV, false)
+	err = ExportHost([]string{}, "", file, true, debugV, false, false, false, false, false)
 	if err != nil {
 		return err
 	}
