@@ -508,10 +508,10 @@ func GetLDAPNames() []string {
 func GetPollerNames() []string {
 	var values []string
 
-	urlCentreon := "/monitoring/servers"
+	urlCentreon := "/configuration/monitoring-servers"
 	_, body := GeneriqueCommandV2Get(urlCentreon, "list poller", false)
 
-	var pollerResult poller.ResultPoller
+	var pollerResult poller.RealtimeResultPoller
 	json.Unmarshal(body, &pollerResult)
 
 	if len(pollerResult.Pollers) != 0 {

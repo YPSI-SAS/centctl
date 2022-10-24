@@ -56,6 +56,7 @@ func init() {
 	Cmd.AddCommand(pollerCmd)
 	Cmd.AddCommand(realtimeHostCmd)
 	Cmd.AddCommand(realtimeServiceCmd)
+	Cmd.AddCommand(realtimePollerCmd)
 	Cmd.AddCommand(resourceCFGCmd)
 	Cmd.AddCommand(serviceCmd)
 	Cmd.AddCommand(template.Cmd)
