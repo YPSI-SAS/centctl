@@ -29,7 +29,6 @@ import (
 	"centctl/resources"
 	"encoding/json"
 	"strconv"
-	"time"
 
 	"github.com/jszwec/csvutil"
 	"github.com/pterm/pterm"
@@ -38,13 +37,30 @@ import (
 
 //Poller represents the caracteristics of a poller
 type Poller struct {
-	ID          int    `json:"id" yaml:"id"`
-	Name        string `json:"name" yaml:"name"`
-	Address     string `json:"address" yaml:"address"`
-	IsRunning   bool   `json:"is_running" yaml:"is_running"`
-	LastAlive   int64  `json:"last_alive" yaml:"last_alive"`
-	Version     string `json:"version" yaml:"version"`
-	Description string `json:"description" yaml:"description"`
+	ID                       int    `json:"id"`
+	Name                     string `json:"name"`
+	Address                  string `json:"address"`
+	IsLocalhost              bool   `json:"is_localhost"`
+	IsDefault                bool   `json:"is_default"`
+	SSHPort                  int    `json:"ssh_port"`
+	LastRestart              string `json:"last_restart"`
+	EngineStartCommand       string `json:"engine_start_command"`
+	EngineStopCommand        string `json:"engine_stop_command"`
+	EngineRestartCommand     string `json:"engine_restart_command"`
+	EngineReloadCommand      string `json:"engine_reload_command"`
+	NagiosBin                string `json:"nagios_bin"`
+	NagiostatsBin            string `json:"nagiostats_bin"`
+	BrokerReloadCommand      string `json:"broker_reload_command"`
+	CentreonbrokerCfgPath    string `json:"centreonbroker_cfg_path"`
+	CentreonbrokerModulePath string `json:"centreonbroker_module_path"`
+	CentreonbrokerLogsPath   string `json:"centreonbroker_logs_path"`
+	CentreonconnectorPath    string `json:"centreonconnector_path"`
+	InitScriptCentreontrapd  string `json:"init_script_centreontrapd"`
+	SnmpTrapdPathConf        string `json:"snmp_trapd_path_conf"`
+	RemoteID                 string `json:"remote_id"`
+	RemoteServerUseAsProxy   bool   `json:"remote_server_use_as_proxy"`
+	IsUpdated                bool   `json:"is_updated"`
+	IsActivate               bool   `json:"is_activate"`
 }
 
 type ResultPoller struct {
@@ -65,9 +81,9 @@ type Informations struct {
 //StringText permits to display the caracteristics of the pollers to text
 func (s Server) StringText() string {
 	var table pterm.TableData
-	table = append(table, []string{"ID", "Name", "Address", "IsRunning", "LastAlive", "Version", "Description"})
+	table = append(table, []string{"ID", "Name", "Address", "IsLocalhost", "IsDefault", "IsUpdate", "IsActivate"})
 	for i := 0; i < len(s.Server.Pollers); i++ {
-		table = append(table, []string{strconv.Itoa(s.Server.Pollers[i].ID), s.Server.Pollers[i].Name, s.Server.Pollers[i].Address, strconv.FormatBool(s.Server.Pollers[i].IsRunning), (time.Unix(s.Server.Pollers[i].LastAlive, 0).Format(time.UnixDate)), s.Server.Pollers[i].Version, s.Server.Pollers[i].Description})
+		table = append(table, []string{strconv.Itoa(s.Server.Pollers[i].ID), s.Server.Pollers[i].Name, s.Server.Pollers[i].Address, strconv.FormatBool(s.Server.Pollers[i].IsLocalhost), strconv.FormatBool(s.Server.Pollers[i].IsActivate), strconv.FormatBool(s.Server.Pollers[i].IsUpdated)})
 	}
 	values := resources.TableListWithHeader(table)
 	return values

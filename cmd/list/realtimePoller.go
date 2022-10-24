@@ -22,7 +22,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 package list
 
 import (
@@ -41,55 +40,55 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// pollerCmd represents the poller command
-var pollerCmd = &cobra.Command{
-	Use:   "poller",
-	Short: "List the pollers",
-	Long:  `List the pollers wof the Centreon Server`,
+// realtimePollerCmd represents the realtimePoller command
+var realtimePollerCmd = &cobra.Command{
+	Use:   "realtimePoller",
+	Short: "List the pollers's realtime informations",
+	Long:  `List the pollers's realtime information of the Centreon Server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		output, _ := cmd.Flags().GetString("output")
-		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		regex, _ := cmd.Flags().GetString("regex")
 		limit, _ := cmd.Flags().GetInt("limit")
-		err := ListPoller(output, limit, regex, debugV)
+		regex, _ := cmd.Flags().GetString("regex")
+		debugV, _ := cmd.Flags().GetBool("DEBUG")
+		err := ListRealtimePoller(output, limit, regex, debugV)
 		if err != nil {
 			fmt.Println(err)
 		}
 	},
 }
 
-//ListPoller permits to display the array of poller return by the API
-func ListPoller(output string, limit int, regex string, debugV bool) error {
+//ListRealtimePoller permits to display the array of realtime poller return by the API
+func ListRealtimePoller(output string, limit int, regex string, debugV bool) error {
 	output = strings.ToLower(output)
 
 	//Recovery of the response body
-	urlCentreon := "/configuration/monitoring-servers?limit=" + strconv.Itoa(limit)
-	err, body := request.GeneriqueCommandV2Get(urlCentreon, "list poller", debugV)
+	urlCentreon := "/monitoring/servers?limit=" + strconv.Itoa(limit)
+	err, body := request.GeneriqueCommandV2Get(urlCentreon, "list realtime poller", debugV)
 	if err != nil {
 		return err
 	}
 
 	//Permits to recover the array result into the body
-	var pollerResult poller.ResultPoller
+	var pollerResult poller.RealtimeResultPoller
 	json.Unmarshal(body, &pollerResult)
 	finalPollers := pollerResult.Pollers
 	if regex != "" {
-		finalPollers = deletePoller(finalPollers, regex)
+		finalPollers = deleteRealtimePoller(finalPollers, regex)
 	}
 
 	//Sort hosts based on their ID
 	sort.SliceStable(finalPollers, func(i, j int) bool {
 		return strings.ToLower(finalPollers[i].Name) < strings.ToLower(finalPollers[j].Name)
 	})
-	server := poller.Server{
-		Server: poller.Informations{
+	server := poller.RealtimeServer{
+		Server: poller.RealtimeInformations{
 			Name:    os.Getenv("SERVER"),
 			Pollers: finalPollers,
 		},
 	}
 
 	//Display all pollers
-	displayPoller, err := display.Poller(output, server)
+	displayPoller, err := display.RealtimePoller(output, server)
 	if err != nil {
 		return err
 	}
@@ -97,7 +96,7 @@ func ListPoller(output string, limit int, regex string, debugV bool) error {
 	return nil
 }
 
-func deletePoller(pollers []poller.Poller, regex string) []poller.Poller {
+func deleteRealtimePoller(pollers []poller.RealtimePoller, regex string) []poller.RealtimePoller {
 	colorRed := colorMessage.GetColorRed()
 	index := 0
 	for _, s := range pollers {
@@ -116,6 +115,6 @@ func deletePoller(pollers []poller.Poller, regex string) []poller.Poller {
 }
 
 func init() {
-	pollerCmd.Flags().IntP("limit", "l", 10, "The number of pollers you want to list")
-	pollerCmd.Flags().StringP("regex", "r", "", "The regex to apply on the poller's name")
+	realtimePollerCmd.Flags().IntP("limit", "l", 10, "The number of pollers you want to list")
+	realtimePollerCmd.Flags().StringP("regex", "r", "", "The regex to apply on the poller's name")
 }

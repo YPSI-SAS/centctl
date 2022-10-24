@@ -460,6 +460,22 @@ func DetailHost(output string, server host.DetailServer) (string, error) {
 	}
 }
 
+//RealtimePoller permits to display the pollers realtime depending on the output
+func RealtimePoller(output string, server poller.RealtimeServer) (string, error) {
+	switch output {
+	case "json":
+		return server.StringJSON(), nil
+	case "csv":
+		return server.StringCSV(), nil
+	case "yaml":
+		return server.StringYAML(), nil
+	case "text":
+		return server.StringText(), nil
+	default:
+		return "", fmt.Errorf("The output is not correct, used : text, csv, json or yaml")
+	}
+}
+
 //Poller permits to display the pollers depending on the output
 func Poller(output string, server poller.Server) (string, error) {
 	switch output {
