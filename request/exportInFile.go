@@ -68,6 +68,6 @@ func WriteValues(values string, file string, writeFile bool) {
 	if writeFile {
 		_ = writeInFile(values, file)
 	} else {
-		fmt.Printf(values)
+		fmt.Print(values)
 	}
 }
