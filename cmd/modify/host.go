@@ -41,10 +41,11 @@ var hostCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
 		apply, _ := cmd.Flags().GetBool("apply")
-		err := ModifyHost(name, parameter, value, debugV, apply, false, true)
+		err := ModifyHost(name, parameter, value, operation, debugV, apply, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -52,55 +53,73 @@ var hostCmd = &cobra.Command{
 }
 
 //ModifyHost permits to modify a host in the centreon server
-func ModifyHost(name string, parameter string, value string, debugV bool, apply bool, isImport bool, detail bool) error {
+func ModifyHost(name string, parameter string, value string, operation string, debugV bool, apply bool, isImport bool, detail bool) error {
 	colorGreen := colorMessage.GetColorGreen()
 	colorRed := colorMessage.GetColorRed()
 	isTemplate := false
+	isDefault := false
 	var action string
 	var values string
 	object := "host"
+	operation = strings.ToLower(operation)
+
+	if operation != "add" && operation != "del" {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println("The operation's value must be : add or del")
+		os.Exit(1)
+	}
 
 	switch strings.ToLower(parameter) {
 	case "instance":
 		action = "setinstance"
 		values = name + ";" + value
 	case "template":
-		action = "addtemplate"
-		values = name + ";" + value
+		isDefault = true
 		isTemplate = true
 	case "parent":
-		action = "addparent"
-		values = name + ";" + value
+		isDefault = true
 	case "child":
-		action = "addchild"
-		values = name + ";" + value
+		isDefault = true
 	case "contactgroup":
-		action = "addcontactgroup"
-		values = name + ";" + value
+		isDefault = true
 	case "contact":
-		action = "addcontact"
-		values = name + ";" + value
+		isDefault = true
 	case "hostgroup":
-		action = "addhostgroup"
-		values = name + ";" + value
+		isDefault = true
 	case "hostcategorie":
-		action = "addmember"
-		values = value + ";" + name
-		object = "HC"
-	case "macro":
-		valueSplit := strings.Split(value, "|")
-		if len(valueSplit) < 4 || len(valueSplit) > 4 {
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println("The new value for macro must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
-			os.Exit(1)
+		if operation == "add" {
+			action = "addmember"
+			values = value + ";" + name
+			object = "HC"
+		} else {
+			action = "delmember"
+			values = value + ";" + name
+			object = "HC"
 		}
-		action = "setmacro"
-		values = name + ";" + valueSplit[0] + ";" + valueSplit[1] + ";" + valueSplit[2] + ";" + valueSplit[3]
-		object = "HOST"
+	case "macro":
+		if operation == "add" {
+			valueSplit := strings.Split(value, "|")
+			if len(valueSplit) < 4 || len(valueSplit) > 4 {
+				fmt.Printf(colorRed, "ERROR: ")
+				fmt.Println("The new value for macro must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
+				os.Exit(1)
+			}
+			action = "setmacro"
+			values = name + ";" + valueSplit[0] + ";" + valueSplit[1] + ";" + valueSplit[2] + ";" + valueSplit[3]
+			object = "HOST"
+		} else {
+			action = "delmacro"
+			values = name + ";" + value
+			object = "HOST"
+		}
 	default:
 		action = "setparam"
 		values = name + ";" + parameter + ";" + value
+	}
 
+	if isDefault {
+		action = operation + strings.ToLower(parameter)
+		values = name + ";" + value
 	}
 
 	poller := ""
@@ -149,7 +168,12 @@ func init() {
 	hostCmd.RegisterFlagCompletionFunc("parameter", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{"instance", "template", "parent", "child", "contactgroup", "contact", "hostgroup", "hostcategorie", "macro", "geo_coords", "2d_coords", "3d_coords", "action_url", "activate", "active_checks_enabled", "acknowledgement_timeout", "address", "alias", "check_command", "check_command_arguments", "check_interval", "check_freshness", "check_period", "contact_additive_inheritance", "cg_additive_inheritance", "event_handler", "event_handler_arguments", "event_handler_enabled", "first_notification_delay", "flap_detection_enabled", "flap_detection_options", "host_high_flap_threshold", "host_low_flap_threshold", "icon_image", "icon_image_alt", "max_check_attempts", "name", "notes", "notes_url", "notifications_enabled", "notification_interval", "notification_options", "notification_period", "recovery_notification_delay", "obsess_over_host", "passive_checks_enabled", "retain_nonstatus_information", "retain_status_information", "retry_check_interval", "snmp_community", "snmp_version", "stalking_options", "statusmap_image", "host_notification_options", "timezone", "comment"}, cobra.ShellCompDirectiveDefault
 	})
-	hostCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
+	hostCmd.Flags().StringP("value", "v", "", "To define the value of the parameter to be modified. If parameter is MACRO and operation add the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
 	hostCmd.MarkFlagRequired("value")
+	hostCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	hostCmd.MarkFlagRequired("operation")
+	hostCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 	hostCmd.Flags().Bool("apply", false, "Export configuration of the poller")
 }

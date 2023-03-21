@@ -39,9 +39,10 @@ var dependencyCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ModifyDependency(name, parameter, value, debugV, false, true)
+		err := ModifyDependency(name, parameter, value, operation, debugV, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -49,21 +50,25 @@ var dependencyCmd = &cobra.Command{
 }
 
 //ModifyDependency permits to modify a dependency in the centreon server
-func ModifyDependency(name string, parameter string, value string, debugV bool, isImport bool, detail bool) error {
+func ModifyDependency(name string, parameter string, value string, operation string, debugV bool, isImport bool, detail bool) error {
 	var action string
 	var values string
+	isDefault := false
+	operation = strings.ToLower(operation)
 
 	switch strings.ToLower(parameter) {
 	case "parent":
-		action = "addparent"
-		values = name + ";" + value
+		isDefault = true
 	case "child":
-		action = "addchild"
-		values = name + ";" + value
+		isDefault = true
 	default:
 		action = "setparam"
 		values = name + ";" + parameter + ";" + value
+	}
 
+	if isDefault {
+		action = operation + strings.ToLower(parameter)
+		values = name + ";" + value
 	}
 
 	err := request.Modify(action, "DEP", values, "modify dependency", name, parameter, detail, debugV, false, "", isImport)
@@ -91,5 +96,9 @@ func init() {
 	})
 	dependencyCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	dependencyCmd.MarkFlagRequired("value")
-
+	dependencyCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	dependencyCmd.MarkFlagRequired("operation")
+	dependencyCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 }

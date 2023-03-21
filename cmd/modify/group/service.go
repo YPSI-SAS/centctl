@@ -41,9 +41,10 @@ var serviceCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ModifyGroupService(name, parameter, value, debugV, false, true)
+		err := ModifyGroupService(name, parameter, value, operation, debugV, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -51,11 +52,18 @@ var serviceCmd = &cobra.Command{
 }
 
 //ModifyGroupService permits to modify a service in the centreon server
-func ModifyGroupService(name string, parameter string, value string, debugV bool, isImport bool, detail bool) error {
+func ModifyGroupService(name string, parameter string, value string, operation string, debugV bool, isImport bool, detail bool) error {
 	colorRed := colorMessage.GetColorRed()
 	//Creation of the request body
 	var values string
 	var action string
+	operation = strings.ToLower(operation)
+	if operation != "add" && operation != "del" {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println("The operation's value must be : add or del")
+		os.Exit(1)
+	}
+
 	switch strings.ToLower(parameter) {
 	case "service":
 		valueSplit := strings.Split(value, "|")
@@ -65,7 +73,7 @@ func ModifyGroupService(name string, parameter string, value string, debugV bool
 			os.Exit(1)
 		}
 		values = name + ";" + valueSplit[0] + "," + valueSplit[1]
-		action = "addservice"
+		action = operation + strings.ToLower(parameter)
 	case "hostgroupservice":
 		valueSplit := strings.Split(value, "|")
 		if len(valueSplit) < 2 || len(valueSplit) > 2 {
@@ -74,7 +82,7 @@ func ModifyGroupService(name string, parameter string, value string, debugV bool
 			os.Exit(1)
 		}
 		values = name + ";" + valueSplit[0] + "," + valueSplit[1]
-		action = "addhostgroupservice"
+		action = operation + strings.ToLower(parameter)
 	default:
 		values = name + ";" + parameter + ";" + value
 		action = "setparam"
@@ -104,4 +112,9 @@ func init() {
 	})
 	serviceCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is service or hostgroupservice the value must be of the form : host|service or hostGroup|service")
 	serviceCmd.MarkFlagRequired("value")
+	serviceCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	serviceCmd.MarkFlagRequired("operation")
+	serviceCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 }

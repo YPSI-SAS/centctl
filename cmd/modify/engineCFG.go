@@ -39,9 +39,10 @@ var engineCFGCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ModifyEngineCFG(name, parameter, value, debugV, false, true)
+		err := ModifyEngineCFG(name, parameter, value, operation, debugV, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -49,13 +50,14 @@ var engineCFGCmd = &cobra.Command{
 }
 
 //ModifyEngineCFG permits to modify a engineCFG in the centreon server
-func ModifyEngineCFG(name string, parameter string, value string, debugV bool, isImport bool, detail bool) error {
+func ModifyEngineCFG(name string, parameter string, value string, operation string, debugV bool, isImport bool, detail bool) error {
 	var action string
 	var values string
+	operation = strings.ToLower(operation)
 
 	switch strings.ToLower(parameter) {
 	case "brokermodule":
-		action = "addbrokermodule"
+		action = operation + strings.ToLower(parameter)
 		values = name + ";" + value
 	default:
 		action = "setparam"
@@ -88,4 +90,9 @@ func init() {
 	})
 	engineCFGCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	engineCFGCmd.MarkFlagRequired("value")
+	engineCFGCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	engineCFGCmd.MarkFlagRequired("operation")
+	engineCFGCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 }
