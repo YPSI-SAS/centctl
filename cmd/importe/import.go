@@ -448,7 +448,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of ACL Group
-			err = mACL.ModifyACLGroup(name, parameter, value, debugV, false, true, detail)
+			err = mACL.ModifyACLGroup(name, parameter, value, "add", debugV, false, true, detail)
 
 		case "aclmenu":
 			//Recovery the values of the ACL Menu
@@ -517,7 +517,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of category host
-			err = mCategory.ModifyCategoryHost(name, parameter, value, debugV, true, detail)
+			err = mCategory.ModifyCategoryHost(name, parameter, value, "add", debugV, true, detail)
 
 		case "categoryservice":
 			//Recovery the values of the category service
@@ -526,7 +526,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of category service
-			err = mCategory.ModifyCategoryService(name, parameter, value, debugV, true, detail)
+			err = mCategory.ModifyCategoryService(name, parameter, value, "add", debugV, true, detail)
 
 		case "command":
 			//Recovery the values of the command
@@ -553,7 +553,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of dependency
-			err = modify.ModifyDependency(name, parameter, value, debugV, true, detail)
+			err = modify.ModifyDependency(name, parameter, value, "add", debugV, true, detail)
 
 		case "enginecfg":
 			//Recovery the values of the engine CFG
@@ -562,7 +562,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of engine CFG
-			err = modify.ModifyEngineCFG(name, parameter, value, debugV, true, detail)
+			err = modify.ModifyEngineCFG(name, parameter, value, "add", debugV, true, detail)
 
 		case "groupcontact":
 			//Recovery the values of the group contact
@@ -571,7 +571,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of group contact
-			err = mGroup.ModifyGroupContact(name, parameter, value, debugV, true, detail)
+			err = mGroup.ModifyGroupContact(name, parameter, value, "add", debugV, true, detail)
 
 		case "grouphost":
 			//Recovery the values of the group host
@@ -580,7 +580,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of group host
-			err = mGroup.ModifyGroupHost(name, parameter, value, debugV, true, detail)
+			err = mGroup.ModifyGroupHost(name, parameter, value, "add", debugV, true, detail)
 
 		case "groupservice":
 			//Recovery the values of the group service
@@ -589,7 +589,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of group service
-			err = mGroup.ModifyGroupService(name, parameter, value, debugV, true, detail)
+			err = mGroup.ModifyGroupService(name, parameter, value, "add", debugV, true, detail)
 
 		case "host":
 			//Recovery the values of the host
@@ -598,7 +598,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of group host
-			err = modify.ModifyHost(name, parameter, value, debugV, false, true, detail)
+			err = modify.ModifyHost(name, parameter, value, "add", debugV, false, true, detail)
 
 		case "ldap":
 			//Recovery the values of the LDAP
@@ -607,7 +607,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of LDAP
-			err = modify.ModifyLDAP(name, parameter, value, debugV, true, detail)
+			err = modify.ModifyLDAP(name, parameter, value, "add", debugV, true, detail)
 
 		case "poller":
 			//Recovery the values of the poller
@@ -635,7 +635,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[5]
 
 			//Modification of service
-			err = modify.ModifyService(hostName, description, parameter, value, debugV, false, true, detail)
+			err = modify.ModifyService(hostName, description, parameter, value, "add", debugV, false, true, detail)
 
 		case "templatecontact":
 			//Recovery the values of the template contact
@@ -653,7 +653,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of template host
-			err = mTemplate.ModifyTemplateHost(name, parameter, value, debugV, true, detail)
+			err = mTemplate.ModifyTemplateHost(name, parameter, value, "add", debugV, true, detail)
 
 		case "templateservice":
 			//Recovery the values of the template service
@@ -662,7 +662,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of template service
-			err = mTemplate.ModifyTemplateService(name, parameter, value, debugV, true, detail)
+			err = mTemplate.ModifyTemplateService(name, parameter, value, "add", debugV, true, detail)
 
 		case "timeperiod":
 			//Recovery the values of the timePeriod
@@ -680,7 +680,7 @@ func executeActionOnObject(record []string, debugV bool, detail bool) {
 			value = record[4]
 
 			//Modification of trap
-			err = modify.ModifyTrap(name, parameter, value, debugV, true, detail)
+			err = modify.ModifyTrap(name, parameter, value, "add", debugV, true, detail)
 
 		case "vendor":
 			//Recovery the values of the vendor

@@ -41,9 +41,10 @@ var serviceCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ModifyTemplateService(name, parameter, value, debugV, false, true)
+		err := ModifyTemplateService(name, parameter, value, operation, debugV, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -51,41 +52,54 @@ var serviceCmd = &cobra.Command{
 }
 
 //ModifyTemplateService permits to modify a service in the centreon server
-func ModifyTemplateService(name string, parameter string, value string, debugV bool, isImport bool, detail bool) error {
+func ModifyTemplateService(name string, parameter string, value string, operation string, debugV bool, isImport bool, detail bool) error {
 	colorRed := colorMessage.GetColorRed()
 	var action string
 	var values string
+	isDefault := false
+
+	operation = strings.ToLower(operation)
+	if operation != "add" && operation != "del" {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println("The operation's value must be : add or del")
+		os.Exit(1)
+	}
 
 	switch strings.ToLower(parameter) {
 	case "trap":
-		action = "addtrap"
-		values = name + ";" + value
+		isDefault = true
 	case "category":
-		action = "addcategory"
-		values = name + ";" + value
+		isDefault = true
 	case "contactgroup":
-		action = "addcontactgroup"
-		values = name + ";" + value
+		isDefault = true
 	case "contact":
-		action = "addcontact"
-		values = name + ";" + value
+		isDefault = true
 	case "linkedhost":
-		action = "addhosttemplate"
+		action = operation + "hosttemplate"
 		values = name + ";" + value
 	case "macro":
-		valueSplit := strings.Split(value, "|")
-		if len(valueSplit) < 4 || len(valueSplit) > 4 {
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println("The new value for macro must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
-			os.Exit(1)
+		if operation == "add" {
+			valueSplit := strings.Split(value, "|")
+			if len(valueSplit) < 4 || len(valueSplit) > 4 {
+				fmt.Printf(colorRed, "ERROR: ")
+				fmt.Println("The new value for macro must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
+				os.Exit(1)
+			}
+			action = "setmacro"
+			values = name + ";" + valueSplit[0] + ";" + valueSplit[1] + ";" + valueSplit[2] + ";" + valueSplit[3]
+		} else {
+			action = "delmacro"
+			values = name + ";" + value
 		}
-		action = "setmacro"
-		values = name + ";" + valueSplit[0] + ";" + valueSplit[1] + ";" + valueSplit[2] + ";" + valueSplit[3]
-
 	default:
 		action = "setparam"
 		values = name + ";" + parameter + ";" + value
 
+	}
+
+	if isDefault {
+		action = operation + strings.ToLower(parameter)
+		values = name + ";" + value
 	}
 
 	//Creation of the request body
@@ -114,4 +128,9 @@ func init() {
 	})
 	serviceCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
 	serviceCmd.MarkFlagRequired("value")
+	serviceCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	serviceCmd.MarkFlagRequired("operation")
+	serviceCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 }

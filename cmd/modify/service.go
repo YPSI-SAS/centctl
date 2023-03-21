@@ -42,10 +42,11 @@ var serviceCmd = &cobra.Command{
 		hostName, _ := cmd.Flags().GetString("hostName")
 		description, _ := cmd.Flags().GetString("description")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
 		apply, _ := cmd.Flags().GetBool("apply")
-		err := ModifyService(hostName, description, parameter, value, debugV, apply, false, true)
+		err := ModifyService(hostName, description, parameter, value, operation, debugV, apply, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -53,43 +54,56 @@ var serviceCmd = &cobra.Command{
 }
 
 //ModifyService permits to modify a service in the centreon server
-func ModifyService(hostName string, description string, parameter string, value string, debugV bool, apply bool, isImport bool, detail bool) error {
+func ModifyService(hostName string, description string, parameter string, value string, operation string, debugV bool, apply bool, isImport bool, detail bool) error {
 	colorRed := colorMessage.GetColorRed()
 	var action string
 	var values string
+	isDefault := false
+
+	operation = strings.ToLower(operation)
+
+	if operation != "add" && operation != "del" {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println("The operation's value must be : add or del")
+		os.Exit(1)
+	}
 
 	switch strings.ToLower(parameter) {
 	case "host":
-		action = "addhost"
-		values = hostName + ";" + description + ";" + value
+		isDefault = true
 	case "trap":
-		action = "addtrap"
-		values = hostName + ";" + description + ";" + value
+		isDefault = true
 	case "category":
-		action = "addcategory"
-		values = hostName + ";" + description + ";" + value
+		isDefault = true
 	case "contactgroup":
-		action = "addcontactgroup"
-		values = hostName + ";" + description + ";" + value
+		isDefault = true
 	case "contact":
-		action = "addcontact"
-		values = hostName + ";" + description + ";" + value
+		isDefault = true
 	case "servicegroup":
-		action = "addservicegroup"
-		values = hostName + ";" + description + ";" + value
+		isDefault = true
 	case "macro":
-		valueSplit := strings.Split(value, "|")
-		if len(valueSplit) < 4 || len(valueSplit) > 4 {
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println("The new value for macro must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
-			os.Exit(1)
+		if operation == "add" {
+			valueSplit := strings.Split(value, "|")
+			if len(valueSplit) < 4 || len(valueSplit) > 4 {
+				fmt.Printf(colorRed, "ERROR: ")
+				fmt.Println("The new value for macro must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
+				os.Exit(1)
+			}
+			action = "setmacro"
+			values = hostName + ";" + description + ";" + valueSplit[0] + ";" + valueSplit[1] + ";" + valueSplit[2] + ";" + valueSplit[3]
+		} else {
+			action = "delmacro"
+			values = hostName + ";" + description + ";" + value
 		}
-		action = "setmacro"
-		values = hostName + ";" + description + ";" + valueSplit[0] + ";" + valueSplit[1] + ";" + valueSplit[2] + ";" + valueSplit[3]
+
 	default:
 		action = "setparam"
 		values = hostName + ";" + description + ";" + parameter + ";" + value
+	}
 
+	if isDefault {
+		action = operation + strings.ToLower(parameter)
+		values = hostName + ";" + description + ";" + value
 	}
 
 	poller := ""
@@ -142,5 +156,10 @@ func init() {
 	})
 	serviceCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MACRO the value must be of the form : macroName|macroValue|IsPassword(0 or 1)|macroDescription")
 	serviceCmd.MarkFlagRequired("value")
+	serviceCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	serviceCmd.MarkFlagRequired("operation")
+	serviceCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 	serviceCmd.Flags().Bool("apply", false, "Export configuration of the poller")
 }

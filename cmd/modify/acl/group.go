@@ -24,8 +24,10 @@ SOFTWARE.
 package acl
 
 import (
+	"centctl/colorMessage"
 	"centctl/request"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -39,10 +41,11 @@ var groupCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
 		apply, _ := cmd.Flags().GetBool("apply")
-		err := ModifyACLGroup(name, parameter, value, debugV, apply, false, true)
+		err := ModifyACLGroup(name, parameter, value, operation, debugV, apply, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -50,30 +53,39 @@ var groupCmd = &cobra.Command{
 }
 
 //ModifyACLGroup permits to modify a ACL group in the centreon server
-func ModifyACLGroup(name string, parameter string, value string, debugV bool, apply bool, isImport bool, detail bool) error {
+func ModifyACLGroup(name string, parameter string, value string, operation string, debugV bool, apply bool, isImport bool, detail bool) error {
+	colorRed := colorMessage.GetColorRed()
 	var action string
 	var values string
+	isDefault := false
+
+	operation = strings.ToLower(operation)
+	if operation != "add" && operation != "del" {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println("The operation's value must be : add or del")
+		os.Exit(1)
+	}
 
 	switch strings.ToLower(parameter) {
 	case "action":
-		action = "addaction"
-		values = name + ";" + value
+		isDefault = true
 	case "menu":
-		action = "addmenu"
-		values = name + ";" + value
+		isDefault = true
 	case "resource":
-		action = "addresource"
-		values = name + ";" + value
+		isDefault = true
 	case "contactgroup":
-		action = "addcontactgroup"
-		values = name + ";" + value
+		isDefault = true
 	case "contact":
-		action = "addcontact"
-		values = name + ";" + value
+		isDefault = true
 	default:
 		action = "setparam"
 		values = name + ";" + parameter + ";" + value
 
+	}
+
+	if isDefault {
+		action = operation + strings.ToLower(parameter)
+		values = name + ";" + value
 	}
 
 	err := request.Modify(action, "ACLGROUP", values, "modify ACL group", name, parameter, detail, debugV, false, "", isImport)
@@ -102,5 +114,9 @@ func init() {
 	groupCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified")
 	groupCmd.MarkFlagRequired("value")
 	groupCmd.Flags().Bool("apply", false, "Export configuration of the poller")
-
+	groupCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	groupCmd.MarkFlagRequired("operation")
+	groupCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 }

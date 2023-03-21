@@ -24,8 +24,11 @@ SOFTWARE.
 package modify
 
 import (
+	"centctl/colorMessage"
 	"centctl/request"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -38,9 +41,10 @@ var trapCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name, _ := cmd.Flags().GetString("name")
 		parameter, _ := cmd.Flags().GetString("parameter")
+		operation, _ := cmd.Flags().GetString("operation")
 		value, _ := cmd.Flags().GetString("value")
 		debugV, _ := cmd.Flags().GetBool("DEBUG")
-		err := ModifyTrap(name, parameter, value, debugV, false, true)
+		err := ModifyTrap(name, parameter, value, operation, debugV, false, true)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -48,13 +52,21 @@ var trapCmd = &cobra.Command{
 }
 
 //ModifyTrap permits to modify a trap in the centreon server
-func ModifyTrap(name string, parameter string, value string, debugV bool, isImport bool, detail bool) error {
+func ModifyTrap(name string, parameter string, value string, operation string, debugV bool, isImport bool, detail bool) error {
+	colorRed := colorMessage.GetColorRed()
 	var values string
 	var action string
+	operation = strings.ToLower(operation)
+
+	if operation != "add" && operation != "del" {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println("The operation's value must be : add or del")
+		os.Exit(1)
+	}
 
 	switch parameter {
 	case "matching":
-		action = "addmatching"
+		action = operation + strings.ToLower(parameter)
 		values = name + ";" + value
 	default:
 		action = "setparam"
@@ -86,4 +98,9 @@ func init() {
 	})
 	trapCmd.Flags().StringP("value", "v", "", "To define the new value of the parameter to be modified. If parameter is MATCHING the value must be of the form: stringMarch;regularExpression;status")
 	trapCmd.MarkFlagRequired("value")
+	trapCmd.Flags().StringP("operation", "o", "", "To define the operation: add, del")
+	trapCmd.MarkFlagRequired("operation")
+	trapCmd.RegisterFlagCompletionFunc("operation", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return []string{"add", "del"}, cobra.ShellCompDirectiveDefault
+	})
 }
