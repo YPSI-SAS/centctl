@@ -43,7 +43,7 @@ type DetailHost struct {
 	Activate string `json:"activate" yaml:"activate"` //If the host is activate or not
 
 	Parent DetailHostParents `json:"parents" yaml:"parents"`
-	Child  DetailHostChilds  `json:"childs" yaml:"childs"`
+	Child  DetailHostChilds  `json:"children" yaml:"children"`
 }
 
 type DetailHostParents []DetailHostParent
