@@ -202,6 +202,7 @@ func initConfig() {
 		var token string
 		var err error
 		versionAPI := "/beta"
+		fmt.Println(insecure)
 		if version == "v1" {
 			token, err = request.AuthentificationV1(url, login, password, insecure)
 		} else if version == "v2" {
@@ -310,10 +311,12 @@ func getValueInFile() (string, string, string, string, string) {
 				}
 			}
 		}
-		if servers.Servers[index].Insecure == true {
-			insecure = true
-		} else if servers.Servers[index].Insecure == false {
-			insecure = false
+		if insecure == false {
+			if servers.Servers[index].Insecure == true {
+				insecure = true
+			} else if servers.Servers[index].Insecure == false {
+				insecure = false
+			}
 		}
 
 		return name, login, password, url, version
