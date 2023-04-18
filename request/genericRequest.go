@@ -26,13 +26,13 @@ package request
 import (
 	"centctl/colorMessage"
 	"centctl/debug"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 )
 
 func GeneriqueCommandV1Post(action string, object string, values string, command string, debugV bool, apply bool, pollerName string) (error, []byte) {
+	colorRed := colorMessage.GetColorRed()
 	requestBody, err := CreateBodyRequest(action, object, values)
 	if err != nil {
 		return err, []byte{}
@@ -49,6 +49,12 @@ func GeneriqueCommandV1Post(action string, object string, values string, command
 	}
 	if err != nil {
 		return err, []byte{}
+	}
+
+	if statusCode != 200 {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(statusCode)
+		os.Exit(1)
 	}
 
 	if apply {
@@ -90,20 +96,10 @@ func GeneriqueCommandV2Get(urlCentreon string, command string, debugV bool) (err
 	if err != nil {
 		return err, []byte{}
 	}
-	//Verification with the response body
-	if statusCode != 200 && !strings.Contains(command, "show") && !strings.Contains(command, "list") {
-		var raw map[string]interface{}
-		err = json.Unmarshal(body, &raw)
-		if err != nil {
-			// handle err
-		}
-		_, ok := raw["code"]
-		if ok {
-			message, _ := raw["message"]
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println(message)
-			os.Exit(1)
-		}
+	if statusCode != 200 && strings.Contains(command, "show") || strings.Contains(command, "list") {
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(statusCode)
+		os.Exit(1)
 	}
 
 	return nil, body
@@ -124,18 +120,9 @@ func GeneriqueCommandV2Post(urlCentreon string, requestBody []byte, command stri
 	}
 	//Verification with the response body
 	if statusCode != 200 {
-		var raw map[string]interface{}
-		err = json.Unmarshal(body, &raw)
-		if err != nil {
-			// handle err
-		}
-		_, ok := raw["code"]
-		if ok {
-			message, _ := raw["message"]
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println(message)
-			os.Exit(1)
-		}
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(statusCode)
+		os.Exit(1)
 	}
 
 	return nil, body
@@ -156,18 +143,9 @@ func GeneriqueCommandV2Put(urlCentreon string, requestBody []byte, command strin
 	}
 	//Verification with the response body
 	if statusCode != 200 {
-		var raw map[string]interface{}
-		err = json.Unmarshal(body, &raw)
-		if err != nil {
-			// handle err
-		}
-		_, ok := raw["code"]
-		if ok {
-			message, _ := raw["message"]
-			fmt.Printf(colorRed, "ERROR: ")
-			fmt.Println(message)
-			os.Exit(1)
-		}
+		fmt.Printf(colorRed, "ERROR: ")
+		fmt.Println(statusCode)
+		os.Exit(1)
 	}
 
 	return nil

@@ -202,7 +202,6 @@ func initConfig() {
 		var token string
 		var err error
 		versionAPI := "/beta"
-		fmt.Println(insecure)
 		if version == "v1" {
 			token, err = request.AuthentificationV1(url, login, password, insecure)
 		} else if version == "v2" {
