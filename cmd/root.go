@@ -310,10 +310,12 @@ func getValueInFile() (string, string, string, string, string) {
 				}
 			}
 		}
-		if servers.Servers[index].Insecure == true {
-			insecure = true
-		} else if servers.Servers[index].Insecure == false {
-			insecure = false
+		if insecure == false {
+			if servers.Servers[index].Insecure == true {
+				insecure = true
+			} else if servers.Servers[index].Insecure == false {
+				insecure = false
+			}
 		}
 
 		return name, login, password, url, version
