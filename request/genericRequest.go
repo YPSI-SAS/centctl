@@ -51,7 +51,7 @@ func GeneriqueCommandV1Post(action string, object string, values string, command
 		return err, []byte{}
 	}
 
-	if statusCode != 200 {
+	if statusCode != 200 && strings.Contains(command, "list") || strings.Contains(command, "show") || strings.Contains(command, "export") {
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println(statusCode)
 		os.Exit(1)
