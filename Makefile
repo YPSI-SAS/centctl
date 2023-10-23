@@ -6,7 +6,7 @@ DARWIN=$(EXECUTABLE)_darwin_amd64
 
 all: clean build ## Build and run tests
 
-build: windows linux darwin ## Build binaries
+build: windows linux darwin linux_woc ## Build binaries
 
 windows: $(WINDOWS) ## Build for Windows
 
@@ -23,7 +23,7 @@ $(LINUX):
 	env GOOS=linux GOARCH=amd64 go build -o $(LINUX)  main.go
 
 $(LINUX_WOC):
-	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(LINUX)  main.go
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(LINUX_WOC)  main.go
 
 $(DARWIN):
 	env GOOS=darwin GOARCH=amd64 go build -o $(DARWIN)  main.go
