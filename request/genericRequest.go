@@ -96,7 +96,7 @@ func GeneriqueCommandV2Get(urlCentreon string, command string, debugV bool) (err
 	if err != nil {
 		return err, []byte{}
 	}
-	if statusCode != 200 && strings.Contains(command, "show") || strings.Contains(command, "list") {
+	if statusCode != 200 && (strings.Contains(command, "show") || strings.Contains(command, "list")) {
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println(statusCode)
 		os.Exit(1)
