@@ -61,7 +61,7 @@ var realtimeServiceCmd = &cobra.Command{
 	},
 }
 
-//ListRealtimeService permits to display the array of Service return by the API
+// ListRealtimeService permits to display the array of Service return by the API
 func ListRealtimeService(output string, state string, limit int, viewType string, poller int, regex string, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 
@@ -87,9 +87,9 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 	viewTypeSearch := ""
 	switch viewType {
 	case "unhandled":
-		viewTypeSearch = "[\"unhandled_problems\"]"
+		viewTypeSearch = "&states=[\"unhandled_problems\"]"
 	case "all":
-		viewTypeSearch = "[\"all\"]"
+		viewTypeSearch = ""
 	}
 
 	//Conversion of the state
@@ -111,7 +111,7 @@ func ListRealtimeService(output string, state string, limit int, viewType string
 	}
 
 	//Recovery of the response body
-	urlCentreon := "/monitoring/resources?limit=" + strconv.Itoa(limit) + "&types=[\"service\"]&statuses=" + stateSearch + "&states=" + viewTypeSearch
+	urlCentreon := "/monitoring/resources?limit=" + strconv.Itoa(limit) + "&types=[\"service\"]&statuses=" + stateSearch + viewTypeSearch
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "list realtimeService", debugV)
 	if err != nil {
 		return err
