@@ -86,9 +86,9 @@ func ListRealtimeHost(output string, state string, limit int, viewType string, p
 	viewTypeSearch := ""
 	switch viewType {
 	case "unhandled":
-		viewTypeSearch = "[\"unhandled_problems\"]"
+		viewTypeSearch = "&states=[\"unhandled_problems\"]"
 	case "all":
-		viewTypeSearch = "[]"
+		viewTypeSearch = ""
 	}
 
 	//Conversion of the state
@@ -108,7 +108,7 @@ func ListRealtimeHost(output string, state string, limit int, viewType string, p
 	}
 
 	//Recovery of the response body
-	urlCentreon := "/monitoring/resources?limit=" + strconv.Itoa(limit) + "&types=[\"host\"]&statuses=" + stateSearch + "&states=" + viewTypeSearch
+	urlCentreon := "/monitoring/resources?limit=" + strconv.Itoa(limit) + "&types=[\"host\"]&statuses=" + stateSearch + viewTypeSearch
 	err, body := request.GeneriqueCommandV2Get(urlCentreon, "list realtimeHost", debugV)
 	if err != nil {
 		return err
