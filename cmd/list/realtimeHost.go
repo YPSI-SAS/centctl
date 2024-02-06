@@ -61,7 +61,7 @@ var realtimeHostCmd = &cobra.Command{
 	},
 }
 
-//ListRealtimeHost permits to display the array of realtime information of host return by the API
+// ListRealtimeHost permits to display the array of realtime information of host return by the API
 func ListRealtimeHost(output string, state string, limit int, viewType string, poller int, regex string, debugV bool) error {
 	colorRed := colorMessage.GetColorRed()
 	state = strings.ToLower(state)
@@ -88,7 +88,7 @@ func ListRealtimeHost(output string, state string, limit int, viewType string, p
 	case "unhandled":
 		viewTypeSearch = "[\"unhandled_problems\"]"
 	case "all":
-		viewTypeSearch = "[\"all\"]"
+		viewTypeSearch = "[]"
 	}
 
 	//Conversion of the state
