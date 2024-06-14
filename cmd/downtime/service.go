@@ -67,12 +67,7 @@ func DowntimeService(idS int, idH int, startDay string, startHour string, fixed 
 		os.Exit(1)
 	}
 
-	idAuthor, err := GetAuthorId(debugV)
-	if err != nil {
-		fmt.Printf(colorRed, "ERROR:")
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+
 
 	timezone := getTimezoneHost(idH, debugV)
 	timeStart, timeEnd := GetEndDowntime(startDay, startHour, duration, timezone)
@@ -83,7 +78,6 @@ func DowntimeService(idS int, idH int, startDay string, startHour string, fixed 
 		"start_time": timeStart,
 		"is_fixed":   fixed,
 		"duration":   duration,
-		"author_id":  idAuthor,
 	})
 
 	urlCentreon := "/monitoring/hosts/" + strconv.Itoa(idH) + "/services/" + strconv.Itoa(idS) + "/downtimes"

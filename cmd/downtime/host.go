@@ -67,12 +67,6 @@ func DowntimeHost(id int, startDay string, startHour string, fixed bool, duratio
 		os.Exit(1)
 	}
 
-	idAuthor, err := GetAuthorId(debugV)
-	if err != nil {
-		fmt.Printf(colorRed, "ERROR:")
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
 
 	timezone := getTimezoneHost(id, debugV)
 	timeStart, timeEnd := GetEndDowntime(startDay, startHour, duration, timezone)
@@ -83,7 +77,6 @@ func DowntimeHost(id int, startDay string, startHour string, fixed bool, duratio
 		"start_time":    timeStart,
 		"is_fixed":      fixed,
 		"duration":      duration,
-		"author_id":     idAuthor,
 		"with_services": withServices,
 	})
 

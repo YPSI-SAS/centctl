@@ -27,10 +27,8 @@ package downtime
 
 import (
 	"centctl/request"
-	"centctl/resources/contact"
 	"encoding/json"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -73,32 +71,7 @@ func VerifyStartDayAndHour(startDay string, startHour string) error {
 	return nil
 }
 
-//GetAuthorId permits to find the ID of the person login
-func GetAuthorId(debugV bool) (int, error) {
-	login := os.Getenv("LOGIN")
-	err, body := request.GeneriqueCommandV1Post("show", "contact", login, "get author_id", debugV, false, "")
-	if err != nil {
-		return -1, err
-	}
 
-	//Permits to recover the contacts contain into the response body
-	contacts := contact.DetailResult{}
-	json.Unmarshal(body, &contacts)
-
-	//Permits to find the good contact in the array
-	var ContactFind contact.DetailContact
-	for _, v := range contacts.DetailContacts {
-		if strings.ToLower(v.Alias) == strings.ToLower(login) {
-			ContactFind = v
-		}
-	}
-	if ContactFind.Alias != "" {
-		id, _ := strconv.Atoi(ContactFind.ID)
-		return id, nil
-	}
-
-	return -1, fmt.Errorf("Contact " + login + " not find")
-}
 
 //GetEndDowntime permits to get start and end downtime in time type
 func GetEndDowntime(startDay string, startHour string, duration int, timezone string) (time.Time, time.Time) {
