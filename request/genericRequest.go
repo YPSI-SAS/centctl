@@ -119,7 +119,7 @@ func GeneriqueCommandV2Post(urlCentreon string, requestBody []byte, command stri
 		return err, []byte{}
 	}
 	//Verification with the response body
-	if statusCode != 200 {
+	if statusCode != 200 && statusCode != 204 {
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println(statusCode)
 		os.Exit(1)
@@ -142,7 +142,7 @@ func GeneriqueCommandV2Put(urlCentreon string, requestBody []byte, command strin
 		return err
 	}
 	//Verification with the response body
-	if statusCode != 200 {
+	if statusCode != 200 && statusCode != 204 {
 		fmt.Printf(colorRed, "ERROR: ")
 		fmt.Println(statusCode)
 		os.Exit(1)
